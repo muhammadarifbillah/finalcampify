@@ -34,7 +34,7 @@ class StoreUserRequest extends FormRequest
                     ->symbols(),
             ],
             'role' => 'required|in:admin,seller,buyer',
-            'seller_terms' => 'required_if:role,seller|accepted',
+            'seller_terms' => 'accepted_if:role,seller',
         ];
     }
 
@@ -58,8 +58,7 @@ class StoreUserRequest extends FormRequest
             'password.regex' => 'Password harus terdiri dari huruf besar, huruf kecil, angka, dan simbol.',
             'role.required' => 'Role harus dipilih.',
             'role.in' => 'Role tidak valid.',
-            'seller_terms.required_if' => 'Seller wajib menyetujui syarat dan ketentuan.',
-            'seller_terms.accepted' => 'Seller wajib menyetujui syarat dan ketentuan.',
+            'seller_terms.accepted_if' => 'Seller wajib menyetujui syarat dan ketentuan.',
         ];
     }
 

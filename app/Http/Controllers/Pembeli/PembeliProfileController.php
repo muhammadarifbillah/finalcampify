@@ -36,11 +36,16 @@ class PembeliProfileController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email,' . $user->id,
+            'address' => 'required|string|max:1000',
+            'city' => 'required|string|max:255',
+            'district' => 'nullable|string|max:255',
+            'postal_code' => 'required|string|max:20',
+            'phone' => 'required|string|max:20',
         ]);
 
-        $user->update($request->only('name', 'email'));
+        $user->update($request->only('name', 'email', 'address', 'city', 'district', 'postal_code', 'phone'));
 
-        return back()->with('success', 'Profil berhasil diperbarui.');
+        return back()->with('success', 'Profil dan alamat berhasil diperbarui.');
     }
 
     public function updateAddress(Request $request)

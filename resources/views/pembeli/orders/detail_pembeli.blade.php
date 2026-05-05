@@ -123,10 +123,12 @@
                                         </div>
 
                                         {{-- Rating & Review Section --}}
+                                        @if($pesanan->status == 'selesai')
                                         <div class="mt-4 pt-4 border-t border-slate-200">
                                             <p class="text-sm font-bold text-slate-800 mb-3">Rating & Ulasan</p>
                                             @include('pembeli.produk.partials.review_pembeli', ['produk' => $produk])
                                         </div>
+                                        @endif
                                     @else
                                         {{-- LAYOUT PENYEWAAN --}}
                                         <div class="grid grid-cols-2 md:grid-cols-5 gap-4 py-2">
@@ -160,10 +162,12 @@
                                                 </a>
                                             </div>
                                             
+                                            @if($pesanan->status == 'selesai')
                                             <div>
                                                 <p class="text-sm font-bold text-slate-800 mb-3">Rating & Ulasan Penyewaan</p>
                                                 @include('pembeli.produk.partials.review_pembeli', ['produk' => $produk])
                                             </div>
+                                            @endif
                                         </div>
                                     @endif
                                 </div>
@@ -172,6 +176,88 @@
                     @endforeach
                 </div>
             </div>
+            
+            <!-- REVIEW TOKO -->
+            @if($pesanan->status == 'selesai' && $pesanan->details->isNotEmpty())
+                @php
+                    $firstItem = $pesanan->details->first();
+                    // Gunakan properti yang sesuai untuk mendapat store_id/seller_id, contoh sellerUserId()
+                    $storeId = $firstItem->product->sellerUserId() ?? $firstItem->product->seller_id ?? $firstItem->product->user_id;
+                    
+                    $existingStoreReview = \App\Models\Pembeli\StoreRating_pembeli::where('user_id', \Illuminate\Support\Facades\Auth::id())
+                        ->where('store_id', $storeId)
+                        ->first();
+                @endphp
+
+                <div class="mt-8 pt-6 border-t border-slate-200">
+                    <h2 class="font-semibold text-lg mb-4 text-slate-800">Rating & Ulasan Toko</h2>
+                    @if($existingStoreReview)
+                        <div class="bg-slate-50 rounded-2xl p-6 border border-slate-200">
+                            <div class="space-y-2">
+                                <div class="flex items-center gap-2">
+                                    <div class="flex text-yellow-400 text-lg">
+                                        @for($i=1; $i<=5; $i++)
+                                            <span>{!! $i <= $existingStoreReview->rating ? '★' : '☆' !!}</span>
+                                        @endfor
+                                    </div>
+                                    <span class="text-xs font-bold text-slate-400">{{ $existingStoreReview->created_at->format('d M Y') }}</span>
+                                </div>
+                                <p class="text-sm text-slate-700 font-medium">"{{ $existingStoreReview->comment }}"</p>
+                            </div>
+                        </div>
+                    @else
+                        <div class="bg-slate-50 rounded-2xl p-6 border border-slate-200">
+                            <form action="{{ route('store.review.store') }}" method="POST" class="space-y-4">
+                                @csrf
+                                <input type="hidden" name="order_id" value="{{ $pesanan->id }}">
+                                <input type="hidden" name="store_id" value="{{ $storeId }}">
+                                <input type="hidden" name="rating" id="store-rating-value" value="5">
+                                
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase mb-3">Berikan Rating Untuk Toko</label>
+                                    <div class="flex gap-2 text-3xl" id="store-star-container">
+                                        @for($i=1; $i<=5; $i++)
+                                            <button type="button" 
+                                                    onclick="setStoreRating({{ $i }})" 
+                                                    class="store-star-btn text-yellow-400 transition-transform hover:scale-110 focus:outline-none"
+                                                    data-value="{{ $i }}">
+                                                ★
+                                            </button>
+                                        @endfor
+                                    </div>
+                                </div>
+                                
+                                <div class="space-y-2">
+                                    <label class="block text-xs font-bold text-slate-500 uppercase">Tulis Ulasan Toko</label>
+                                    <textarea name="comment" rows="3" class="w-full rounded-2xl border-slate-200 text-sm focus:ring-emerald-500 focus:border-emerald-500" placeholder="Bagaimana pelayanan dari toko ini?" required></textarea>
+                                </div>
+                                
+                                <button type="submit" class="w-full md:w-auto bg-emerald-600 text-white px-8 py-3 rounded-xl text-sm font-bold hover:bg-emerald-700 shadow-lg shadow-emerald-100 transition-all">
+                                    Kirim Ulasan Toko
+                                </button>
+                            </form>
+
+                            <script>
+                                function setStoreRating(value) {
+                                    document.getElementById('store-rating-value').value = value;
+                                    const stars = document.querySelectorAll('.store-star-btn');
+                                    stars.forEach((star, index) => {
+                                        if (index < value) {
+                                            star.innerHTML = '★';
+                                            star.classList.remove('text-slate-300');
+                                            star.classList.add('text-yellow-400');
+                                        } else {
+                                            star.innerHTML = '☆';
+                                            star.classList.remove('text-yellow-400');
+                                            star.classList.add('text-slate-300');
+                                        }
+                                    });
+                                }
+                            </script>
+                        </div>
+                    @endif
+                </div>
+            @endif
             </div>
 
             <!-- ACTION -->

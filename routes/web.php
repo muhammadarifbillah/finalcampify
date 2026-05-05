@@ -146,6 +146,7 @@ Route::middleware(['auth', 'role:buyer'])->group(function () {
 
     // Review (protected)
     Route::post('/review', [PembeliReviewController::class, 'store'])->name('review.store');
+    Route::post('/store-review', [PembeliReviewController::class, 'storeRating'])->name('store.review.store');
     Route::post('/products/{product}/report', [PembeliReportController::class, 'store'])->name('products.report');
     Route::post('/stores/{store}/report', [PembeliReportController::class, 'storeReport'])->name('stores.report');
     Route::post('/chat/{conversation}/report', [PembeliReportController::class, 'chat'])->name('chat.report');
