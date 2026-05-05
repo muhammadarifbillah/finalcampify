@@ -93,9 +93,20 @@
 
         {{-- FILTER --}}
         <div class="mb-4">
-            <button class="btn btn-success btn-sm me-2">SEMUA</button>
-            <button class="btn btn-outline-secondary btn-sm me-2">TERSEDIA</button>
-            <button class="btn btn-outline-secondary btn-sm">HABIS</button>
+            <a href="{{ route('seller.products.index') }}" 
+            class="btn btn-sm {{ request('jenis') == null ? 'btn-success' : 'btn-outline-secondary' }}">
+                SEMUA
+            </a>
+
+            <a href="{{ route('seller.products.index', ['jenis' => 'sewa']) }}" 
+            class="btn btn-sm {{ request('jenis') == 'sewa' ? 'btn-success' : 'btn-outline-secondary' }}">
+                SEWA
+            </a>
+
+            <a href="{{ route('seller.products.index', ['jenis' => 'jual']) }}" 
+            class="btn btn-sm {{ request('jenis') == 'jual' ? 'btn-success' : 'btn-outline-secondary' }}">
+                JUAL
+            </a>
         </div>
 
         {{-- ALERT --}}

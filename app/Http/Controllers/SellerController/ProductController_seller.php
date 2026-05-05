@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\SellerController;
+use Illuminate\Support\Facades\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\SellerModels\Product_seller;
@@ -13,9 +14,16 @@ class ProductController_seller extends Controller
      * Tampilkan semua produk seller login
      * Kelola Produk = semua produk
      */
-    public function index()
+    public function index(Request $request)
     {
-        $products = Product_seller::where('user_id', \Illuminate\Support\Facades\Auth::id())->latest()->get();
+        $query = Product_seller::where('user_id', Auth::id());
+
+        // filter jenis
+        if ($request->filled('jenis')) {
+            $query->where('jenis_produk', $request->jenis);
+        }
+
+        $products = $query->latest()->get();
 
         return view('SellerView.products.index_seller', compact('products'));
     }

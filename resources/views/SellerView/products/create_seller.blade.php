@@ -87,14 +87,12 @@
                             <label class="form-label fw-semibold">Kategori Alat Outdoor</label>
                             <select name="kategori" class="form-select rounded-3">
                                 <option value="">Pilih Kategori</option>
-                                <option value="tenda">Tenda</option>
-                                <option value="carrier">Carrier</option>
-                                <option value="sleeping_bag">Sleeping Bag</option>
-                                <option value="kompor">Kompor Portable</option>
-                                <option value="matras">Matras</option>
-                                <option value="sepatu">Sepatu Hiking</option>
-                                <option value="lampu">Lampu Camping</option>
-                                <option value="nesting">Nesting / Cook Set</option>
+                                <option value="tenda_tidur">Tenda & Perlengkapan Tidur</option>
+                                <option value="tas">Tas & Carrier</option>
+                                <option value="memasak">Peralatan Masak</option>
+                                <option value="pencahayaan">Pencahayaan</option>
+                                <option value="pakaian">Pakaian & Sepatu</option>
+                                <option value="aksesoris">Aksesoris Outdoor</option>
                             </select>
                         </div>
 
