@@ -23,21 +23,21 @@
     @endif
 
     <div class="grid gap-4 xl:grid-cols-3 mb-6">
-        <div class="bg-white p-5 rounded-xl shadow">
-            <p class="text-sm text-gray-500">Total Kurir</p>
-            <h2 class="text-3xl font-bold">{{ $couriers->count() }}</h2>
+        <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+            <p class="text-sm text-slate-500">Total Kurir</p>
+            <h2 class="text-3xl font-semibold text-slate-900">{{ $couriers->count() }}</h2>
         </div>
-        <div class="bg-white p-5 rounded-xl shadow">
-            <p class="text-sm text-gray-500">Kategori Layanan</p>
-            <h2 class="text-3xl font-bold">{{ $serviceList->count() }}</h2>
+        <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+            <p class="text-sm text-slate-500">Kategori Layanan</p>
+            <h2 class="text-3xl font-semibold text-slate-900">{{ $serviceList->count() }}</h2>
         </div>
-        <div class="bg-white p-5 rounded-xl shadow">
-            <p class="text-sm text-gray-500">Filter Aktif</p>
-            <h2 class="text-3xl font-bold">{{ $selectedService ?: 'Semua' }}</h2>
+        <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+            <p class="text-sm text-slate-500">Filter Aktif</p>
+            <h2 class="text-3xl font-semibold text-slate-900">{{ $selectedService ?: 'Semua' }}</h2>
         </div>
     </div>
 
-    <div class="bg-white p-6 rounded-xl shadow mb-6">
+    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 mb-6">
         <h2 class="font-semibold mb-4">Menu Kategori Kurir</h2>
         <div class="flex flex-wrap gap-2">
             <a href="/admin/couriers"
@@ -51,18 +51,18 @@
 
     <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between mb-6">
         <div>
-            <h2 class="text-lg font-semibold">Kelola Kurir</h2>
-            <p class="text-gray-600">Tambah atau edit layanan kurir langsung dari pop-up.</p>
+            <h2 class="text-2xl font-semibold text-slate-900">Kelola Kurir</h2>
+            <p class="text-slate-500">Tambah, edit, atau atur layanan pengiriman tanpa mengubah logika yang sudah ada.</p>
         </div>
         <button id="openCourierModal"
-            class="bg-green-700 text-white px-5 py-3 rounded-xl font-semibold hover:bg-green-800">Tambah Kurir</button>
+            class="bg-emerald-600 text-white px-5 py-3 rounded-3xl font-semibold hover:bg-emerald-700 transition">Tambah Kurir</button>
     </div>
 
-    <div id="courierModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 p-4">
-        <div class="w-full max-w-xl rounded-3xl bg-white p-6 shadow-xl">
+    <div id="courierModal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/40 p-4">
+        <div class="w-full max-w-xl rounded-[32px] bg-white p-6 shadow-2xl max-h-[calc(100vh-3rem)] overflow-y-auto">
             <div class="flex items-center justify-between mb-4">
-                <h2 id="courierModalTitle" class="text-xl font-semibold">Tambah Kurir</h2>
-                <button type="button" id="closeCourierModal" class="text-gray-500 hover:text-gray-900">Tutup</button>
+                <h2 id="courierModalTitle" class="text-2xl font-semibold">Tambah Kurir</h2>
+                <button type="button" id="closeCourierModal" class="text-slate-500 hover:text-slate-900">Tutup</button>
             </div>
             <form id="courierForm" method="POST" action="/admin/couriers/store" class="space-y-4">
                 @csrf
@@ -119,12 +119,12 @@
 
     <div class="lg:col-span-3">
         <div class="bg-white p-6 rounded-xl shadow">
-            <div class="flex items-center justify-between mb-4">
+            <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-4">
                 <div>
-                    <h2 class="font-semibold text-lg">Daftar Kurir</h2>
-                    <p class="text-sm text-gray-500">Klik edit untuk mengubah layanan kurir atau hapus jika tidak
-                        dibutuhkan.</p>
+                    <h2 class="font-semibold text-2xl text-slate-900">Daftar Kurir</h2>
+                    <p class="text-sm text-slate-500">Klik edit untuk memperbarui layanan kurir atau hapus bila tidak lagi aktif.</p>
                 </div>
+                <span class="inline-flex items-center rounded-full bg-slate-100 px-4 py-2 text-sm text-slate-600">Total {{ $couriers->count() }} layanan</span>
             </div>
             <div class="overflow-x-auto">
                 <table class="min-w-full text-left">
@@ -140,24 +140,25 @@
                     </thead>
                     <tbody>
                         @forelse($couriers as $courier)
-                            <tr class="border-b hover:bg-gray-50">
-                                <td class="p-3">{{ $courier->name }}</td>
-                                <td class="p-3">{{ $courier->service }}</td>
-                                <td class="p-3">{{ $courier->estimate }}</td>
-                                <td class="p-3">Rp {{ number_format($courier->price, 0, ',', '.') }}</td>
-                                <td class="p-3 capitalize">{{ $courier->status }}</td>
-                                <td class="p-3 flex flex-wrap gap-2">
+                            <tr class="border-b last:border-b-0 hover:bg-slate-50">
+                                <td class="p-4 align-top text-slate-800">{{ $courier->name }}</td>
+                                <td class="p-4 align-top text-slate-700">{{ $courier->service }}</td>
+                                <td class="p-4 align-top text-slate-700">{{ $courier->estimate }}</td>
+                                <td class="p-4 align-top text-slate-700">Rp {{ number_format($courier->price, 0, ',', '.') }}</td>
+                                <td class="p-4 align-top">
+                                    <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold {{ $courier->status === 'aktif' ? 'bg-emerald-100 text-emerald-800' : ($courier->status === 'nonaktif' ? 'bg-slate-100 text-slate-700' : 'bg-red-100 text-red-800') }}">{{ ucfirst($courier->status) }}</span>
+                                </td>
+                                <td class="p-4 flex flex-wrap gap-2">
                                     <button type="button" onclick='openEditCourier(@json($courier))'
-                                        class="bg-blue-600 text-white px-4 py-2 rounded-xl text-sm">Edit</button>
+                                        class="bg-slate-800 text-white px-4 py-2 rounded-2xl text-sm transition hover:bg-slate-900">Edit</button>
                                     <a href="/admin/couriers/delete/{{ $courier->id }}"
                                         onclick="return confirm('Yakin ingin hapus kurir ini?')"
-                                        class="bg-red-600 text-white px-4 py-2 rounded-xl text-sm">Hapus</a>
+                                        class="bg-red-600 text-white px-4 py-2 rounded-2xl text-sm transition hover:bg-red-700">Hapus</a>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="p-4 text-gray-500">Belum ada data kurir. Tambahkan layanan kurir
-                                    terlebih dahulu.</td>
+                                <td colspan="6" class="p-6 text-slate-500">Belum ada data kurir. Tambahkan layanan kurir terlebih dahulu.</td>
                             </tr>
                         @endforelse
                     </tbody>

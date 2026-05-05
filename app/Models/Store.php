@@ -2,18 +2,28 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
 use App\Models\Product;
 
 class Store extends Model
 {
+    use HasFactory;
     protected $fillable = [
         'user_id',
         'nama_toko',
-        'status',        // aktif | banned | nonaktif
+        'status',        // pending | active | rejected | suspended | banned
         'last_active',
-        'alasan_ban'
+        'alasan_ban',
+        'deskripsi',
+        'alamat',
+        'logo',
+        'catatan_admin'
+    ];
+
+    protected $casts = [
+        'last_active' => 'datetime',
     ];
 
     // 🔥 RELASI KE USER
@@ -26,5 +36,11 @@ class Store extends Model
     public function products()
     {
         return $this->hasMany(Product::class);
+    }
+
+    // 🔥 RELASI KE TRANSAKSI MELALUI PRODUK
+    public function transactions()
+    {
+        return $this->hasManyThrough(\App\Models\Transaction::class, \App\Models\Product::class);
     }
 }

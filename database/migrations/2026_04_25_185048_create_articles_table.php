@@ -5,9 +5,6 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('articles', function (Blueprint $table) {
@@ -15,13 +12,18 @@ return new class extends Migration {
             $table->string('title');
             $table->text('content');
             $table->string('image')->nullable();
+
+            // tambahan field
+            $table->timestamp('waktu_posting');
+            $table->string('kategori_slug');
+            $table->enum('status', ['draft', 'publish'])->default('draft');
+            $table->string('thumbnail')->nullable();
+            $table->integer('views')->default(0);
+
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('articles');

@@ -1,0 +1,205 @@
+@extends('SellerView.layouts.app_seller')
+
+@section('content')
+<div class="d-flex" style="min-height:100vh; background:#f9fafb;">
+
+    {{-- SIDEBAR --}}
+    <div style="width:260px; background:white; border-right:1px solid #eee; display:flex; flex-direction:column; justify-content:space-between;">
+        
+        <div>
+            <div class="p-4">
+                <h4 style="color:#10B981; font-weight:800;">CAMPIFY.</h4>
+                <small class="text-muted">SELLER HUB</small>
+            </div>
+
+            <ul class="nav flex-column px-3">
+
+                <li class="nav-item mb-2">
+                    <a class="nav-link text-dark" href="/seller/dashboard">Dashboard</a>
+                </li>
+
+                <li class="nav-item mb-2">
+                    <a class="nav-link text-dark" href="/seller/products">Kelola Produk</a>
+                </li>
+
+                <li class="nav-item mb-2">
+                    <a class="nav-link text-dark" href="/seller/ratings">Kelola Rating</a>
+                </li>
+
+                <li class="nav-item mb-2">
+                    <a class="nav-link text-dark" href="/seller/orders">
+                        Pesanan Baru
+                    </a>
+                </li>
+
+                <li class="nav-item mb-2">
+                    <a class="nav-link text-dark" href="/seller/rentals">
+                        Penyewaan Alat
+                    </a>
+                </li>
+
+                <li class="nav-item mb-2">
+                    <a class="nav-link text-dark" href="/seller/chat">Chat Pembeli</a>
+                </li>
+
+            </ul>
+        </div>
+
+        <div class="px-3 pb-4">
+            <hr>
+            <a class="nav-link text-dark" href="/seller/store-profile/show">Profil Toko</a>
+        </div>
+    </div>
+
+    {{-- CONTENT --}}
+    <div class="flex-grow-1 p-4">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="fw-bold">PROFIL TOKO</h4>
+            <a href="/seller/store-profile" class="btn btn-outline-secondary rounded-pill">
+                Edit Profil
+            </a>
+        </div>
+
+        @if(session('success'))
+            <div class="alert alert-success rounded-3 mb-4">
+                {{ session('success') }}
+            </div>
+        @endif
+
+        <div class="row g-4">
+            {{-- INFO UTAMA TOKO --}}
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm h-100" style="border-radius:16px;">
+                    <div class="card-body text-center p-4">
+                        {{-- Logo Toko --}}
+                        <div style="width:120px; height:120px; background:linear-gradient(135deg, #10B981, #065F46); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px;">
+                            @if($profile && $profile->logo && file_exists(public_path('storage/'.$profile->logo)))
+                                <img src="{{ asset('storage/'.$profile->logo) }}" alt="Logo" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
+                            @else
+                                <span style="font-size:48px; color:white;">🏕️</span>
+                            @endif
+                        </div>
+
+                        <h4 class="fw-bold mb-1">{{ $profile->nama_toko ?? 'Toko Anda' }}</h4>
+                        <p class="text-muted small mb-3">Outdoor Equipment Store</p>
+
+                        <div class="d-flex justify-content-center gap-2 mb-3">
+                            @for($i = 1; $i <= 5; $i++)
+                                @if($i <= round($avgRating))
+                                    <span style="color:#F59E0B; font-size:20px;">★</span>
+                                @else
+                                    <span style="color:#D1D5DB; font-size:20px;">★</span>
+                                @endif
+                            @endfor
+                            <span class="text-muted small">({{ number_format($avgRating, 1) }} / 5.0)</span>
+                        </div>
+
+                        <a href="/seller/store-profile" class="btn btn-success rounded-pill px-4 w-100">
+                            Edit Profil
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            {{-- STATISTIK & DETAIL --}}
+            <div class="col-md-8">
+                {{-- STATISTIK --}}
+                <div class="row g-3 mb-4">
+                    <div class="col-md-3">
+                        <div class="card border-0 shadow-sm p-3" style="border-radius:16px;">
+                            <small class="text-muted">Total Produk</small>
+                            <h4 class="fw-bold mt-1">{{ $totalProducts }}</h4>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card border-0 shadow-sm p-3" style="border-radius:16px;">
+                            <small class="text-muted">Produk Sewa</small>
+                            <h4 class="fw-bold mt-1">{{ $rentalProducts }}</h4>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card border-0 shadow-sm p-3" style="border-radius:16px;">
+                            <small class="text-muted">Rating Toko</small>
+                            <h4 class="fw-bold mt-1">{{ number_format($avgRating, 1) }}</h4>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card border-0 shadow-sm p-3" style="border-radius:16px;">
+                            <small class="text-muted">Total Ulasan</small>
+                            <h4 class="fw-bold mt-1">{{ $ratingCount }}</h4>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- DETAIL TOKO --}}
+                <div class="card border-0 shadow-sm p-4" style="border-radius:16px;">
+                    <h6 class="fw-bold mb-3">Informasi Toko</h6>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <small class="text-muted d-block">Deskripsi</small>
+                                <p class="mb-0">{{ $profile->deskripsi ?? 'Belum ada deskripsi' }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <small class="text-muted d-block">Alamat</small>
+                                <p class="mb-0">{{ $profile->alamat ?? '-' }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <small class="text-muted d-block">Nomor Telepon</small>
+                                <p class="mb-0">{{ $profile->no_telp ?? '-' }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <small class="text-muted d-block">Status Toko</small>
+                                <span class="badge bg-success rounded-pill">Aktif</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- PRODUK TERBARU --}}
+                <div class="card border-0 shadow-sm p-4 mt-4" style="border-radius:16px;">
+                    <h6 class="fw-bold mb-3">Produk Terbaru</h6>
+                    
+                    @php
+                        $latestProducts = \App\Models\SellerModels\Product::where('user_id', auth()->id())->latest()->take(4)->get();
+                    @endphp
+                    
+                    <div class="row g-3">
+                        @forelse($latestProducts as $p)
+                        <div class="col-md-3">
+                            <div class="card border-0" style="border-radius:12px; overflow:hidden;">
+                                <div style="height:80px; background:#f3f4f6; display:flex; align-items:center; justify-content:center;">
+                                    @if($p->gambar && file_exists(public_path('storage/'.$p->gambar)))
+                                        <img src="{{ asset('storage/'.$p->gambar) }}" style="width:100%; height:100%; object-fit:cover;">
+                                    @else
+                                        <span style="font-size:32px;">🏕️</span>
+                                    @endif
+                                </div>
+                                <div class="card-body p-2">
+                                    <p class="mb-0 small fw-bold text-truncate">{{ $p->nama_produk }}</p>
+                                    <p class="mb-0 small text-success">Rp {{ number_format($p->harga,0,',','.') }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        @empty
+                        <div class="col-12 text-center text-muted py-3">
+                            Belum ada produk
+                        </div>
+                        @endforelse
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+@endsection

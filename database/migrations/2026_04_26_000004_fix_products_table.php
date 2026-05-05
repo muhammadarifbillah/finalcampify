@@ -12,6 +12,17 @@ return new class extends Migration {
             return;
         }
 
+        // Disable foreign key checks and drop existing constraints
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        try {
+            Schema::table('products', function (Blueprint $table) {
+                $table->dropForeign(['store_id']);
+            });
+        } catch (\Exception $e) {
+            // Ignore if constraint doesn't exist
+        }
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+
         Schema::rename('products', 'products_old');
 
         Schema::create('products', function (Blueprint $table) {

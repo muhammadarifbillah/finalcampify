@@ -7,41 +7,98 @@
     <title>Admin Campify</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 
-<body class="bg-gray-100">
+<body class="bg-gray-100 text-gray-800">
 
     <div class="flex min-h-screen">
 
         <!-- SIDEBAR -->
-        <aside class="w-64 bg-green-800 text-white p-4 hidden md:block">
-            <h1 class="text-xl font-bold mb-6">Campify Admin</h1>
+        <aside class="hidden md:flex md:w-64 flex-col bg-emerald-700 text-white p-5">
 
-            <nav class="space-y-2">
-                <a href="/admin/dashboard" class="block hover:bg-green-700 p-2 rounded">Dashboard</a>
-                <a href="/admin/users" class="block hover:bg-green-700 p-2 rounded">Users</a>
-                <a href="/admin/products" class="block hover:bg-green-700 p-2 rounded">Produk</a>
-                <a href="/admin/stores" class="block hover:bg-green-700 p-2 rounded">Toko</a>
-                <a href="/admin/articles" class="block hover:bg-green-700 p-2 rounded">Artikel</a>
-                <a href="/admin/couriers" class="block hover:bg-green-700 p-2 rounded">Kurir</a>
-                <a href="/admin/chats" class="block hover:bg-green-700 p-2 rounded">Chat</a>
-                <a href="/admin/chatbot" class="block hover:bg-green-700 p-2 rounded">Chatbot</a>
-                <a href="/admin/monitoring" class="block hover:bg-green-700 p-2 rounded">Monitoring</a>
-            </nav>
-        </aside>
-
-        <!-- CONTENT -->
-        <div class="flex-1">
-
-            <!-- TOPBAR -->
-            <div class="bg-white p-4 shadow flex justify-between">
-                <h2 class="font-bold text-green-800">Dashboard</h2>
-                <span>Admin</span>
+            <!-- LOGO -->
+            <div class="flex items-center gap-3 mb-8">
+                <img src="{{ asset('logocampify.png') }}" class="w-10 h-10 object-contain">
+                <span class="text-xl font-bold">Campify</span>
             </div>
 
-            <main class="p-4">
+            <!-- MENU -->
+            <nav class="space-y-1 text-sm">
+
+                <a href="/admin/dashboard"
+                    class="block px-4 py-2 rounded-xl transition 
+                {{ Request::is('admin/dashboard') ? 'bg-white text-emerald-700 font-semibold' : 'hover:bg-emerald-600' }}">
+                    Dashboard
+                </a>
+
+                <a href="/admin/users" class="block px-4 py-2 rounded-xl transition 
+                {{ Request::is('admin/users') ? 'bg-white text-emerald-700 font-semibold' : 'hover:bg-emerald-600' }}">
+                    Users
+                </a>
+
+                <a href="/admin/products"
+                    class="block px-4 py-2 rounded-xl transition 
+                {{ Request::is('admin/products') ? 'bg-white text-emerald-700 font-semibold' : 'hover:bg-emerald-600' }}">
+                    Produk
+                </a>
+
+                <a href="/admin/stores"
+                    class="block px-4 py-2 rounded-xl transition 
+                {{ Request::is('admin/stores') ? 'bg-white text-emerald-700 font-semibold' : 'hover:bg-emerald-600' }}">
+                    Toko
+                </a>
+
+                <a href="/admin/articles"
+                    class="block px-4 py-2 rounded-xl transition 
+                {{ Request::is('admin/articles') ? 'bg-white text-emerald-700 font-semibold' : 'hover:bg-emerald-600' }}">
+                    Artikel
+                </a>
+
+                <a href="/admin/couriers"
+                    class="block px-4 py-2 rounded-xl transition 
+                {{ Request::is('admin/couriers') ? 'bg-white text-emerald-700 font-semibold' : 'hover:bg-emerald-600' }}">
+                    Kurir
+                </a>
+
+                <a href="/admin/chats" class="block px-4 py-2 rounded-xl transition 
+                {{ Request::is('admin/chats') ? 'bg-white text-emerald-700 font-semibold' : 'hover:bg-emerald-600' }}">
+                    Chat
+                </a>
+
+                <a href="/admin/chatbot"
+                    class="block px-4 py-2 rounded-xl transition 
+                {{ Request::is('admin/chatbot') ? 'bg-white text-emerald-700 font-semibold' : 'hover:bg-emerald-600' }}">
+                    Chatbot
+                </a>
+
+                <a href="/admin/monitoring"
+                    class="block px-4 py-2 rounded-xl transition 
+                {{ Request::is('admin/monitoring') ? 'bg-white text-emerald-700 font-semibold' : 'hover:bg-emerald-600' }}">
+                    Monitoring
+                </a>
+
+            </nav>
+
+        </aside>
+
+        <!-- MAIN -->
+        <div class="flex-1 flex flex-col">
+
+            <!-- TOPBAR -->
+            <header class="bg-white border-b px-6 py-4 flex justify-between items-center">
+
+                <!-- LOGO MINI -->
+                <div class="flex items-center gap-2">
+
+                    <span class="font-semibold text-lg">Campify Admin</span>
+                </div>
+
+                <div class="text-sm text-gray-500">Admin</div>
+            </header>
+
+            <!-- CONTENT -->
+            <main class="p-6">
                 @yield('content')
             </main>
 

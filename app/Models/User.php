@@ -13,23 +13,28 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
 
     protected $fillable = [
-        'name',
+        'nama',
         'email',
         'password',
-        'role' // TAMBAH INI
+        'role',
     ];
 
     protected $hidden = [
         'password',
-        'remember_token',
     ];
 
-    protected function casts(): array
+    protected $casts = [
+        'password' => 'hashed',
+    ];
+
+    public function getNameAttribute()
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        return $this->attributes['nama'] ?? null;
+    }
+
+    public function setNameAttribute($value)
+    {
+        $this->attributes['nama'] = $value;
     }
 
     // 🔥 RELASI KE TOKO
