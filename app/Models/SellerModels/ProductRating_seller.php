@@ -16,6 +16,7 @@ class ProductRating_seller extends Model
         'product_id',
         'user_id',
         'rating',
+        'comment',
         'ulasan',
     ];
 
@@ -27,6 +28,17 @@ class ProductRating_seller extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function getUlasanAttribute()
+    {
+        return $this->attributes['ulasan'] ?? $this->attributes['comment'] ?? null;
+    }
+
+    public function setUlasanAttribute($value): void
+    {
+        $this->attributes['ulasan'] = $value;
+        $this->attributes['comment'] = $value;
     }
 
     public static function getAverageRating($productId)

@@ -169,7 +169,7 @@
                     <h6 class="fw-bold mb-3">Produk Terbaru</h6>
                     
                     @php
-                        $latestProducts = \App\Models\SellerModels\Product::where('user_id', auth()->id())->latest()->take(4)->get();
+                        $latestProducts = \App\Models\SellerModels\Product::where('user_id', \Illuminate\Support\Facades\Auth::id())->latest()->take(4)->get();
                     @endphp
                     
                     <div class="row g-3">
@@ -203,3 +203,4 @@
 
 </div>
 @endsection
+

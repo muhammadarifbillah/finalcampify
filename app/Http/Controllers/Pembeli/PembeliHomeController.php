@@ -23,7 +23,7 @@ class PembeliHomeController extends Controller
 
     $wishlistProduksIds = [];
     if (auth()->check()) {
-        $wishlistProduksIds = Wishlist_pembeli::where('user_id', auth()->id())
+        $wishlistProduksIds = Wishlist_pembeli::where('user_id', \Illuminate\Support\Facades\Auth::id())
             ->pluck('product_id')
             ->toArray();
     }

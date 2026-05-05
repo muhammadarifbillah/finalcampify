@@ -5,6 +5,7 @@ namespace App\Http\Controllers\SellerController;
 use App\Http\Controllers\Controller;
 use App\Models\SellerModels\Product_seller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController_seller extends Controller
 {
@@ -14,7 +15,7 @@ class ProductController_seller extends Controller
      */
     public function index()
     {
-        $products = Product_seller::where('user_id', auth()->id())->latest()->get();
+        $products = Product_seller::where('user_id', \Illuminate\Support\Facades\Auth::id())->latest()->get();
 
         return view('SellerView.products.index_seller', compact('products'));
     }
@@ -52,28 +53,41 @@ class ProductController_seller extends Controller
             $imagePath = $request->file('gambar')->store('products', 'public');
         }
 
+        $flagReasons = \App\Models\Product::flagReasonsFor($request->only(['nama_produk', 'harga', 'deskripsi']));
+
         // Simpan ke database
         Product_seller::create([
-            'user_id'       => auth()->id(),
+            'user_id'       => \Illuminate\Support\Facades\Auth::id(),
+            'name'          => $request->nama_produk,
             'nama_produk'   => $request->nama_produk,
+            'description'   => $request->deskripsi,
             'deskripsi'     => $request->deskripsi,
+            'price'         => $request->harga,
             'harga'         => $request->harga,
+            'buy_price'     => $request->jenis_produk === 'jual' ? $request->harga : 0,
+            'rent_price'    => $request->jenis_produk === 'sewa' ? $request->harga : 0,
+            'category'      => $request->kategori,
             'kategori'      => $request->kategori,
             'jenis_produk'  => $request->jenis_produk, // jual / sewa
+            'is_rental'     => $request->jenis_produk === 'sewa',
+            'stock'         => $request->stok,
             'stok'          => $request->stok,
+            'image'         => $imagePath,
             'gambar'        => $imagePath,
+            'status'        => 'pending',
+            'flag_reason'   => $flagReasons ? implode(', ', $flagReasons) : null,
         ]);
 
-        return redirect()->route('products.index')->with('success', 'Produk berhasil ditambahkan!');
+        return redirect()->route('seller.products.index')->with('success', 'Produk berhasil ditambahkan!');
     }
 
     /**
      * Form edit produk
      */
-    public function edit(Product $product)
+    public function edit(Product_seller $product)
     {
         // Pastikan hanya owner bisa edit
-        if ($product->user_id !== auth()->id()) {
+        if ($product->user_id !== \Illuminate\Support\Facades\Auth::id()) {
             abort(403);
         }
 
@@ -83,10 +97,10 @@ class ProductController_seller extends Controller
     /**
      * Update produk
      */
-    public function update(Request $request, Product $product)
+    public function update(Request $request, Product_seller $product)
     {
         // Cek owner
-        if ($product->user_id !== auth()->id()) {
+        if ($product->user_id !== \Illuminate\Support\Facades\Auth::id()) {
             abort(403);
         }
 
@@ -101,13 +115,25 @@ class ProductController_seller extends Controller
         ]);
 
         $data = [
+            'name'          => $request->nama_produk,
             'nama_produk'   => $request->nama_produk,
+            'price'         => $request->harga,
             'harga'         => $request->harga,
+            'buy_price'     => $request->jenis_produk === 'jual' ? $request->harga : 0,
+            'rent_price'    => $request->jenis_produk === 'sewa' ? $request->harga : 0,
+            'category'      => $request->kategori,
             'kategori'      => $request->kategori,
             'jenis_produk'  => $request->jenis_produk,
+            'is_rental'     => $request->jenis_produk === 'sewa',
+            'stock'         => $request->stok,
             'stok'          => $request->stok,
+            'description'   => $request->deskripsi,
             'deskripsi'     => $request->deskripsi,
         ];
+
+        $flagReasons = \App\Models\Product::flagReasonsFor($data);
+        $data['status'] = 'pending';
+        $data['flag_reason'] = $flagReasons ? implode(', ', $flagReasons) : null;
 
         // Jika upload gambar baru
         if ($request->hasFile('gambar')) {
@@ -123,15 +149,15 @@ class ProductController_seller extends Controller
 
         $product->update($data);
 
-        return redirect()->route('products.index')->with('success', 'Produk berhasil diupdate!');
+        return redirect()->route('seller.products.index')->with('success', 'Produk berhasil diupdate!');
     }
 
     /**
      * Hapus produk
      */
-    public function destroy(Product $product)
+    public function destroy(Product_seller $product)
     {
-        if ($product->user_id !== auth()->id()) {
+        if ($product->user_id !== \Illuminate\Support\Facades\Auth::id()) {
             abort(403);
         }
 
@@ -142,7 +168,7 @@ class ProductController_seller extends Controller
         $product->delete();
 
         return redirect()
-            ->route('products.index')
+            ->route('seller.products.index')
             ->with('success', 'Produk berhasil dihapus!');
     }
 
@@ -152,7 +178,7 @@ class ProductController_seller extends Controller
      */
     public function rentals()
     {
-        $rentals = Product_seller::where('user_id', auth()->id())
+        $rentals = Product_seller::where('user_id', \Illuminate\Support\Facades\Auth::id())
                     ->where('jenis_produk', 'sewa')
                     ->latest()
                     ->get();

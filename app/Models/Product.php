@@ -13,16 +13,41 @@ class Product extends Model
 
     protected $fillable = [
         'seller_id',
+        'user_id',
+        'store_id',
+        'name',
         'nama_produk',
-        'harga',
-        'stok',
+        'category',
+        'kategori',
+        'description',
         'deskripsi',
+        'price',
+        'harga',
+        'buy_price',
+        'rent_price',
+        'status',
+        'flag_reason',
+        'reviewed_by',
+        'reviewed_at',
+        'is_rental',
+        'jenis_produk',
+        'rating',
+        'reviews_count',
+        'image',
+        'gambar',
+        'stock',
+        'stok',
         'kategori_id',
     ];
 
     public function seller()
     {
         return $this->belongsTo(User::class, 'seller_id');
+    }
+
+    public function owner()
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function category()
@@ -37,41 +62,97 @@ class Product extends Model
 
     public function getNameAttribute()
     {
-        return $this->attributes['nama_produk'] ?? null;
+        return $this->attributes['name'] ?? $this->attributes['nama_produk'] ?? null;
     }
 
     public function setNameAttribute($value)
     {
+        $this->attributes['name'] = $value;
         $this->attributes['nama_produk'] = $value;
     }
 
     public function getPriceAttribute()
     {
-        return $this->attributes['harga'] ?? null;
+        return $this->attributes['price'] ?? $this->attributes['harga'] ?? $this->attributes['buy_price'] ?? null;
     }
 
     public function setPriceAttribute($value)
     {
+        $this->attributes['price'] = $value;
         $this->attributes['harga'] = $value;
     }
 
     public function getDescriptionAttribute()
     {
-        return $this->attributes['deskripsi'] ?? null;
+        return $this->attributes['description'] ?? $this->attributes['deskripsi'] ?? null;
     }
 
     public function setDescriptionAttribute($value)
     {
+        $this->attributes['description'] = $value;
         $this->attributes['deskripsi'] = $value;
     }
 
     public function getStockAttribute()
     {
-        return $this->attributes['stok'] ?? null;
+        return $this->attributes['stock'] ?? $this->attributes['stok'] ?? null;
     }
 
     public function setStockAttribute($value)
     {
+        $this->attributes['stock'] = $value;
         $this->attributes['stok'] = $value;
+    }
+
+    public function store()
+    {
+        return $this->belongsTo(Store::class);
+    }
+
+    public function orderDetails()
+    {
+        return $this->hasMany(OrderDetail::class, 'product_id', 'id');
+    }
+
+    public function couriers()
+    {
+        return $this->belongsToMany(Courier::class, 'product_courier');
+    }
+
+    public function conversations()
+    {
+        return $this->hasMany(Conversation::class);
+    }
+
+    public function reports()
+    {
+        return $this->hasMany(Report::class);
+    }
+
+    public function sellerUserId(): ?int
+    {
+        return $this->seller_id
+            ?? $this->user_id
+            ?? $this->store?->user_id;
+    }
+
+    public static function flagReasonsFor(array $data): array
+    {
+        $text = strtolower(($data['name'] ?? $data['nama_produk'] ?? '') . ' ' . ($data['description'] ?? $data['deskripsi'] ?? ''));
+        $price = (int) ($data['price'] ?? $data['harga'] ?? $data['buy_price'] ?? $data['rent_price'] ?? 0);
+        $badWords = ['palsu', 'penipuan', 'judi', 'narkoba', 'senjata'];
+        $reasons = [];
+
+        if ($price > 50000000) {
+            $reasons[] = 'Harga tidak wajar';
+        }
+
+        foreach ($badWords as $word) {
+            if (str_contains($text, $word)) {
+                $reasons[] = 'Kata terlarang: ' . $word;
+            }
+        }
+
+        return $reasons;
     }
 }

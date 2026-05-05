@@ -20,9 +20,14 @@ class RoleMiddleware
             return redirect('/login');
         }
 
-        if (Auth::user()->role !== $role) {
+        if (Auth::user()->status !== 'active') {
+            Auth::logout();
+            return redirect('/login')->withErrors(['email' => 'Akun tidak aktif atau diblokir.']);
+        }
+
+        if ($this->normalizeRole(Auth::user()->role) !== $this->normalizeRole($role)) {
             // Redirect berdasarkan role user
-            switch (Auth::user()->role) {
+            switch ($this->normalizeRole(Auth::user()->role)) {
                 case 'admin':
                     return redirect('/admin/dashboard');
                 case 'seller':
@@ -35,5 +40,15 @@ class RoleMiddleware
         }
 
         return $next($request);
+    }
+
+    private function normalizeRole(?string $role): string
+    {
+        return match ($role) {
+            'admin' => 'admin',
+            'seller', 'penjual' => 'seller',
+            'buyer', 'pembeli', 'user' => 'buyer',
+            default => 'buyer',
+        };
     }
 }

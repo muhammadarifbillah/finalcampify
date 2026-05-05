@@ -29,7 +29,7 @@
                 </li>
 
                 <li class="nav-item mb-2">
-                    <a class="nav-link text-dark" href="/orders">
+                    <a class="nav-link text-dark" href="/seller/orders">
                         Pesanan Baru
                     </a>
                 </li>
@@ -242,3 +242,4 @@
 </div>
 
 @endsection
+

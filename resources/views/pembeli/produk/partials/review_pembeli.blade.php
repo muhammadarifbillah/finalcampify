@@ -1,6 +1,6 @@
 <div class="bg-slate-50 rounded-2xl p-6 border border-slate-200">
     @php
-        $existingReview = \App\Models\Pembeli\ProductRating_pembeli::where('user_id', auth()->id())
+        $existingReview = \App\Models\Pembeli\ProductRating_pembeli::where('user_id', \Illuminate\Support\Facades\Auth::id())
             ->where('product_id', $produk->id)
             ->where('order_id', $pesanan->id)
             ->first();

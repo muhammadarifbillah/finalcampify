@@ -37,7 +37,7 @@ class DashboardController extends Controller
 
         return view('admin.dashboard', [
             'users' => User::count(),
-            'regularUsers' => User::where('role', 'user')->count(),
+            'regularUsers' => User::where('role', 'buyer')->count(),
             'products' => Product::count(),
             'pendingProducts' => Product::where('status', 'pending')->count(),
             'transactions' => Transaction::count(),

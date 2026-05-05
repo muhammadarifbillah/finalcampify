@@ -24,13 +24,13 @@
 
                 <li class="nav-item mb-2">
                     <a class="nav-link {{ request()->routeIs('products*') ? 'bg-success text-white rounded px-3 py-2' : 'text-dark' }}"
-                    href="{{ route('products') }}">
+                    href="{{ route('seller.products.index') }}">
                     Kelola Produk
                     </a>
                 </li>
 
                     <li class="nav-item mb-2">
-                        <a class="nav-link {{ request()->routeIs('ratings.index') ? 'bg-success text-white rounded px-3 py-2' : 'text-dark' }}"
+                        <a class="nav-link {{ request()->routeIs('seller.ratings.index') ? 'bg-success text-white rounded px-3 py-2' : 'text-dark' }}"
                         href="/ratings">
                         Kelola Rating
                         </a>
@@ -38,7 +38,7 @@
 
                 <li class="nav-item mb-2">
                     <a class="nav-link {{ request()->routeIs('orders*') ? 'bg-success text-white rounded px-3 py-2' : 'text-dark' }}"
-                    href="/orders">
+                    href="/seller/orders">
                     Pesanan Baru
                     </a>
                 </li>
@@ -243,7 +243,7 @@
                 <div class="alert alert-success">{{ session('success') }}</div>
             @endif
             
-            <form method="POST" action="{{ route('ratings.product') }}">
+            <form method="POST" action="{{ route('seller.ratings.product') }}">
                 @csrf
                 <input type="hidden" name="product_id" value="{{ $product->id }}">
                 
@@ -268,7 +268,7 @@
             
             <hr class="my-4">
             
-            <form method="POST" action="{{ route('ratings.store') }}">
+            <form method="POST" action="{{ route('seller.ratings.store') }}">
                 @csrf
                 <input type="hidden" name="store_id" value="{{ $product->user_id }}">
                 
@@ -300,3 +300,4 @@
     </div>
 </div>
 @endsection
+

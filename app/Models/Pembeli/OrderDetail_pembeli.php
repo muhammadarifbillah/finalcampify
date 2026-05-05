@@ -1,11 +1,10 @@
 <?php
 namespace App\Models\Pembeli;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use App\Models\OrderDetail;
 
-class OrderDetail_pembeli extends Model
+class OrderDetail_pembeli extends OrderDetail
 {
-    use HasFactory;
     protected $table = 'order_details';
     protected $fillable = ['order_id','product_id','qty','harga','type','duration','start_date'];
     protected $casts = [

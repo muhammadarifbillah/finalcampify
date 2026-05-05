@@ -15,7 +15,13 @@ class Chat_pembeli extends Model
     protected $fillable = [
         'user_id',
         'sender',
+        'sender_id',
+        'receiver_id',
+        'order_id',
         'message',
+        'type',
+        'is_read',
+        'is_flagged',
     ];
 
     public function user()

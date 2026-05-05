@@ -38,6 +38,11 @@ class Store extends Model
         return $this->hasMany(Product::class);
     }
 
+    public function reports()
+    {
+        return $this->hasMany(Report::class);
+    }
+
     // 🔥 RELASI KE TRANSAKSI MELALUI PRODUK
     public function transactions()
     {

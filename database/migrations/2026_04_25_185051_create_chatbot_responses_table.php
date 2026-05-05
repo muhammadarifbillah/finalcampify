@@ -10,6 +10,10 @@ return new class extends Migration {
      */
     public function up(): void
     {
+        if (Schema::hasTable('chatbot_responses')) {
+            return;
+        }
+
         Schema::create('chatbot_responses', function (Blueprint $table) {
             $table->id();
             $table->string('keyword');

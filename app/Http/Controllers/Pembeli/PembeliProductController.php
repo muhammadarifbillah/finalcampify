@@ -233,7 +233,7 @@ class PembeliProductController extends Controller
             return [];
         }
 
-        return Wishlist_pembeli::where('user_id', auth()->id())
+        return Wishlist_pembeli::where('user_id', \Illuminate\Support\Facades\Auth::id())
             ->pluck('product_id')
             ->toArray();
     }

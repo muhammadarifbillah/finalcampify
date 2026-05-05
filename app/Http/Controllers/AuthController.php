@@ -34,6 +34,25 @@ class AuthController extends Controller
         ]);
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
+            $user = Auth::user();
+
+            if (blank($user->status)) {
+                $user->forceFill(['status' => 'active'])->save();
+            }
+
+            if ($user->role === 'user') {
+                $user->forceFill(['role' => 'buyer'])->save();
+            }
+
+            if ($user->status !== 'active') {
+                Auth::logout();
+
+                return back()->withErrors([
+                    'email' => 'Akun tidak aktif atau diblokir.',
+                ])->onlyInput('email');
+            }
+
+            $user->forceFill(['last_login' => now()])->save();
             $request->session()->regenerate();
 
             return $this->redirectBasedOnRole();
@@ -64,10 +83,12 @@ class AuthController extends Controller
         $data = $request->validated();
 
         $user = User::create([
+            'name' => $data['name'],
             'nama' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
-            'role' => $data['role'] ?? 'buyer',
+            'role' => $this->normalizeRole($data['role'] ?? 'buyer'),
+            'status' => 'active',
         ]);
 
         Auth::login($user);
@@ -95,7 +116,7 @@ class AuthController extends Controller
     {
         $user = Auth::user();
 
-        switch ($user->role) {
+        switch ($this->normalizeRole($user->role)) {
             case 'admin':
                 return redirect('/admin/dashboard');
             case 'seller':
@@ -104,5 +125,15 @@ class AuthController extends Controller
             default:
                 return redirect('/dashboard');
         }
+    }
+
+    private function normalizeRole(?string $role): string
+    {
+        return match ($role) {
+            'admin' => 'admin',
+            'seller', 'penjual' => 'seller',
+            'buyer', 'pembeli', 'user' => 'buyer',
+            default => 'buyer',
+        };
     }
 }

@@ -137,6 +137,9 @@
                     @if($p->store)
                         <p class="text-sm text-slate-600">Toko: {{ $p->store->nama_toko }}</p>
                     @endif
+                    @if($p->flag_reason)
+                        <p class="rounded-2xl bg-yellow-50 border border-yellow-200 p-3 text-sm text-yellow-800">Auto flag: {{ $p->flag_reason }}</p>
+                    @endif
                     <p class="text-sm text-slate-600">Kurir: {{ $p->couriers->count() ? $p->couriers->map(fn($c) => $c->name . ' ' . $c->service)->join(', ') : 'Belum terhubung ke kurir apa pun.' }}</p>
                 </div>
                 <div class="flex flex-col gap-3 sm:flex-row sm:items-center">

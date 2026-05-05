@@ -106,6 +106,69 @@
 
             <!-- ⚫ F. RIWAYAT AKTIVITAS -->
             <div class="bg-white rounded-xl shadow p-6">
+                <h2 class="text-xl font-bold mb-4">Validasi Produk Pending</h2>
+
+                @if($pendingProducts->isEmpty())
+                    <p class="text-gray-500">Tidak ada produk pending dari toko ini.</p>
+                @else
+                    <div class="space-y-4">
+                        @foreach($pendingProducts as $product)
+                            <div class="border border-gray-200 rounded-xl p-4">
+                                <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                                    <div>
+                                        <h3 class="font-semibold text-lg">{{ $product->name }}</h3>
+                                        <p class="text-sm text-gray-500">{{ $product->category }} - Rp {{ number_format($product->buy_price ?: $product->price, 0, ',', '.') }}</p>
+                                        <p class="text-sm text-gray-600 mt-2">{{ Str::limit($product->description, 140) }}</p>
+                                        @if($product->flag_reason)
+                                            <p class="mt-2 rounded-lg bg-yellow-50 border border-yellow-200 p-2 text-sm text-yellow-800">Auto flag: {{ $product->flag_reason }}</p>
+                                        @endif
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <form method="POST" action="{{ route('admin.stores.products.approve', [$store->id, $product->id]) }}">
+                                            @csrf
+                                            <button class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">Approve</button>
+                                        </form>
+                                        <form method="POST" action="{{ route('admin.stores.products.reject', [$store->id, $product->id]) }}">
+                                            @csrf
+                                            <button class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">Reject</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+
+            <div class="bg-white rounded-xl shadow p-6">
+                <h2 class="text-xl font-bold mb-4">Laporan Toko & Produk</h2>
+
+                @if($reports->isEmpty())
+                    <p class="text-gray-500">Belum ada laporan untuk toko ini.</p>
+                @else
+                    <div class="space-y-3">
+                        @foreach($reports as $report)
+                            <div class="border border-gray-200 rounded-xl p-4">
+                                <div class="flex flex-wrap items-center gap-2 mb-2">
+                                    <span class="inline-flex rounded-full bg-red-100 text-red-800 px-3 py-1 text-xs font-semibold">{{ ucfirst($report->type) }}</span>
+                                    <span class="text-xs text-gray-500">{{ $report->created_at?->diffForHumans() }}</span>
+                                    <span class="text-xs text-gray-500">{{ $report->status }}</span>
+                                </div>
+                                <p class="font-semibold">{{ $report->reason }}</p>
+                                <p class="text-sm text-gray-600">{{ $report->description }}</p>
+                                <p class="text-sm text-gray-500 mt-2">
+                                    Pelapor: {{ $report->reporter?->name ?? '-' }}
+                                    @if($report->product)
+                                        - Produk: {{ $report->product->name }}
+                                    @endif
+                                </p>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+
+            <div class="bg-white rounded-xl shadow p-6">
                 <h2 class="text-xl font-bold mb-4">Riwayat Aktivitas</h2>
                 <div class="space-y-3">
                     @foreach($activities as $activity)

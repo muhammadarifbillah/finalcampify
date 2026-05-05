@@ -11,10 +11,12 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('chats', function (Blueprint $table) {
-            $table->id()->first();
-            $table->unsignedBigInteger('user_id')->after('id')->nullable();
-            $table->timestamps();
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            if (!Schema::hasColumn('chats', 'user_id')) {
+                $table->foreignId('user_id')->nullable()->after('id')->constrained()->cascadeOnDelete();
+            }
+            if (!Schema::hasColumn('chats', 'created_at')) {
+                $table->timestamps();
+            }
         });
     }
 

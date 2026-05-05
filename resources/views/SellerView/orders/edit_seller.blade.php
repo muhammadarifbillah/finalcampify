@@ -24,13 +24,13 @@
 
                 <li class="nav-item mb-2">
                     <a class="nav-link {{ request()->routeIs('products*') ? 'bg-success text-white rounded px-3 py-2' : 'text-dark' }}"
-                    href="{{ route('products.index') }}">
+                    href="{{ route('seller.products.index') }}">
                     Kelola Produk
                     </a>
                 </li>
 
                     <li class="nav-item mb-2">
-                        <a class="nav-link {{ request()->routeIs('ratings.index') ? 'bg-success text-white rounded px-3 py-2' : 'text-dark' }}"
+                        <a class="nav-link {{ request()->routeIs('seller.ratings.index') ? 'bg-success text-white rounded px-3 py-2' : 'text-dark' }}"
                         href="/seller/ratings">
                         Kelola Rating
                         </a>
@@ -119,3 +119,5 @@
 
 </div>
 @endsection
+
+

@@ -11,7 +11,13 @@ class ProductRating_pembeli extends Model
 
     use HasFactory;
 
-    protected $fillable = ['user_id', 'product_id', 'order_id', 'rating', 'comment'];
+    protected $fillable = ['user_id', 'product_id', 'order_id', 'rating', 'comment', 'ulasan'];
+
+    public function setCommentAttribute($value): void
+    {
+        $this->attributes['comment'] = $value;
+        $this->attributes['ulasan'] = $value;
+    }
 
     public function user()
     {

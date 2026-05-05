@@ -1,11 +1,10 @@
 <?php
 namespace App\Models\Pembeli;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use App\Models\Order;
 
-class Order_pembeli extends Model
+class Order_pembeli extends Order
 {
-    use HasFactory;
     protected $table = 'orders';
     protected $fillable = [
         'user_id',
@@ -24,6 +23,6 @@ class Order_pembeli extends Model
 
 public function details()
 {
-    return $this->hasMany(OrderDetail_pembeli::class, 'order_id');
+    return $this->hasMany(OrderDetail_pembeli::class, 'order_id', 'id');
 }
 }

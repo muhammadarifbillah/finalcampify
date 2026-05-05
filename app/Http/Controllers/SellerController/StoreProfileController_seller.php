@@ -14,14 +14,14 @@ class StoreProfileController_seller extends Controller
 {
     public function index()
     {
-        $profile = StoreProfile_seller::where('user_id', auth()->id())->first();
+        $profile = StoreProfile_seller::where('user_id', \Illuminate\Support\Facades\Auth::id())->first();
         return view('SellerView.store_profile.index_seller', compact('profile'));
     }
 
     public function show()
     {
         // Tampilan profil toko (bukan form edit)
-        $userId = auth()->id();
+        $userId = \Illuminate\Support\Facades\Auth::id();
         $profile = StoreProfile_seller::where('user_id', $userId)->first();
         
         // Statistik toko
@@ -38,7 +38,7 @@ class StoreProfileController_seller extends Controller
 
     public function update(Request $request)
     {
-        $profile = StoreProfile_seller::where('user_id', auth()->id())->first();
+        $profile = StoreProfile_seller::where('user_id', \Illuminate\Support\Facades\Auth::id())->first();
 
         $data = $request->validate([
             'nama_toko' => 'required',
@@ -50,10 +50,11 @@ class StoreProfileController_seller extends Controller
         if ($profile) {
             $profile->update($data);
         } else {
-            $data['user_id'] = auth()->id();
+            $data['user_id'] = \Illuminate\Support\Facades\Auth::id();
+            $data['status'] = 'active';
             StoreProfile_seller::create($data);
         }
 
-        return redirect('/store-profile/show')->with('success', 'Profil toko berhasil disimpan');
+        return redirect('/seller/store-profile/show')->with('success', 'Profil toko berhasil disimpan');
     }
 }

@@ -49,6 +49,12 @@
                     Toko
                 </a>
 
+                <a href="/admin/orders"
+                    class="block px-4 py-2 rounded-xl transition 
+                {{ Request::is('admin/orders') ? 'bg-white text-emerald-700 font-semibold' : 'hover:bg-emerald-600' }}">
+                    Orders
+                </a>
+
                 <a href="/admin/articles"
                     class="block px-4 py-2 rounded-xl transition 
                 {{ Request::is('admin/articles') ? 'bg-white text-emerald-700 font-semibold' : 'hover:bg-emerald-600' }}">
@@ -94,7 +100,15 @@
                     <span class="font-semibold text-lg">Campify Admin</span>
                 </div>
 
-                <div class="text-sm text-gray-500">Admin</div>
+                <div class="flex items-center gap-4">
+                    <span class="text-sm text-gray-500">{{ auth()->user()->name ?? 'Admin' }}</span>
+                    <form action="{{ route('logout') }}" method="POST">
+                        @csrf
+                        <button type="submit" class="rounded bg-red-600 px-3 py-2 text-sm font-semibold text-white hover:bg-red-700">
+                            Logout
+                        </button>
+                    </form>
+                </div>
             </header>
 
             <!-- CONTENT -->

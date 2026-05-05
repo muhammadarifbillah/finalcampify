@@ -11,11 +11,24 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('stores', function (Blueprint $table) {
-            $table->text('deskripsi')->nullable()->after('nama_toko');
-            $table->text('alamat')->nullable()->after('deskripsi');
-            $table->string('logo')->nullable()->after('alamat');
-            $table->text('catatan_admin')->nullable()->after('logo');
-            $table->enum('status', ['pending', 'active', 'rejected', 'suspended', 'banned'])->default('pending')->change();
+            if (!Schema::hasColumn('stores', 'deskripsi')) {
+                $table->text('deskripsi')->nullable()->after('nama_toko');
+            }
+            if (!Schema::hasColumn('stores', 'alamat')) {
+                $table->text('alamat')->nullable()->after('deskripsi');
+            }
+            if (!Schema::hasColumn('stores', 'logo')) {
+                $table->string('logo')->nullable()->after('alamat');
+            }
+            if (!Schema::hasColumn('stores', 'no_telp')) {
+                $table->string('no_telp')->nullable()->after('alamat');
+            }
+            if (!Schema::hasColumn('stores', 'banner')) {
+                $table->string('banner')->nullable()->after('logo');
+            }
+            if (!Schema::hasColumn('stores', 'catatan_admin')) {
+                $table->text('catatan_admin')->nullable()->after('logo');
+            }
         });
     }
 

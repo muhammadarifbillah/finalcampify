@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api_seller;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -56,3 +56,5 @@ class AuthApiController extends Controller
         ], 200);
     }
 }
+
+

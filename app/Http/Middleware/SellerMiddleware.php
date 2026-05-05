@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class SellerMiddleware
 {
-    public function handle(Request $request, Closure $next)
+    public function handle(Request $request, Closure $next): Response
     {
         if (!auth()->check() || auth()->user()->role !== 'seller') {
             abort(403, 'Hanya Seller yang bisa mengakses halaman ini.');

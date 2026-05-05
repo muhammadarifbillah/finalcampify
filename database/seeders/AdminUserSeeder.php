@@ -13,38 +13,38 @@ class AdminUserSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create admin user if not exists
-        if (!User::where('email', 'admin@campify.com')->exists()) {
-            User::create([
+        User::updateOrCreate(
+            ['email' => 'admin@campify.com'],
+            [
                 'name' => 'Administrator',
-                'email' => 'admin@campify.com',
+                'nama' => 'Administrator',
                 'password' => Hash::make('admin123'),
                 'role' => 'admin',
                 'status' => 'active',
                 'last_login' => now(),
-            ]);
-        }
+            ]
+        );
 
-        // Create sample buyer user
-        if (!User::where('email', 'buyer@campify.com')->exists()) {
-            User::create([
+        User::updateOrCreate(
+            ['email' => 'buyer@campify.com'],
+            [
                 'name' => 'Sample Buyer',
-                'email' => 'buyer@campify.com',
+                'nama' => 'Sample Buyer',
                 'password' => Hash::make('buyer123'),
                 'role' => 'buyer',
                 'status' => 'active',
-            ]);
-        }
+            ]
+        );
 
-        // Create sample seller user
-        if (!User::where('email', 'seller@campify.com')->exists()) {
-            User::create([
+        User::updateOrCreate(
+            ['email' => 'seller@campify.com'],
+            [
                 'name' => 'Sample Seller',
-                'email' => 'seller@campify.com',
+                'nama' => 'Sample Seller',
                 'password' => Hash::make('seller123'),
                 'role' => 'seller',
                 'status' => 'active',
-            ]);
-        }
+            ]
+        );
     }
 }

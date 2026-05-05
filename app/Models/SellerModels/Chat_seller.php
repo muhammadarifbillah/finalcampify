@@ -4,6 +4,7 @@ namespace App\Models\SellerModels;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Order;
 use App\Models\User;
 
 class Chat_seller extends Model

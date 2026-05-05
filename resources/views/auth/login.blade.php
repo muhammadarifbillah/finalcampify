@@ -7,126 +7,242 @@
     <title>Login - Campify</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
+        :root {
+            --forest: #28543f;
+            --forest-dark: #173629;
+            --line: #d9e1dc;
+        }
+
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
+            margin: 0;
+            display: grid;
+            place-items: center;
+            background: #fff;
+            font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+
+        .auth-shell {
+            width: 100vw;
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            overflow: hidden;
+            border-radius: 0;
+            background: #fff;
+        }
+
+        .auth-visual {
+            position: relative;
+            display: flex;
+            align-items: flex-end;
+            padding: 42px;
+            color: #fff;
+            background:
+                linear-gradient(180deg, rgba(11, 24, 17, .08), rgba(11, 24, 17, .78)),
+                url("https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=1400&q=90") center/cover;
+        }
+
+        .auth-copy h1 {
+            font-size: 18px;
+            margin: 0 0 10px;
+            font-weight: 700;
+        }
+
+        .auth-copy p {
+            max-width: 340px;
+            margin: 0;
+            line-height: 1.7;
+            font-size: 14px;
+            color: rgba(255, 255, 255, .82);
+        }
+
+        .auth-panel {
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 56px;
         }
 
-        .login-container {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-            padding: 40px;
-            width: 100%;
-            max-width: 400px;
+        .auth-card {
+            width: min(100%, 390px);
         }
 
-        .login-header {
-            text-align: center;
-            margin-bottom: 30px;
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--forest);
+            font-weight: 800;
+            margin-bottom: 34px;
         }
 
-        .login-header h2 {
-            color: #333;
+        .brand-mark {
+            width: 26px;
+            height: 26px;
+            display: grid;
+            place-items: center;
+            border: 2px solid var(--forest);
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .auth-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #24342c;
+            margin-bottom: 8px;
+        }
+
+        .auth-subtitle {
+            font-size: 13px;
+            color: #6e7a73;
+            line-height: 1.6;
+            margin-bottom: 28px;
+        }
+
+        .form-label {
+            color: #42534a;
+            font-size: 13px;
             font-weight: 600;
+            margin-bottom: 8px;
         }
 
         .form-control {
-            border-radius: 10px;
-            border: 1px solid #ddd;
-            padding: 12px 15px;
+            height: 50px;
+            border-radius: 0;
+            border: 1px solid var(--line);
+            color: #23332b;
+            font-size: 14px;
+            box-shadow: none !important;
         }
 
-        .btn-login {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            border-radius: 10px;
-            padding: 12px;
+        .form-control:focus {
+            border-color: var(--forest);
+        }
+
+        .btn-auth {
             width: 100%;
-            color: white;
-            font-weight: 600;
+            height: 52px;
+            border: 0;
+            border-radius: 4px;
+            background: var(--forest);
+            color: #fff;
+            font-weight: 700;
         }
 
-        .btn-login:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        .btn-auth:hover {
+            background: var(--forest-dark);
+            color: #fff;
         }
 
-        .register-link {
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .register-link a {
-            color: #667eea;
+        .muted-link {
+            color: var(--forest);
+            font-weight: 700;
             text-decoration: none;
         }
 
-        .register-link a:hover {
+        .muted-link:hover {
             text-decoration: underline;
+        }
+
+        .footer-links {
+            margin-top: 90px;
+            display: flex;
+            justify-content: center;
+            gap: 28px;
+            font-size: 12px;
+            color: #8a948f;
+        }
+
+        @media (max-width: 860px) {
+            body {
+                display: block;
+            }
+
+            .auth-shell {
+                width: 100%;
+                min-height: 100vh;
+                grid-template-columns: 1fr;
+                border-radius: 0;
+            }
+
+            .auth-visual {
+                min-height: 260px;
+            }
+
+            .auth-panel {
+                padding: 34px 22px;
+            }
         }
     </style>
 </head>
 
 <body>
-    <div class="login-container">
-        <div class="login-header">
-            <h2>🔥 Campify Login</h2>
-            <p class="text-muted">Masuk ke akun Anda</p>
-        </div>
-
-        @if($errors->any())
-            <div class="alert alert-danger">
-                <ul class="mb-0">
-                    @foreach($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
+    <main class="auth-shell">
+        <section class="auth-visual">
+            <div class="auth-copy">
+                <h1>Campify</h1>
+                <p>Terhubung kembali dengan alam dalam setiap langkah perjalanan dan transaksi outdoor.</p>
             </div>
-        @endif
+        </section>
 
-        <form method="POST" action="{{ route('login') }}">
-            @csrf
+        <section class="auth-panel">
+            <div class="auth-card">
+                <div class="brand">
+                    <div class="brand-mark">C</div>
+                    <span>Campify</span>
+                </div>
 
-            <div class="mb-3">
-                <label for="email" class="form-label">Email</label>
-                <input type="email" class="form-control" id="email" name="email" value="{{ old('email') }}" required
-                    autofocus>
+                <h2 class="auth-title">Selamat Datang Kembali</h2>
+                <p class="auth-subtitle">Silakan masukkan detail akun Anda untuk melanjutkan akses sesuai role.</p>
+
+                @if(isset($errors) && $errors->any())
+                    <div class="alert alert-danger py-2">
+                        <ul class="mb-0 ps-3">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                <form method="POST" action="{{ route('login') }}">
+                    @csrf
+
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" value="{{ old('email') }}" placeholder="nama@email.com" required autofocus>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Kata Sandi</label>
+                        <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="remember" name="remember">
+                            <label class="form-check-label small text-muted" for="remember">Ingat Saya</label>
+                        </div>
+                        <span class="small text-muted">Lupa Kata Sandi?</span>
+                    </div>
+
+                    <button type="submit" class="btn btn-auth">Masuk</button>
+                </form>
+
+                <div class="text-center mt-4 small text-muted">
+                    Belum punya akun? <a href="{{ route('register') }}" class="muted-link">Daftar sekarang</a>
+                </div>
+
+                <div class="footer-links">
+                    <span>Privacy Policy</span>
+                    <span>Terms of Service</span>
+                    <span>Support</span>
+                </div>
             </div>
-
-            <div class="mb-3">
-                <label for="password" class="form-label">Password</label>
-                <input type="password" class="form-control" id="password" name="password" required>
-            </div>
-
-            <div class="mb-3 form-check">
-                <input type="checkbox" class="form-check-input" id="remember" name="remember">
-                <label class="form-check-label" for="remember">Ingat saya</label>
-            </div>
-
-            <button type="submit" class="btn btn-login">Masuk</button>
-        </form>
-
-        <div class="register-link">
-            <p>Belum punya akun? <a href="{{ route('register') }}">Daftar sekarang</a></p>
-        </div>
-
-        <hr>
-
-        <div class="text-center">
-            <small class="text-muted">
-                <strong>Demo Accounts:</strong><br>
-                Admin: admin@campify.com / admin123<br>
-                Seller: seller@campify.com / seller123<br>
-                Buyer: buyer@campify.com / buyer123
-            </small>
-        </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        </section>
+    </main>
 </body>
 
 </html>

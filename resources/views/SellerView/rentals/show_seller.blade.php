@@ -20,7 +20,7 @@
 
             <li class="nav-item mb-2">
                 <a class="nav-link {{ request()->routeIs('products') ? 'bg-success text-white rounded px-3 py-2' : 'text-dark' }}"
-                   href="{{ route('products.index') }}">
+                   href="{{ route('seller.products.index') }}">
                    Kelola Produk
                 </a>
             </li>
@@ -112,3 +112,4 @@
 
 </div>
 @endsection
+

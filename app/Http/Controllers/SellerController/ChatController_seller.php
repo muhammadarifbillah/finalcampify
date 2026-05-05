@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\SellerController;
 
 use App\Http\Controllers\Controller;
+use App\Models\Conversation;
+use App\Models\Message;
 use App\Models\SellerModels\Chat_seller;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -11,38 +13,44 @@ class ChatController_seller extends Controller
 {
     public function index()
     {
-        $userId = auth()->id();
+        $userId = \Illuminate\Support\Facades\Auth::id();
 
-        $conversations = Chat_seller::where(function ($query) use ($userId) {
-                $query->where('sender_id', $userId)
-                      ->orWhere('receiver_id', $userId);
-            })
-            ->with(['sender', 'receiver'])
-            ->orderBy('created_at', 'desc')
-            ->get()
-            ->groupBy(function ($chat) use ($userId) {
-                return $chat->sender_id == $userId
-                    ? $chat->receiver_id
-                    : $chat->sender_id;
-            });
+        $conversations = Conversation::with(['buyer', 'product', 'latestMessage.sender'])
+            ->where('seller_id', $userId)
+            ->latest('updated_at')
+            ->get();
 
         return view('SellerView.chat.index_seller', compact('conversations'));
     }
 
-    public function show($userId)
+    public function show(Conversation $conversation)
     {
-        $currentUserId = auth()->id();
+        abort_unless($conversation->seller_id === \Illuminate\Support\Facades\Auth::id(), 403);
+
+        Message::where('conversation_id', $conversation->id)
+            ->where('sender_id', '!=', \Illuminate\Support\Facades\Auth::id())
+            ->whereNull('read_at')
+            ->update(['read_at' => now()]);
+
+        $conversation->load(['buyer', 'product']);
+        $messages = $conversation->messages()->with('sender')->orderBy('created_at')->get();
+        $chatPartner = $conversation->buyer;
+
+        return view('SellerView.chat.show_seller', compact('messages', 'chatPartner', 'conversation'));
+    }
+
+    public function legacyShow($userId)
+    {
+        $currentUserId = \Illuminate\Support\Facades\Auth::id();
 
         $messages = Chat_seller::where(function ($query) use ($currentUserId, $userId) {
                 $query->where(function ($q) use ($currentUserId, $userId) {
-                    $q->where('sender_id', $currentUserId)
-                      ->where('receiver_id', $userId);
+                    $q->where('sender_id', $currentUserId)->where('receiver_id', $userId);
                 })->orWhere(function ($q) use ($currentUserId, $userId) {
-                    $q->where('sender_id', $userId)
-                      ->where('receiver_id', $currentUserId);
+                    $q->where('sender_id', $userId)->where('receiver_id', $currentUserId);
                 });
             })
-            ->orderBy('created_at', 'asc')
+            ->orderBy('created_at')
             ->get();
 
         Chat_seller::where('receiver_id', $currentUserId)
@@ -50,25 +58,48 @@ class ChatController_seller extends Controller
             ->update(['is_read' => true]);
 
         $chatPartner = User::findOrFail($userId);
+        $conversation = null;
 
-        return view('SellerView.chat.show_seller', compact('messages', 'chatPartner'));
+        return view('SellerView.chat.show_seller', compact('messages', 'chatPartner', 'conversation'));
     }
 
-    public function store(Request $request)
+    public function store(Request $request, Conversation $conversation = null)
     {
+        if (!$conversation && $request->filled('conversation_id')) {
+            $conversation = Conversation::findOrFail($request->conversation_id);
+        }
+
+        if (!$conversation && $request->filled('receiver_id')) {
+            $request->validate([
+                'receiver_id' => 'required|exists:users,id',
+                'message' => 'required|string|max:1000',
+            ]);
+
+            Chat_seller::create([
+                'sender_id' => \Illuminate\Support\Facades\Auth::id(),
+                'receiver_id' => $request->receiver_id,
+                'message' => $request->message,
+                'type' => 'text',
+                'is_read' => false,
+            ]);
+
+            return back();
+        }
+
+        abort_unless($conversation && $conversation->seller_id === \Illuminate\Support\Facades\Auth::id(), 403);
+
         $request->validate([
-            'receiver_id' => 'required|exists:users,id',
-            'message' => 'required|string'
+            'message' => 'required|string|max:1000',
         ]);
 
-        Chat_seller::create([
-            'sender_id' => auth()->id(),
-            'receiver_id' => $request->receiver_id,
+        Message::create([
+            'conversation_id' => $conversation->id,
+            'sender_id' => \Illuminate\Support\Facades\Auth::id(),
             'message' => $request->message,
-            'type' => 'text',
-            'is_read' => false
         ]);
 
-        return back();
+        $conversation->touch();
+
+        return redirect()->route('seller.chat.show', $conversation);
     }
 }

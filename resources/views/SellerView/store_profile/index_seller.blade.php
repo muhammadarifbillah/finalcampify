@@ -15,7 +15,7 @@
             <ul class="nav flex-column px-3">
 
                 <li class="nav-item mb-2">
-                    <a class="nav-link text-dark" href="seller/dashboard">Dashboard</a>
+                    <a class="nav-link text-dark" href="/seller/dashboard">Dashboard</a>
                 </li>
 
                 <li class="nav-item mb-2">
@@ -109,7 +109,7 @@
             <h6 class="fw-bold mb-3">RATING TOKO</h6>
             
             @php
-                $storeId = auth()->id();
+                $storeId = \Illuminate\Support\Facades\Auth::id();
                 $avgStoreRating = \App\Models\SellerModels\StoreRating_seller::getAverageRating($storeId);
                 $storeRatingCount = \App\Models\SellerModels\StoreRating_seller::getRatingCount($storeId);
                 $storeRatings = \App\Models\SellerModels\StoreRating_seller::where('store_id', $storeId)
@@ -162,3 +162,4 @@
 
 </div>
 @endsection
+

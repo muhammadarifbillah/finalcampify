@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Product;
+use App\Models\Report;
 use App\Models\Store;
 use Illuminate\Http\Request;
 
@@ -17,6 +19,14 @@ class StoreController extends Controller
     public function show($id)
     {
         $store = Store::with(['user', 'products', 'transactions'])->findOrFail($id);
+        $pendingProducts = $store->products()->where('status', 'pending')->latest()->get();
+        $reports = Report::with(['reporter', 'product'])
+            ->where(function ($query) use ($store) {
+                $query->where('store_id', $store->id)
+                    ->orWhere('seller_id', $store->user_id);
+            })
+            ->latest()
+            ->get();
 
         // ✅ VERIFIKASI: Nama toko dan user harus sesuai dengan pengguna yang login
         // Admin dapat melihat semua toko, user hanya bisa melihat toko mereka sendiri
@@ -39,7 +49,33 @@ class StoreController extends Controller
             ['type' => 'product_added', 'message' => 'Menambah ' . $stats['total_products'] . ' produk', 'date' => $store->updated_at],
         ];
 
-        return view('admin.store_detail', compact('store', 'stats', 'activities'));
+        return view('admin.store_detail', compact('store', 'stats', 'activities', 'pendingProducts', 'reports'));
+    }
+
+    public function approveProduct(Store $store, Product $product)
+    {
+        abort_unless($product->store_id === $store->id, 403);
+
+        $product->update([
+            'status' => 'approved',
+            'reviewed_by' => \Illuminate\Support\Facades\Auth::id(),
+            'reviewed_at' => now(),
+        ]);
+
+        return back()->with('success', 'Produk disetujui.');
+    }
+
+    public function rejectProduct(Store $store, Product $product)
+    {
+        abort_unless($product->store_id === $store->id, 403);
+
+        $product->update([
+            'status' => 'rejected',
+            'reviewed_by' => \Illuminate\Support\Facades\Auth::id(),
+            'reviewed_at' => now(),
+        ]);
+
+        return back()->with('success', 'Produk ditolak.');
     }
 
     // Aksi Admin untuk Seller Management

@@ -10,8 +10,9 @@
 
             <ul class="navbar-nav me-auto">
                 @auth
-                    <li class="nav-item"><a class="nav-link" href="/products">Kelola Produk</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/orders">Kelola Pesanan</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/seller/products">Kelola Produk</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/seller/orders">Kelola Pesanan</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ route('seller.ratings.index') }}">Kelola Rating</a></li>
                 @endauth
             </ul>
 
@@ -24,7 +25,7 @@
                 @auth
                     <li class="nav-item"><span class="nav-link">Halo, {{ auth()->user()->name }}</span></li>
                     <li class="nav-item">
-                        <form method="POST" action="/logout">
+                        <form method="POST" action="{{ route('logout') }}">
                             @csrf
                             <button class="btn btn-light btn-sm">Logout</button>
                         </form>
@@ -35,3 +36,5 @@
         </div>
     </div>
 </nav>
+
+

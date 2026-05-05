@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api_seller;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
@@ -86,3 +86,5 @@ class ProductApiController extends Controller
         return response()->json(['message'=>'Produk dihapus']);
     }
 }
+
+

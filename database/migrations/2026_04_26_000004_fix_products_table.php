@@ -11,6 +11,9 @@ return new class extends Migration {
         if (!Schema::hasTable('products')) {
             return;
         }
+        if (Schema::hasColumn('products', 'id')) {
+            return;
+        }
 
         // Disable foreign key checks and drop existing constraints
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');

@@ -1,4 +1,5 @@
-<nav id="mainNavbar" data-home="{{ request()->routeIs('home') ? 'true' : 'false' }}" data-transparent="{{ in_array(request()->route()->getName(), ['home', 'produk.rental', 'produk.index']) ? 'true' : 'false' }}" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 {{ in_array(request()->route()->getName(), ['home', 'produk.rental', 'produk.index']) ? 'bg-transparent text-white' : 'bg-forest-950 text-white shadow-xl border-forest-800' }}">
+@php $routeName = request()->route()?->getName(); @endphp
+<nav id="mainNavbar" data-home="{{ request()->routeIs('home') ? 'true' : 'false' }}" data-transparent="{{ in_array($routeName, ['home', 'produk.rental', 'produk.index']) ? 'true' : 'false' }}" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 {{ in_array($routeName, ['home', 'produk.rental', 'produk.index']) ? 'bg-transparent text-white' : 'bg-forest-950 text-white shadow-xl border-forest-800' }}">
   <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col gap-3">
 
     <!-- TOP BAR -->

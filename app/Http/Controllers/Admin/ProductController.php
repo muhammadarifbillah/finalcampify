@@ -60,6 +60,8 @@ class ProductController extends Controller
             return back()->withErrors('Toko tidak ditemukan.');
         }
 
+        $flagReasons = Product::flagReasonsFor($data);
+
         $product = Product::create([
             'name' => $data['name'],
             'category' => $data['category'] ?? 'Umum',
@@ -73,6 +75,7 @@ class ProductController extends Controller
             'is_rental' => !empty($data['rent_price']),
             'rating' => 0,
             'reviews_count' => 0,
+            'flag_reason' => $flagReasons ? implode(', ', $flagReasons) : null,
             'store_id' => $data['store_id'], // ✅ Harus sesuai dengan toko
         ]);
 
@@ -85,13 +88,21 @@ class ProductController extends Controller
 
     public function approve($id)
     {
-        Product::findOrFail($id)->update(['status' => 'approved']);
+        Product::findOrFail($id)->update([
+            'status' => 'approved',
+            'reviewed_by' => \Illuminate\Support\Facades\Auth::id(),
+            'reviewed_at' => now(),
+        ]);
         return back();
     }
 
     public function reject($id)
     {
-        Product::findOrFail($id)->update(['status' => 'rejected']);
+        Product::findOrFail($id)->update([
+            'status' => 'rejected',
+            'reviewed_by' => \Illuminate\Support\Facades\Auth::id(),
+            'reviewed_at' => now(),
+        ]);
         return back();
     }
 }

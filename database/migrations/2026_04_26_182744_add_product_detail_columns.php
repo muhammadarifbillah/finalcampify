@@ -11,14 +11,30 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('products', function (Blueprint $table) {
-            $table->string('category')->nullable()->after('store_id');
-            $table->text('description')->nullable()->after('category');
-            $table->unsignedBigInteger('buy_price')->default(0)->after('price');
-            $table->unsignedBigInteger('rent_price')->default(0)->after('buy_price');
-            $table->double('rating', 3, 2)->default(0)->after('is_rental');
-            $table->unsignedInteger('reviews_count')->default(0)->after('rating');
-            $table->string('image')->nullable()->after('reviews_count');
-            $table->unsignedInteger('stock')->default(0)->after('image');
+            if (!Schema::hasColumn('products', 'category')) {
+                $table->string('category')->nullable()->after('store_id');
+            }
+            if (!Schema::hasColumn('products', 'description')) {
+                $table->text('description')->nullable()->after('category');
+            }
+            if (!Schema::hasColumn('products', 'buy_price')) {
+                $table->unsignedBigInteger('buy_price')->default(0)->after('price');
+            }
+            if (!Schema::hasColumn('products', 'rent_price')) {
+                $table->unsignedBigInteger('rent_price')->default(0)->after('buy_price');
+            }
+            if (!Schema::hasColumn('products', 'rating')) {
+                $table->double('rating', 3, 2)->default(0)->after('is_rental');
+            }
+            if (!Schema::hasColumn('products', 'reviews_count')) {
+                $table->unsignedInteger('reviews_count')->default(0)->after('rating');
+            }
+            if (!Schema::hasColumn('products', 'image')) {
+                $table->string('image')->nullable()->after('reviews_count');
+            }
+            if (!Schema::hasColumn('products', 'stock')) {
+                $table->unsignedInteger('stock')->default(0)->after('image');
+            }
         });
     }
 

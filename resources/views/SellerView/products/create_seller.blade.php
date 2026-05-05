@@ -20,7 +20,7 @@
         {{-- FORM CARD --}}
         <div class="card border-0 shadow-sm p-4" style="border-radius:16px; max-width:1000px;">
 
-            <form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('seller.products.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
 
                 <div class="row">
@@ -184,3 +184,4 @@
 </div>
 
 @endsection
+

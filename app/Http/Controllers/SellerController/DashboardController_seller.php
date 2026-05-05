@@ -18,15 +18,15 @@ class DashboardController_seller extends Controller
 
         $productIds = $products->pluck('id');
 
-        $orders = Order_seller::whereIn('product_id', $productIds)->get();
+        $orders = Order_seller::with(['details.product'])
+            ->whereHas('details', fn ($query) => $query->whereIn('product_id', $productIds))
+            ->get();
 
-        $pendingOrders = $orders->where('status', 'pending')->count();
+        $pendingOrders = $orders->whereIn('status', ['menunggu', 'diproses'])->count();
 
         $totalRevenue = $orders
-            ->where('status', 'completed')
-            ->sum(function ($order) {
-                return $order->qty * ($order->product->harga ?? 0);
-            });
+            ->where('status', 'selesai')
+            ->sum('total');
 
         $avgStoreRating = StoreRating_seller::getAverageRating($userId);
         $storeRatingCount = StoreRating_seller::getRatingCount($userId);

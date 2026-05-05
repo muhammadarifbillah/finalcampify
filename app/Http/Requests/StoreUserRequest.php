@@ -33,7 +33,8 @@ class StoreUserRequest extends FormRequest
                     ->numbers()
                     ->symbols(),
             ],
-            'role' => 'required|in:admin,user|default:user',
+            'role' => 'required|in:admin,seller,buyer',
+            'seller_terms' => 'required_if:role,seller|accepted',
         ];
     }
 
@@ -57,6 +58,8 @@ class StoreUserRequest extends FormRequest
             'password.regex' => 'Password harus terdiri dari huruf besar, huruf kecil, angka, dan simbol.',
             'role.required' => 'Role harus dipilih.',
             'role.in' => 'Role tidak valid.',
+            'seller_terms.required_if' => 'Seller wajib menyetujui syarat dan ketentuan.',
+            'seller_terms.accepted' => 'Seller wajib menyetujui syarat dan ketentuan.',
         ];
     }
 
@@ -66,7 +69,7 @@ class StoreUserRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->merge([
-            'role' => $this->role ?? 'user',
+            'role' => $this->role ?? 'buyer',
         ]);
     }
 }

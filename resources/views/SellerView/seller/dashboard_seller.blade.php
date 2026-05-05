@@ -1,14 +1,14 @@
 @php
-$userId = auth()->id();
+$userId = \Illuminate\Support\Facades\Auth::id();
 $products = \App\Models\SellerModels\Product_seller::where('user_id', $userId)->get();
 $productIds = $products->pluck('id');
-$orders = \App\Models\SellerModels\Order_seller::whereIn('product_id', $productIds)->get();
-$pendingOrders = $orders->where('status', 'pending')->count();
+$orders = \App\Models\SellerModels\Order_seller::with(['details.product'])
+    ->whereHas('details', fn ($query) => $query->whereIn('product_id', $productIds))
+    ->get();
+$pendingOrders = $orders->whereIn('status', ['menunggu', 'diproses'])->count();
 $totalRevenue = $orders
-    ->where('status', 'completed')
-    ->sum(function ($order) {
-        return $order->qty * $order->product->harga;
-    });
+    ->where('status', 'selesai')
+    ->sum('total');
 
 // Rating toko
 $avgStoreRating = \App\Models\SellerModels\StoreRating_seller::getAverageRating($userId);
@@ -39,28 +39,28 @@ $storeRatingCount = \App\Models\SellerModels\StoreRating_seller::getRatingCount(
                 </li>
 
                 <li class="nav-item mb-2">
-                    <a class="nav-link {{ request()->routeIs('SellerView.products.index') ? 'bg-success text-white rounded px-3 py-2' : 'text-dark' }}"
-                    href="{{ route('products.index') }}">
+                    <a class="nav-link {{ request()->routeIs('seller.products.index') ? 'bg-success text-white rounded px-3 py-2' : 'text-dark' }}"
+                    href="{{ route('seller.products.index') }}">
                     Kelola Produk
                     </a>
                 </li>
 
                     <li class="nav-item mb-2">
-                        <a class="nav-link {{ request()->routeIs('SellerView.ratings.index') ? 'bg-success text-white rounded px-3 py-2' : 'text-dark' }}"
-                        href="/seller/ratings">
+                        <a class="nav-link {{ request()->routeIs('seller.ratings.index') ? 'bg-success text-white rounded px-3 py-2' : 'text-dark' }}"
+                        href="{{ route('seller.ratings.index') }}">
                         Kelola Rating
                         </a>
                     </li>
 
                 <li class="nav-item mb-2">
-                    <a class="nav-link {{ request()->routeIs('SellerView.orders.index') ? 'bg-success text-white rounded px-3 py-2' : 'text-dark' }}"
+                    <a class="nav-link {{ request()->routeIs('seller.orders.index') ? 'bg-success text-white rounded px-3 py-2' : 'text-dark' }}"
                     href="/seller/orders">
                     Pesanan Baru
                     </a>
                 </li>
 
                 <li class="nav-item mb-2">
-                    <a class="nav-link {{ request()->routeIs('SellerView.rentals.index') ? 'bg-success text-white rounded px-3 py-2' : 'text-dark' }}"
+                    <a class="nav-link {{ request()->routeIs('seller.rentals.index') ? 'bg-success text-white rounded px-3 py-2' : 'text-dark' }}"
                     href="/seller/rentals">
                     Penyewaan Alat
                     </a>
@@ -184,9 +184,8 @@ $storeRatingCount = \App\Models\SellerModels\StoreRating_seller::getRatingCount(
                                 <td>
                                     @if(empty($o->resi))
                                         {{-- Jika belum ada resi --}}
-                                        <form action="/orders/{{ $o->id }}/update-resi" method="POST" class="d-flex gap-2">
+                                        <form action="/seller/orders/{{ $o->id }}/update-resi" method="POST" class="d-flex gap-2">
                                             @csrf
-                                            @method('PUT')
 
                                             <input type="text"
                                                 name="resi"
@@ -243,3 +242,4 @@ $storeRatingCount = \App\Models\SellerModels\StoreRating_seller::getRatingCount(
     </div>
 </div>
 @endsection
+

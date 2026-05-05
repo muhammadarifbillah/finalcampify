@@ -2,6 +2,8 @@
 namespace App\Models\Pembeli;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Store;
+use App\Models\User;
 
 class Product_pembeli extends Model
 {
@@ -12,5 +14,27 @@ class Product_pembeli extends Model
     public function productRatings()
     {
         return $this->hasMany(ProductRating_pembeli::class, 'product_id');
+    }
+
+    public function store()
+    {
+        return $this->belongsTo(Store::class);
+    }
+
+    public function seller()
+    {
+        return $this->belongsTo(User::class, 'seller_id');
+    }
+
+    public function owner()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function sellerUserId(): ?int
+    {
+        return $this->seller_id
+            ?? $this->user_id
+            ?? $this->store?->user_id;
     }
 }

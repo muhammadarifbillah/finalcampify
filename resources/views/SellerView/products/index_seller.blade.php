@@ -25,13 +25,13 @@
 
                 <li class="nav-item mb-2">
                     <a class="nav-link {{ request()->routeIs('products*') ? 'bg-success text-white rounded px-3 py-2' : 'text-dark' }}"
-                    href="{{ route('products.index') }}">
+                    href="{{ route('seller.products.index') }}">
                     Kelola Produk
                     </a>
                 </li>
 
                     <li class="nav-item mb-2">
-                        <a class="nav-link {{ request()->routeIs('ratings.index') ? 'bg-success text-white rounded px-3 py-2' : 'text-dark' }}"
+                        <a class="nav-link {{ request()->routeIs('seller.ratings.index') ? 'bg-success text-white rounded px-3 py-2' : 'text-dark' }}"
                         href="/seller/ratings">
                         Kelola Rating
                         </a>
@@ -85,7 +85,7 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h4 class="fw-bold">PRODUCTS</h4>
             <div>
-                <a href="{{ route('products.create') }}" class="btn btn-success rounded-pill px-4">
+                <a href="{{ route('seller.products.create') }}" class="btn btn-success rounded-pill px-4">
                     + Tambah Produk
                 </a>
             </div>
@@ -204,7 +204,7 @@
                                Edit
                             </a>
 
-                            <form action="{{ route('products.destroy', $product->id) }}" method="POST">
+                            <form action="{{ route('seller.products.destroy', $product->id) }}" method="POST">
                                 @csrf
                                 @method('DELETE')
 
@@ -228,7 +228,7 @@
                     <p class="text-muted">Tambahkan produk jual atau sewa pertama kamu sekarang.</p>
 
                     <div class="mt-3">
-                        <a href="{{ route('products.create') }}" class="btn btn-success rounded-pill px-4">
+                        <a href="{{ route('seller.products.create') }}" class="btn btn-success rounded-pill px-4">
                             + Tambah Produk
                         </a>
                     </div>
@@ -243,3 +243,4 @@
 </div>
 
 @endsection
+

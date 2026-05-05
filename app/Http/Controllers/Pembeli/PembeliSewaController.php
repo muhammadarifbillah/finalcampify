@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Pembeli;
 use App\Http\Controllers\Controller;
 
 use Illuminate\Http\Request;
+use App\Models\Order;
+use App\Models\OrderDetail;
 use App\Models\Pembeli\Product_pembeli;
 use App\Models\Pembeli\Order_pembeli;
 use Illuminate\Support\Facades\Auth;
@@ -26,16 +28,35 @@ class PembeliSewaController extends Controller
             'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
         ]);
         $produk = Product_pembeli::findOrFail($request->product_id);
-        $pesanan = new Order();
-        $pesanan->user_id = Auth::id();
-        $pesanan->product_id = $produk->id;
-        $pesanan->tanggal_mulai = $request->tanggal_mulai;
-        $pesanan->tanggal_selesai = $request->tanggal_selesai;
-        $pesanan->tipe = 'sewa';
-        $pesanan->status = 'disewa';
-        $pesanan->denda = 0;
-        $pesanan->save();
-        return redirect()->route('sewa.detail', $pesanan->id)->with('success', 'Sewa berhasil dibuat!');
+        $start = \Carbon\Carbon::parse($request->tanggal_mulai);
+        $end = \Carbon\Carbon::parse($request->tanggal_selesai);
+        $duration = max(1, $start->diffInDays($end) + 1);
+        $price = (int) ($produk->rent_price ?: $produk->buy_price ?: 0) * $duration;
+
+        $pesanan = Order::create([
+            'user_id' => Auth::id(),
+            'receiver_name' => Auth::user()->name,
+            'total' => $price,
+            'shipping_address' => Auth::user()->address,
+            'shipping_city' => Auth::user()->city,
+            'shipping_district' => Auth::user()->district,
+            'shipping_postal_code' => Auth::user()->postal_code,
+            'shipping_phone' => Auth::user()->phone,
+            'metode_pembayaran' => 'transfer',
+            'status' => 'menunggu',
+        ]);
+
+        OrderDetail::create([
+            'order_id' => $pesanan->id,
+            'product_id' => $produk->id,
+            'qty' => 1,
+            'harga' => $price,
+            'type' => 'rent',
+            'duration' => $duration,
+            'start_date' => $start->toDateString(),
+        ]);
+
+        return redirect()->route('orders.detail', $pesanan->id)->with('success', 'Sewa berhasil dibuat!');
     }
 
     // Form pengembalian

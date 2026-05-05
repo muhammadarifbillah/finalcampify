@@ -25,13 +25,13 @@
 
                 <li class="nav-item mb-2">
                     <a class="nav-link {{ request()->routeIs('products*') ? 'bg-success text-white rounded px-3 py-2' : 'text-dark' }}"
-                    href="{{ route('products.index') }}">
+                    href="{{ route('seller.products.index') }}">
                     Kelola Produk
                     </a>
                 </li>
 
                     <li class="nav-item mb-2">
-                        <a class="nav-link {{ request()->routeIs('ratings.index') ? 'bg-success text-white rounded px-3 py-2' : 'text-dark' }}"
+                        <a class="nav-link {{ request()->routeIs('seller.ratings.index') ? 'bg-success text-white rounded px-3 py-2' : 'text-dark' }}"
                         href="/seller/ratings">
                         Kelola Rating
                         </a>
@@ -160,7 +160,6 @@
                                 @else
                                     <form action="/seller/orders/{{ $order->id }}/update-resi" method="POST" class="d-flex gap-2">
                                         @csrf
-                                        @method('PUT')
                                         <input type="text" name="resi" class="form-control form-control-sm rounded-pill" placeholder="No. Resi" required>
                                         <button type="submit" class="btn btn-success btn-sm rounded-pill">Simpan</button>
                                     </form>
@@ -224,3 +223,4 @@
 </div>
 
 @endsection
+

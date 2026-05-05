@@ -2,27 +2,55 @@
 
 namespace App\Models\SellerModels;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use App\Models\SellerModels\Product_seller;
+use App\Models\Order;
+use App\Models\OrderDetail;
 use App\Models\User;
 
-class Order_seller extends Model
+class Order_seller extends Order
 {
-    use HasFactory;
-
     protected $table = 'orders';
 
-    protected $fillable = [
+    protected $appends = ['qty', 'resi'];
 
-        'buyer_id', 'product_id', 'qty', 'status', 'resi'
-    ];
-
-    public function buyer() {
-        return $this->belongsTo(User::class, 'buyer_id');
+    public function buyer()
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function product() {
-        return $this->belongsTo(Product_seller::class);
+    public function firstDetail()
+    {
+        return $this->hasOne(OrderDetail::class, 'order_id')->oldestOfMany();
+    }
+
+    public function details()
+    {
+        return $this->hasMany(OrderDetail::class, 'order_id', 'id');
+    }
+
+    public function product()
+    {
+        return $this->hasOneThrough(
+            Product_seller::class,
+            OrderDetail::class,
+            'order_id',
+            'id',
+            'id',
+            'product_id'
+        );
+    }
+
+    public function getQtyAttribute()
+    {
+        return $this->details->sum('qty');
+    }
+
+    public function getResiAttribute()
+    {
+        return $this->no_resi;
+    }
+
+    public function setResiAttribute($value): void
+    {
+        $this->attributes['no_resi'] = $value;
     }
 }

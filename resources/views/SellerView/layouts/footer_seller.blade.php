@@ -3,3 +3,5 @@
         <p class="mb-0">© {{ date('Y') }} Campify - Marketplace Outdoor</p>
     </div>
 </footer>
+
+

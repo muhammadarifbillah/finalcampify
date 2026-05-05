@@ -12,7 +12,7 @@ class PembeliWishlistController extends Controller
     public function index()
     {
         $wishlists = Wishlist_pembeli::with('product')
-            ->where('user_id', auth()->id())
+            ->where('user_id', \Illuminate\Support\Facades\Auth::id())
             ->get();
 
         return view('pembeli.wishlist.index_pembeli', compact('wishlists'));
@@ -24,7 +24,7 @@ class PembeliWishlistController extends Controller
             'product_id' => 'required|exists:products,id',
         ]);
 
-        $userId = auth()->id();
+        $userId = \Illuminate\Support\Facades\Auth::id();
         $productId = $request->product_id;
 
         $wishlist = Wishlist_pembeli::where('user_id', $userId)
