@@ -15,7 +15,7 @@ class PembeliProfileController extends Controller
     {
         $user = auth()->user();
         $tab = $request->query('tab', 'profile');
-        $validTabs = ['profile', 'orders', 'address', 'security', 'edit', 'favorites', 'chat'];
+        $validTabs = ['profile', 'orders', 'address', 'security', 'edit', 'chat'];
         if (!in_array($tab, $validTabs)) {
             $tab = 'profile';
         }

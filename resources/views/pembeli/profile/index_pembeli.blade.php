@@ -31,7 +31,6 @@
                     $tabs = [
                         'profile' => 'Profile Saya',
                         'orders' => 'Pesanan Saya',
-                        'favorites' => 'Favorit',
                         'edit' => 'Edit Profile',
                     ];
                 @endphp
@@ -605,29 +604,7 @@
                     }
                 });
                 </script>
-            @elseif($tab === 'favorites')
-                <div class="bg-white rounded-3xl p-8 shadow-sm">
-                    <h2 class="text-2xl font-bold mb-4">Favorit Saya</h2>
-                    @if(empty($wishlists) || $wishlists->isEmpty())
-                        <div class="rounded-3xl border border-dashed border-gray-300 p-8 text-center text-gray-500">
-                            Belum ada produk favorit. Tambahkan favorit untuk melihatnya di sini.
-                        </div>
-                    @else
-                        <div class="grid gap-6 md:grid-cols-2">
-                            @foreach($wishlists as $wishlist)
-                                <div class="rounded-3xl border p-5 shadow-sm flex gap-4">
-                                    <img src="{{ $wishlist->produk->image }}" alt="{{ $wishlist->produk->name }}" class="h-24 w-24 rounded-2xl object-cover">
-                                    <div class="flex-1">
-                                        <h3 class="font-semibold text-lg">{{ $wishlist->produk->name }}</h3>
-                                        <p class="text-sm text-gray-500">{{ $wishlist->produk->category }}</p>
-                                        <p class="mt-3 text-sm font-semibold text-green-600">Rp {{ number_format($wishlist->produk->buy_price, 0, ',', '.') }}</p>
-                                        <a href="{{ route('produk.detail', $wishlist->produk->id) }}" class="inline-block mt-3 text-sm text-green-600 hover:underline">Lihat Produk</a>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                    @endif
-                </div>
+
             @endif
         </section>
     </div>

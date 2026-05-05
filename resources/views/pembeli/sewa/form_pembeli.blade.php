@@ -35,29 +35,57 @@
                     @endphp
                     <textarea name="alamat" class="w-full rounded-xl border border-slate-200 px-4 py-3 focus:ring-2 focus:ring-green-500" rows="3" required>{{ old('alamat', $alamatDefault) }}</textarea>
                 </div>
-                <div>
-                    <label class="block text-sm font-semibold mb-1">Metode Pembayaran</label>
-                    <select name="metode_pembayaran" class="w-full rounded-xl border border-slate-200 px-4 py-3" required>
-                        <option value="">Pilih Metode</option>
-                        <option value="transfer">Transfer Bank</option>
-                        <option value="cod">Bayar di Tempat (COD)</option>
-                        <option value="ewallet">E-Wallet</option>
-                    </select>
+
+                <div class="pt-4 border-t border-slate-100">
+                    <h3 class="font-bold text-lg mb-3 uppercase tracking-wider text-slate-800">Metode Pengiriman</h3>
+                    <div class="space-y-3">
+                        <label class="flex items-center justify-between rounded-xl border border-slate-200 p-4 cursor-pointer hover:border-green-500 transition-colors">
+                            <div class="flex items-center gap-3">
+                                <input type="radio" name="metode_pengiriman" value="kurir" checked class="w-4 h-4 text-green-600 focus:ring-green-500">
+                                <span class="font-medium">Diantar kurir</span>
+                            </div>
+                        </label>
+                        <label class="flex items-center justify-between rounded-xl border border-slate-200 p-4 cursor-pointer hover:border-green-500 transition-colors">
+                            <div class="flex items-center gap-3">
+                                <input type="radio" name="metode_pengiriman" value="standar" class="w-4 h-4 text-green-600 focus:ring-green-500">
+                                <span class="font-medium">Diambil</span>
+                            </div>
+                        </label>
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-sm font-semibold mb-1">Metode Pengiriman</label>
-                    <select name="metode_pengiriman" class="w-full rounded-xl border border-slate-200 px-4 py-3" required>
-                        <option value="">Pilih Metode</option>
-                        <option value="kurir">Kurir</option>
-                        <option value="ambil">Ambil Sendiri</option>
-                    </select>
+
+                <div class="pt-4">
+                    <h3 class="font-bold text-lg mb-3 uppercase tracking-wider text-slate-800">Metode Pembayaran</h3>
+                    <div class="space-y-3">
+                        <label class="flex items-center rounded-xl border border-slate-200 p-4 cursor-pointer hover:border-green-500 transition-colors">
+                            <input type="radio" name="metode_pembayaran" value="qris" checked class="w-4 h-4 text-green-600 focus:ring-green-500 mr-3">
+                            <span class="font-medium">QRIS / E-Wallet</span>
+                        </label>
+                        <label class="flex items-center rounded-xl border border-slate-200 p-4 cursor-pointer hover:border-green-500 transition-colors">
+                            <input type="radio" name="metode_pembayaran" value="va" class="w-4 h-4 text-green-600 focus:ring-green-500 mr-3">
+                            <span class="font-medium">Virtual Account</span>
+                        </label>
+                        <label class="flex items-center rounded-xl border border-slate-200 p-4 cursor-pointer hover:border-green-500 transition-colors">
+                            <input type="radio" name="metode_pembayaran" value="cod" class="w-4 h-4 text-green-600 focus:ring-green-500 mr-3">
+                            <span class="font-medium">Cash on Delivery</span>
+                        </label>
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-sm font-semibold mb-1">Denda (Jika Telat/Hilang)</label>
-                    <input type="text" name="denda_info" value="Denda ditentukan oleh toko saat pengembalian" class="w-full rounded-xl border border-slate-200 px-4 py-3 bg-gray-100 text-gray-600 font-medium" readonly />
-                    <p class="text-xs text-gray-500 mt-1">*Besaran denda akan disesuaikan dengan kondisi barang atau lamanya keterlambatan.</p>
+                <div class="pt-2">
+                    <label class="block text-sm font-bold mb-1 text-slate-800">Catatan Denda</label>
+                    <input type="text" name="denda_info" value="Denda ditentukan oleh toko saat pengembalian" class="w-full rounded-xl border border-slate-200 px-4 py-3 bg-red-50 text-red-600 font-medium" readonly />
+                    <p class="text-xs text-red-500 mt-1">*Besaran denda akan disesuaikan dengan kondisi barang atau lamanya keterlambatan.</p>
                 </div>
-                <button type="submit" class="w-full py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl font-semibold text-lg transition-colors">Ajukan Sewa</button>
+
+                <div class="pt-6 border-t border-slate-200 mt-6">
+                    <div class="flex justify-between items-center mb-6 bg-green-50 p-4 rounded-xl border border-green-100">
+                        <span class="text-slate-600 font-bold uppercase tracking-wider text-sm">Subtotal</span>
+                        <span class="text-2xl font-black text-green-700" id="subtotalDisplay">Rp {{ number_format($produk->rent_price ?? 0) }}</span>
+                    </div>
+                    <button type="submit" class="w-full py-4 bg-green-600 hover:bg-green-700 text-white rounded-xl font-bold text-lg transition-all shadow-lg shadow-green-200">
+                        Ajukan Sewa
+                    </button>
+                </div>
             </form>
         </div>
     </div>
@@ -86,6 +114,11 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 durationInput.value = 1;
             }
+            
+            // Hitung dan update subtotal
+            const rentPrice = {{ $produk->rent_price ?? 0 }};
+            const total = rentPrice * durationInput.value;
+            document.getElementById('subtotalDisplay').innerText = 'Rp ' + total.toLocaleString('id-ID');
         }
     }
 

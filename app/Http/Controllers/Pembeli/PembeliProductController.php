@@ -62,7 +62,7 @@ class PembeliProductController extends Controller
             'start_date' => $request->start_date,
         ]);
 
-        return redirect()->route('orders.index')->with('success', 'Pengajuan sewa berhasil!');
+        return redirect()->route('orders.detail', $pesanan->id)->with('success', 'Pengajuan sewa berhasil dibuat!');
     }
 
     // ================= BELI =================
