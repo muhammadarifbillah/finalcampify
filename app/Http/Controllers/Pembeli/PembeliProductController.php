@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Pembeli\Product_pembeli;
 use App\Models\Pembeli\Order_pembeli;
+use App\Models\Pembeli\Rental_pembeli;
 use App\Models\Pembeli\Wishlist_pembeli;
 
 class PembeliProductController extends Controller
@@ -60,6 +61,18 @@ class PembeliProductController extends Controller
             'type' => 'rent',
             'duration' => $request->duration,
             'start_date' => $request->start_date,
+        ]);
+        
+        // 3. Buat Record Rental (untuk Seller)
+        Rental_pembeli::create([
+            'user_id' => $user->id,
+            'product_id' => $produk->id,
+            'order_id' => $pesanan->id,
+            'start_date' => $request->start_date,
+            'end_date' => $request->end_date,
+            'duration' => $request->duration,
+            'price' => $totalPrice,
+            'status' => 'pending' // Status awal di tabel rentals
         ]);
 
         return redirect()->route('orders.detail', $pesanan->id)->with('success', 'Pengajuan sewa berhasil dibuat!');

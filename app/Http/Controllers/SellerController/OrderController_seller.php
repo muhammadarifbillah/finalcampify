@@ -72,6 +72,9 @@ class OrderController_seller extends Controller
             ->whereHas('details.product', function ($query) {
                 $query->where('user_id', \Illuminate\Support\Facades\Auth::id())
                     ->orWhereHas('store', fn ($store) => $store->where('user_id', \Illuminate\Support\Facades\Auth::id()));
+            })
+            ->whereDoesntHave('details', function ($query) {
+                $query->where('type', 'rent');
             });
     }
 }

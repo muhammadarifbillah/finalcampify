@@ -13,8 +13,8 @@ class Rental_seller extends Model
     protected $table = 'rentals';
 
     protected $fillable = [
-        'user_id', 'product_id', 'tanggal_mulai', 'tanggal_selesai', 
-        'total_harga', 'status', 'catatan'
+        'user_id', 'product_id', 'order_id', 'start_date', 'end_date', 
+        'duration', 'price', 'status', 'catatan'
     ];
 
     public function user() {
@@ -23,5 +23,9 @@ class Rental_seller extends Model
 
     public function product() {
         return $this->belongsTo(Product_seller::class);
+    }
+
+    public function order() {
+        return $this->belongsTo(\App\Models\Order::class, 'order_id');
     }
 }
