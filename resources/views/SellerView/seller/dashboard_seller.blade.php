@@ -1,76 +1,213 @@
 @php
-$userId = \Illuminate\Support\Facades\Auth::id();
+use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
+
+$userId = Auth::id();
+
+/* =========================
+   📦 DATA DASAR
+========================= */
 $products = \App\Models\SellerModels\Product_seller::where('user_id', $userId)->get();
 $productIds = $products->pluck('id');
-$orders = \App\Models\SellerModels\Order_seller::with(['details.product'])
-    ->whereHas('details', fn ($query) => $query->whereIn('product_id', $productIds))
-    ->get();
-$pendingOrders = $orders->whereIn('status', ['menunggu', 'diproses'])->count();
-$totalRevenue = $orders
-    ->where('status', 'selesai')
-    ->sum('total');
 
-// Rating toko
-$avgStoreRating = \App\Models\SellerModels\StoreRating_seller::getAverageRating($userId);
-$storeRatingCount = \App\Models\SellerModels\StoreRating_seller::getRatingCount($userId);
+$orders = \App\Models\SellerModels\Order_seller::with(['details.product'])
+    ->whereHas('details', fn ($q) => $q->whereIn('product_id', $productIds))
+    ->get();
+
+$ordersDone = $orders->where('status','selesai');
+
+$pendingOrders = $orders->whereIn('status',['menunggu','diproses'])->count();
+$totalRevenue = $ordersDone->sum('total');
+
+/* =========================
+   📊 SALES 7 HARI
+========================= */
+$labels = [];
+$dataSales = [];
+
+for ($i = 6; $i >= 0; $i--) {
+    $date = Carbon::now()->subDays($i)->format('Y-m-d');
+
+    $labels[] = Carbon::now()->subDays($i)->format('d M');
+
+    $total = $ordersDone->filter(function ($o) use ($date) {
+        return Carbon::parse($o->created_at)->format('Y-m-d') == $date;
+    })->sum('total');
+
+    $dataSales[] = $total;
+}
+
+/* =========================
+   ⭐ PRODUCT QUALITY
+========================= */
+$productRatings = \App\Models\SellerModels\ProductRating_seller::whereIn('product_id', $productIds)->get();
+$avgProductRating = $productRatings->avg('rating') ?? 0;
+$qualityScore = round(($avgProductRating / 5) * 100);
+
+/* =========================
+   💬 CHAT SPEED (sementara)
+========================= */
+$chatScore = 85;
+
+/* =========================
+   📦 STOCK DATA
+========================= */
+$totalStock = $products->sum('stok');
+
+$totalOrderedQty = $ordersDone->sum(function ($order) {
+    return $order->details->sum('qty');
+});
+
+$stockScore = $totalStock > 0
+    ? max(50, min(100, 100 - (($totalOrderedQty / $totalStock) * 100)))
+    : 100;
+
+/* =========================
+   📈 TREND
+========================= */
+$trendUp = collect($dataSales)->last() > collect($dataSales)->first();
+
+/* =========================
+   🎒 RENTED GEAR
+========================= */
+$rentedGear = $orders
+    ->whereIn('status', ['menunggu','diproses','dikirim'])
+    ->sum(function ($order) {
+        return $order->details
+            ->filter(function ($d) {
+                return optional($d->product)->kategori === 'sewa';
+            })
+            ->sum('qty');
+    });
+
+/* =========================
+   🔍 respon massage 
+========================= */
+$messages = \App\Models\Chat::where('receiver_id', $userId)->get();
+
+$responseTimes = [];
+
+foreach ($messages as $msg) {
+    $reply = \App\Models\Chat::where('sender_id', $userId)
+        ->where('created_at', '>', $msg->created_at)
+        ->first();
+
+    if ($reply) {
+        $diff = $reply->created_at->diffInMinutes($msg->created_at);
+        $responseTimes[] = $diff;
+    }
+}
+
+$avgResponse = count($responseTimes) 
+    ? array_sum($responseTimes)/count($responseTimes) 
+    : 0;
+
+/* convert ke score */
+$chatScore = $avgResponse == 0 ? 100 : max(40, 100 - $avgResponse);
+
+/* =========================
+   📥 RENTAL REQUEST
+========================= */
+$rentalRequests = $orders
+    ->where('status', 'menunggu')
+    ->filter(function ($order) {
+        return $order->details->contains(function ($d) {
+            return optional($d->product)->jenis_produk === 'sewa';
+        });
+    });
+
+$totalRentalRequests = $rentalRequests->count();
 @endphp
+
 
 @extends('SellerView.layouts.app_seller')
 
 @section('content')
 <div class="d-flex" style="min-height:100vh; background:#f9fafb;">
 
-    <div style="width:260px; background:white; border-right:1px solid #eee; display:flex; flex-direction:column; justify-content:space-between;">
+   {{-- SIDEBAR --}}
+    <div style="width:260px; background:#ffffff; border-right:1px solid #e5e7eb; display:flex; flex-direction:column; justify-content:space-between;">
 
         {{-- TOP --}}
         <div>
-            <div class="p-4">
-                <h4 style="color:#10B981; font-weight:800;">CAMPIFY.</h4>
+
+            {{-- BRAND --}}
+            <div class="p-4 border-bottom">
+                <h4 style="color:#10B981; font-weight:800; letter-spacing:1px;">CAMPIFY.</h4>
                 <small class="text-muted">SELLER HUB</small>
             </div>
 
-            <ul class="nav flex-column px-3">
+            {{-- MENU --}}
+            <ul class="nav flex-column px-3 mt-3">
 
-                <li class="nav-item mb-2">
-                    <a class="nav-link {{ request()->routeIs('seller.dashboard') ? 'bg-success text-white rounded px-3 py-2' : 'text-dark' }}"
+                {{-- DASHBOARD --}}
+                <li class="nav-item mb-1">
+                    <a class="nav-link sidebar-link {{ request()->routeIs('seller.dashboard') ? 'active' : '' }}"
                     href="{{ route('seller.dashboard') }}">
-                    Dashboard
+                        📊 Dashboard
                     </a>
                 </li>
 
-                <li class="nav-item mb-2">
-                    <a class="nav-link {{ request()->routeIs('seller.products.index') ? 'bg-success text-white rounded px-3 py-2' : 'text-dark' }}"
+                {{-- PRODUK --}}
+                <li class="nav-item mb-1">
+                    <a class="nav-link sidebar-link {{ request()->routeIs('products*') ? 'active' : '' }}"
                     href="{{ route('seller.products.index') }}">
-                    Kelola Produk
+                        📦 Kelola Produk
                     </a>
                 </li>
 
-                    <li class="nav-item mb-2">
-                        <a class="nav-link {{ request()->routeIs('seller.ratings.index') ? 'bg-success text-white rounded px-3 py-2' : 'text-dark' }}"
-                        href="{{ route('seller.ratings.index') }}">
-                        Kelola Rating
-                        </a>
-                    </li>
-
-                <li class="nav-item mb-2">
-                    <a class="nav-link {{ request()->routeIs('seller.orders.index') ? 'bg-success text-white rounded px-3 py-2' : 'text-dark' }}"
-                    href="/seller/orders">
-                    Pesanan Baru
+                {{-- RATING --}}
+                <li class="nav-item mb-1">
+                    <a class="nav-link sidebar-link {{ request()->routeIs('seller.ratings.index') ? 'active' : '' }}"
+                    href="/seller/ratings">
+                        ⭐ Kelola Rating
                     </a>
                 </li>
 
-                <li class="nav-item mb-2">
-                    <a class="nav-link {{ request()->routeIs('seller.rentals.index') ? 'bg-success text-white rounded px-3 py-2' : 'text-dark' }}"
-                    href="/seller/rentals">
-                    Penyewaan Alat
+                {{-- TRANSAKSI (DROPDOWN) --}}
+                <li class="nav-item mb-1">
+
+                    <a class="nav-link sidebar-link d-flex justify-content-between align-items-center"
+                    data-bs-toggle="collapse"
+                    href="#transaksiMenu"
+                    role="button"
+                    aria-expanded="false"
+                    aria-controls="transaksiMenu">
+
+                        💰 Transaksi
+                        <span class="text-muted">▾</span>
+
                     </a>
+
+                    <div class="collapse {{ request()->is('seller/orders*') || request()->is('seller/rentals*') ? 'show' : '' }}"
+                        id="transaksiMenu">
+
+                        <ul class="nav flex-column ms-3 mt-1">
+
+                            <li class="nav-item">
+                                <a class="nav-link sidebar-sub {{ request()->is('seller/orders*') ? 'active' : '' }}"
+                                href="/seller/orders">
+                                    🧾 Pesanan Baru
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link sidebar-sub {{ request()->is('seller/rentals*') ? 'active' : '' }}"
+                                href="/seller/rentals">
+                                    🏕️ Penyewaan Alat
+                                </a>
+                            </li>
+
+                        </ul>
+
+                    </div>
                 </li>
 
-                {{-- CHAT TETAP DI ATAS --}}
-                <li class="nav-item mb-2">
-                    <a class="nav-link {{ request()->routeIs('SellerView.chat.index') ? 'bg-success text-white rounded px-3 py-2' : 'text-dark' }}"
+                {{-- CHAT --}}
+                <li class="nav-item mb-1">
+                    <a class="nav-link sidebar-link {{ request()->routeIs('chat.index') ? 'active' : '' }}"
                     href="/seller/chat">
-                    Chat Pembeli
+                        💬 Chat Pembeli
                     </a>
                 </li>
 
@@ -80,159 +217,176 @@ $storeRatingCount = \App\Models\SellerModels\StoreRating_seller::getRatingCount(
         {{-- BOTTOM --}}
         <div class="px-3 pb-4">
             <hr>
-
-            <ul class="nav flex-column">
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('SellerView.store-profile.show') ? 'bg-success text-white rounded px-3 py-2' : 'text-dark' }}"
-                    href="/seller/store-profile/show">
-                        Profil Toko
-                    </a>
-                </li>
-            </ul>
+            <a class="nav-link sidebar-link {{ request()->routeIs('seller.store-profile*') ? 'bg-success text-white rounded px-3 py-2' : 'text-dark' }}" href="{{ route('seller.store-profile.index') }}"">
+                👤 Profil Toko
+            </a>
         </div>
-
     </div>
 
     {{-- MAIN --}}
     <div class="flex-grow-1 p-4">
 
-        {{-- HEADER --}}
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h4 class="fw-bold">DASHBOARD</h4>
-        </div>
+        <h4 class="fw-bold">DASHBOARD</h4>
+        <small class="text-muted">Pantau performa tokomu hari ini.</small>
 
         {{-- CARDS --}}
-        <div class="row g-3 mb-4">
+        <div class="row g-3 mt-3 mb-4">
 
-            {{-- Pendapatan --}}
             <div class="col-md-3">
-                <div class="card border-0 shadow-sm p-3" style="border-radius:16px;">
-                    <small class="text-muted">Pendapatan (bulan ini)</small>
-                    <h4 class="fw-bold mt-1">Rp {{ number_format($totalRevenue,0,',','.') }}</h4>
-                    <small class="text-success">pendapatan meningkat dari bulan lalu</small>
+                <div class="card p-3 shadow-sm border-0 rounded-4">
+                    <small>Revenue</small>
+                    <h5 class="fw-bold">Rp {{ number_format($totalRevenue,0,',','.') }}</h5>
+
+                    @if($trendUp)
+                        <small class="text-success">↑ Meningkat</small>
+                    @else
+                        <small class="text-danger">↓ Menurun</small>
+                    @endif
                 </div>
             </div>
 
-            {{-- Pesanan --}}
             <div class="col-md-3">
-                <div class="card border-0 shadow-sm p-3" style="border-radius:16px;">
-                    <small class="text-muted">Pesanan Masuk</small>
-                    <h4 class="fw-bold mt-1">{{ $orders->count() }}</h4>
-                    <small class="text-danger">{{ $pendingOrders }} Perlu dikirim</small>
+                <div class="card p-3 shadow-sm border-0 rounded-4">
+                    <small>Orders</small>
+                    <h5 class="fw-bold">{{ $orders->count() }}</h5>
+                    <small class="text-danger">{{ $pendingOrders }} pending</small>
                 </div>
             </div>
 
-            {{-- Sewa --}}
             <div class="col-md-3">
-                <div class="card border-0 shadow-sm p-3" style="border-radius:16px;">
-                    <small class="text-muted">Alat Sedang Disewa</small>
-                    <h4 class="fw-bold mt-1">{{ $products->where('kategori','sewa')->count() }}</h4>
-                    <small class="text-primary">Menunggu konfirmasi</small>
+                <div class="card p-3 shadow-sm border-0 rounded-4">
+                    <small>Rented Gear</small>
+                    <h5 class="fw-bold">{{ $rentedGear }}</h5>
+                    <small class="text-primary">Sedang disewa</small>
                 </div>
             </div>
 
-            {{-- Rating --}}
             <div class="col-md-3">
-                <div class="card border-0 shadow-sm p-3" style="border-radius:16px;">
-                    <small class="text-muted">Rating Seller</small>
-                    <h4 class="fw-bold mt-1">{{ number_format($avgStoreRating, 1) }} <small class="text-muted">/5.0</small></h4>
-                    <small class="text-success">{{ $storeRatingCount }} ulasan</small>
+                <div class="card p-3 shadow-sm border-0 rounded-4">
+                    <small>Rating</small>
+                    <h5 class="fw-bold">{{ number_format($avgProductRating,1) }}/5</h5>
                 </div>
             </div>
 
+            <div class="col-md-3">
+                <a href="{{ route('seller.rentals.index') }}" class="text-decoration-none text-dark">
+                    <div class="card p-3 shadow-sm border-0 rounded-4">
+                        <small>Permintaan Sewa</small>
+                        <h5 class="fw-bold">{{ $totalRentalRequests }}</h5>
+
+                        @if($totalRentalRequests > 0)
+                            <small class="text-danger">
+                                {{ $totalRentalRequests }} perlu diproses
+                            </small>
+                        @else
+                            <small class="text-success">Semua aman</small>
+                        @endif
+                    </div>
+                </a>
+            </div>
         </div>
 
         <div class="row g-4">
 
             {{-- LEFT --}}
             <div class="col-md-8">
-                <div class="card border-0 shadow-sm p-3" style="border-radius:16px;">
 
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h6 class="fw-bold mb-0">KONFIRMASI PESANAN & RESI</h6>
-                        <small class="text-success fw-semibold">LIHAT SEMUA</small>
+                {{-- SALES CHART --}}
+                <div class="card p-3 shadow-sm border-0 rounded-4 mb-4">
+                    <h6 class="fw-bold">Sales Overview</h6>
+                    <canvas id="salesChart" height="120"></canvas>
+                </div>
+
+                {{-- RECENT ORDERS --}}
+                <div class="card p-3 shadow-sm border-0 rounded-4">
+                    <div class="d-flex justify-content-between">
+                        <h6 class="fw-bold">Recent Orders</h6>
                     </div>
 
-                    <table class="table align-middle">
-                        <thead class="text-muted small">
+                    <table class="table mt-3">
+                        <thead>
                             <tr>
-                                <th>ID PESANAN</th>
-                                <th>PRODUK</th>
-                                <th>STATUS</th>
-                                <th>AKSI</th>
+                                <th>ID</th>
+                                <th>Produk</th>
+                                <th>Status</th>
                             </tr>
                         </thead>
 
                         <tbody>
-                            @forelse($orders->take(5) as $o)
-                            <tr>
-                                <td class="fw-semibold">#ORD-{{ $o->id }}</td>
-                                <td>{{ $o->product->nama_produk ?? '-' }}</td>
+                        @forelse($orders->take(5) as $o)
+                        <tr>
+                            <td>#{{ $o->id }}</td>
 
-                                <td>
-                                @if($o->status == 'diproses')
-                                    <span class="badge bg-primary">Diproses</span>
-                                @elseif($o->status == 'dikirim')
-                                    <span class="badge bg-warning text-dark">Dikirim</span>
-                                @elseif($o->status == 'selesai')
-                                    <span class="badge bg-success">Selesai</span>
-                                @else
-                                    <span class="badge bg-secondary">{{ $o->status }}</span>
-                                @endif
+                            <td>
+                                {{ optional($o->details->first())->product->nama_produk ?? '-' }}
                             </td>
 
-                                <td>
-                                    @if(empty($o->resi))
-                                        {{-- Jika belum ada resi --}}
-                                        <form action="/seller/orders/{{ $o->id }}/update-resi" method="POST" class="d-flex gap-2">
-                                            @csrf
-
-                                            <input type="text"
-                                                name="resi"
-                                                class="form-control form-control-sm rounded-pill"
-                                                placeholder="Masukkan resi..."
-                                                required>
-
-                                            <button type="submit"
-                                                    class="btn btn-success btn-sm rounded-pill px-3">
-                                                Simpan
-                                            </button>
-                                        </form>
-                                    @else
-                                        {{-- Jika sudah ada resi --}}
-                                        <span class="badge bg-light text-dark border rounded-pill px-3 py-2">
-                                            No: {{ $o->resi }}
-                                        </span>
-                                    @endif
-                                </td>
-                            </tr>
-                            @empty
-                            <tr>
-                                <td colspan="4" class="text-center text-muted">Belum ada pesanan</td>
-                            </tr>
-                            @endforelse
+                            <td>
+                                <span class="badge bg-secondary">
+                                    {{ $o->status }}
+                                </span>
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="3" class="text-center text-muted">
+                                Belum ada pesanan
+                            </td>
+                        </tr>
+                        @endforelse
                         </tbody>
                     </table>
-
                 </div>
+
             </div>
 
             {{-- RIGHT --}}
             <div class="col-md-4">
 
-                <div class="card border-0 shadow-sm p-3 mb-3" style="border-radius:16px;">
-                    <h6 class="fw-bold">KONFIRMASI SEWA</h6>
-                    <p class="text-muted small mb-2">Belum ada permintaan baru.</p>
+                {{-- PERFORMANCE --}}
+                <div class="card p-3 shadow-sm border-0 rounded-4 mb-3">
+                    <h6 class="fw-bold mb-3">Seller Performance</h6>
+
+                    {{-- Kualitas Produk --}}
+                    <div class="d-flex justify-content-between">
+                        <small>Kualitas Produk</small>
+                        <small class="fw-semibold">{{ number_format($qualityScore, 1) }}%</small>
+                    </div>
+                    <div class="progress mb-3" style="height:6px;">
+                        <div class="progress-bar bg-success" 
+                            style="width:{{ $qualityScore }}%">
+                        </div>
+                    </div>
+
+                    {{-- Chat Speed --}}
+                    <div class="d-flex justify-content-between">
+                        <small>Chat Speed</small>
+                        <small class="fw-semibold">{{ number_format($chatScore, 1) }}%</small>
+                    </div>
+                    <div class="progress mb-3" style="height:6px;">
+                        <div class="progress-bar bg-info" 
+                            style="width:{{ $chatScore }}%">
+                        </div>
+                    </div>
+
+                    {{-- Stock Accuracy --}}
+                    <div class="d-flex justify-content-between">
+                        <small>Stock Accuracy</small>
+                        <small class="fw-semibold">{{ number_format($stockScore, 1) }}%</small>
+                    </div>
+                    <div class="progress" style="height:6px;">
+                        <div class="progress-bar bg-warning" 
+                            style="width:{{ $stockScore }}%">
+                        </div>
+                    </div>
                 </div>
 
-                <div class="card border-0 text-white p-3"
-                     style="border-radius:16px;
-                            background: linear-gradient(135deg, #10B981, #065F46);">
-                    <h6 class="fw-bold">BUTUH BANTUAN?</h6>
-                    <p class="small">Dapatkan tips mengelola rental alat outdoor di Campify.</p>
-                    <button class="btn btn-light btn-sm rounded-pill">
-                        Pelajari Selengkapnya
-                    </button>
+                {{-- HELP --}}
+                <div class="card p-3 text-white rounded-4 border-0"
+                     style="background:linear-gradient(135deg,#10B981,#065F46);">
+                    <h6 class="fw-bold">Butuh Bantuan?</h6>
+                    <p class="small">Tim support siap bantu tokomu 24/7</p>
+                    <button class="btn btn-light btn-sm">Hubungi Support</button>
                 </div>
 
             </div>
@@ -241,5 +395,28 @@ $storeRatingCount = \App\Models\SellerModels\StoreRating_seller::getRatingCount(
 
     </div>
 </div>
+
+{{-- CHART --}}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const labels = @json($labels);
+const dataSales = @json($dataSales);
+
+new Chart(document.getElementById('salesChart'), {
+    type: 'line',
+    data: {
+        labels: labels,
+        datasets: [{
+            data: dataSales,
+            fill: true,
+            tension: 0.4
+        }]
+    },
+    options: {
+        plugins: { legend: { display: false } }
+    }
+});
+</script>
+
 @endsection
 

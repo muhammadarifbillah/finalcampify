@@ -4,57 +4,88 @@
 <div class="d-flex" style="min-height:100vh; background:#f9fafb;">
 
     {{-- SIDEBAR --}}
-    <div style="width:260px; background:white; border-right:1px solid #eee; display:flex; flex-direction:column; justify-content:space-between;">
+    <div style="width:260px; background:#ffffff; border-right:1px solid #e5e7eb; display:flex; flex-direction:column; justify-content:space-between;">
 
         {{-- TOP --}}
         <div>
-            <div class="p-4">
-                <h4 style="color:#10B981; font-weight:800;">CAMPIFY.</h4>
+
+            {{-- BRAND --}}
+            <div class="p-4 border-bottom">
+                <h4 style="color:#10B981; font-weight:800; letter-spacing:1px;">CAMPIFY.</h4>
                 <small class="text-muted">SELLER HUB</small>
             </div>
 
-            <ul class="nav flex-column px-3">
+            {{-- MENU --}}
+            <ul class="nav flex-column px-3 mt-3">
 
-                <li class="nav-item mb-2">
-                    <a class="nav-link {{ request()->routeIs('seller.dashboard') ? 'bg-success text-white rounded px-3 py-2' : 'text-dark' }}"
+                {{-- DASHBOARD --}}
+                <li class="nav-item mb-1">
+                    <a class="nav-link sidebar-link {{ request()->routeIs('seller.dashboard') ? 'active' : '' }}"
                     href="{{ route('seller.dashboard') }}">
-                    Dashboard
+                        📊 Dashboard
                     </a>
                 </li>
 
-                <li class="nav-item mb-2">
-                    <a class="nav-link {{ request()->routeIs('products*') ? 'bg-success text-white rounded px-3 py-2' : 'text-dark' }}"
+                {{-- PRODUK --}}
+                <li class="nav-item mb-1">
+                    <a class="nav-link sidebar-link {{ request()->routeIs('products*') ? 'active' : '' }}"
                     href="{{ route('seller.products.index') }}">
-                    Kelola Produk
+                        📦 Kelola Produk
                     </a>
                 </li>
 
-                    <li class="nav-item mb-2">
-                        <a class="nav-link {{ request()->routeIs('seller.ratings.index') ? 'bg-success text-white rounded px-3 py-2' : 'text-dark' }}"
-                        href="/ratings">
-                        Kelola Rating
-                        </a>
-                    </li>
-
-                <li class="nav-item mb-2">
-                    <a class="nav-link {{ request()->routeIs('orders*') ? 'bg-success text-white rounded px-3 py-2' : 'text-dark' }}"
-                    href="/seller/orders">
-                    Pesanan Baru
+                {{-- RATING --}}
+                <li class="nav-item mb-1">
+                    <a class="nav-link sidebar-link {{ request()->routeIs('seller.ratings.index') ? 'active' : '' }}"
+                    href="/seller/ratings">
+                        ⭐ Kelola Rating
                     </a>
                 </li>
 
-                <li class="nav-item mb-2">
-                    <a class="nav-link {{ request()->routeIs('rentals.index') ? 'bg-success text-white rounded px-3 py-2' : 'text-dark' }}"
-                    href="/rentals">
-                    Penyewaan Alat
+                {{-- TRANSAKSI (DROPDOWN) --}}
+                <li class="nav-item mb-1">
+
+                    <a class="nav-link sidebar-link d-flex justify-content-between align-items-center"
+                    data-bs-toggle="collapse"
+                    href="#transaksiMenu"
+                    role="button"
+                    aria-expanded="false"
+                    aria-controls="transaksiMenu">
+
+                        💰 Transaksi
+                        <span class="text-muted">▾</span>
+
                     </a>
+
+                    <div class="collapse {{ request()->is('seller/orders*') || request()->is('seller/rentals*') ? 'show' : '' }}"
+                        id="transaksiMenu">
+
+                        <ul class="nav flex-column ms-3 mt-1">
+
+                            <li class="nav-item">
+                                <a class="nav-link sidebar-sub {{ request()->is('seller/orders*') ? 'active' : '' }}"
+                                href="/seller/orders">
+                                    🧾 Pesanan Baru
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link sidebar-sub {{ request()->is('seller/rentals*') ? 'active' : '' }}"
+                                href="/seller/rentals">
+                                    🏕️ Penyewaan Alat
+                                </a>
+                            </li>
+
+                        </ul>
+
+                    </div>
                 </li>
 
-                {{-- CHAT TETAP DI ATAS --}}
-                <li class="nav-item mb-2">
-                    <a class="nav-link {{ request()->routeIs('chat.index') ? 'bg-success text-white rounded px-3 py-2' : 'text-dark' }}"
-                    href="/chat">
-                    Chat Pembeli
+                {{-- CHAT --}}
+                <li class="nav-item mb-1">
+                    <a class="nav-link sidebar-link {{ request()->routeIs('chat.index') ? 'active' : '' }}"
+                    href="/seller/chat">
+                        💬 Chat Pembeli
                     </a>
                 </li>
 
@@ -64,17 +95,10 @@
         {{-- BOTTOM --}}
         <div class="px-3 pb-4">
             <hr>
-
-            <ul class="nav flex-column">
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('store-profile*') ? 'bg-success text-white rounded px-3 py-2' : 'text-dark' }}"
-                    href="/store-profile">
-                        Profil Toko
-                    </a>
-                </li>
-            </ul>
+            <a class="nav-link sidebar-link {{ request()->routeIs('seller.store-profile*') ? 'bg-success text-white rounded px-3 py-2' : 'text-dark' }}" href="{{ route('seller.store-profile.index') }}"">
+                👤 Profil Toko
+            </a>
         </div>
-
     </div>
 
     {{-- CONTENT --}}

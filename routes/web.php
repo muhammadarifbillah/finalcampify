@@ -221,6 +221,8 @@ Route::middleware(['auth', 'role:seller'])->prefix('seller')->name('seller.')->g
     Route::get('/ratings', [RatingController_seller::class, 'index'])->name('ratings.index');
     Route::post('/ratings/product', [RatingController_seller::class, 'storeProductRating'])->name('ratings.product');
     Route::post('/ratings/store', [RatingController_seller::class, 'storeStoreRating'])->name('ratings.store');
+    Route::post('/ratings/product/{rating}/reply', [RatingController_seller::class, 'replyProductRating'])->name('ratings.product.reply');
+    Route::post('/ratings/store/{rating}/reply', [RatingController_seller::class, 'replyStoreRating'])->name('ratings.store.reply');
     Route::get('/ratings/product/{productId}', [RatingController_seller::class, 'getProductRatings'])->name('ratings.product.show');
     Route::get('/ratings/store/{storeId}', [RatingController_seller::class, 'getStoreRatings'])->name('ratings.store.show');
 });

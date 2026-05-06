@@ -9,6 +9,43 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
 
     <style>
+        .sidebar-link {
+            color: #374151;
+            border-radius: 10px;
+            padding: 10px 12px;
+            transition: 0.2s;
+        }
+
+        .sidebar-link:hover {
+            background: #f3f4f6;
+            color: #10B981;
+            padding-left: 16px;
+        }
+
+        .sidebar-link.active {
+            background: #10B981;
+            color: white !important;
+            font-weight: 600;
+        }
+
+        .sidebar-sub {
+            color: #6b7280;
+            border-radius: 8px;
+            padding: 8px 10px;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+
+        .sidebar-sub:hover {
+            background: #f3f4f6;
+            color: #10B981;
+            padding-left: 14px;
+        }
+
+        .sidebar-sub.active {
+            color: #10B981;
+            font-weight: 600;
+        }
         .navbar-custom {
             background-color: #157347; /* hijau */
         }

@@ -200,6 +200,55 @@ class RatingController_seller extends Controller
 
     /*
     |--------------------------------------------------------------------------
+    | REPLY PRODUCT RATING
+    |--------------------------------------------------------------------------
+    */
+    public function replyProductRating(Request $request, $ratingId)
+    {
+        $request->validate([
+            'reply' => 'required|string|max:1000',
+        ]);
+
+        $rating = ProductRating_seller::findOrFail($ratingId);
+
+        // Pastikan seller memiliki produk ini
+        $sellerId = Auth::id();
+        $productIds = Product_seller::where('user_id', $sellerId)->pluck('id');
+        if (!$productIds->contains($rating->product_id)) {
+            return back()->with('error', 'Anda tidak memiliki akses untuk membalas ulasan ini.');
+        }
+
+        $rating->update(['reply' => $request->reply]);
+
+        return back()->with('success', 'Balasan berhasil dikirim!');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | REPLY STORE RATING
+    |--------------------------------------------------------------------------
+    */
+    public function replyStoreRating(Request $request, $ratingId)
+    {
+        $request->validate([
+            'reply' => 'required|string|max:1000',
+        ]);
+
+        $rating = StoreRating_seller::findOrFail($ratingId);
+
+        // Pastikan seller adalah pemilik toko
+        $sellerId = Auth::id();
+        if ($rating->store_id != $sellerId) {
+            return back()->with('error', 'Anda tidak memiliki akses untuk membalas ulasan ini.');
+        }
+
+        $rating->update(['reply' => $request->reply]);
+
+        return back()->with('success', 'Balasan berhasil dikirim!');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
     | API RATING PRODUK
     |--------------------------------------------------------------------------
     */
