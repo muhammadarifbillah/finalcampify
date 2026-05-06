@@ -20,7 +20,7 @@ class PembeliOrderController extends Controller
 
     public function detail($id)
     {
-        $pesanan = Order_pembeli::with('details.product')->where('user_id', \Illuminate\Support\Facades\Auth::id())->findOrFail($id);
+        $pesanan = Order_pembeli::with('details.product.store')->where('user_id', \Illuminate\Support\Facades\Auth::id())->findOrFail($id);
         return view('pembeli.orders.detail_pembeli', compact('pesanan'));
     }
 

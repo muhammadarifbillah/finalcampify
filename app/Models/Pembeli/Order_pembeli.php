@@ -20,6 +20,8 @@ class Order_pembeli extends Order
         'kurir',
         'no_resi',
         'bukti_pembayaran',
+        'latitude',
+        'longitude',
     ];
 
 public function details()

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Campify</title>
     @vite('resources/css/app.css')
+    @yield('extra_css')
 </head>
 <body>
 
@@ -18,5 +19,6 @@
     {{-- Footer --}}
     @include('layouts.footer_pembeli')
 
+    @yield('extra_js')
 </body>
 </html>
