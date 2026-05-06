@@ -18,6 +18,7 @@ class ProductRating_seller extends Model
         'rating',
         'comment',
         'ulasan',
+        'reply',
     ];
 
     public function product()

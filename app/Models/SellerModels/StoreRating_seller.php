@@ -18,6 +18,7 @@ class StoreRating_seller extends Model
         'rating',
         'comment',
         'ulasan',
+        'reply',
     ];
 
     public function store()
