@@ -147,12 +147,25 @@
 
                     <hr>
 
-                    <p><strong>Tanggal Mulai:</strong> {{ \Carbon\Carbon::parse($rental->tanggal_mulai)->format('d F Y') }}</p>
-                    <p><strong>Tanggal Selesai:</strong> {{ \Carbon\Carbon::parse($rental->tanggal_selesai)->format('d F Y') }}</p>
-                    <p><strong>Total Harga:</strong> Rp {{ number_format($rental->total_harga,0,',','.') }}</p>
+                    <p><strong>Tanggal Mulai:</strong> {{ \Carbon\Carbon::parse($rental->start_date)->format('d F Y') }}</p>
+                    <p><strong>Tanggal Selesai:</strong> {{ \Carbon\Carbon::parse($rental->end_date)->format('d F Y') }}</p>
+                    <p><strong>Total Harga:</strong> Rp {{ number_format($rental->price,0,',','.') }}</p>
 
                     @if($rental->catatan)
                         <p><strong>Catatan:</strong> {{ $rental->catatan }}</p>
+                    @endif
+
+                    {{-- BUKTI PEMBAYARAN --}}
+                    @if($rental->order && $rental->order->bukti_pembayaran)
+                        <div class="mt-4 p-3 bg-light rounded border">
+                            <p class="small fw-bold text-muted mb-2">BUKTI PEMBAYARAN</p>
+                            <a href="{{ asset($rental->order->bukti_pembayaran) }}" target="_blank">
+                                <img src="{{ asset($rental->order->bukti_pembayaran) }}" class="img-thumbnail" style="max-height:150px;">
+                            </a>
+                            <div class="mt-2">
+                                <small class="text-muted italic">*Klik gambar untuk memperbesar</small>
+                            </div>
+                        </div>
                     @endif
 
                     <div class="mt-4">

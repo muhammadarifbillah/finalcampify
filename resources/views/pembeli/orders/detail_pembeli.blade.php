@@ -60,6 +60,17 @@
                             <span class="font-bold text-slate-800">Total Transaksi</span>
                             <span class="text-xl font-black text-emerald-600">Rp {{ number_format($pesanan->total ?? 0) }}</span>
                         </div>
+                        @if($pesanan->bukti_pembayaran)
+                        <div class="pt-4 mt-4 border-t border-dashed border-slate-200">
+                            <p class="text-[10px] font-bold text-slate-400 uppercase mb-2">Bukti Pembayaran</p>
+                            <a href="{{ asset($pesanan->bukti_pembayaran) }}" target="_blank" class="group block relative rounded-xl overflow-hidden border-2 border-slate-100 hover:border-emerald-500 transition-all">
+                                <img src="{{ asset($pesanan->bukti_pembayaran) }}" class="w-full h-32 object-cover opacity-80 group-hover:opacity-100 transition-opacity">
+                                <div class="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <span class="text-white text-xs font-bold px-3 py-1 bg-black/50 rounded-full">Lihat Full Image</span>
+                                </div>
+                            </a>
+                        </div>
+                        @endif
                     </div>
                 </div>
             </div>

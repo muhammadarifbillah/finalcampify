@@ -15,7 +15,7 @@ class PembeliCheckoutController extends Controller
 {
     public function index()
     {
-        $cart = Keranjang_pembeli::with('product')
+        $cart = Keranjang_pembeli::with('product.store')
             ->where('user_id', Auth::id())
             ->get();
 
@@ -57,6 +57,7 @@ class PembeliCheckoutController extends Controller
             'telepon' => 'required|string|max:25',
             'metode_pembayaran' => 'required|string|in:transfer,cod,ewallet',
             'shipping_method' => 'required|string|in:jne,gosend',
+            'bukti_pembayaran' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
 
         $user->update([
@@ -83,6 +84,14 @@ class PembeliCheckoutController extends Controller
         $shippingCost = $shippingRates[$requestData['shipping_method']] ?? 0;
         $total = $subtotal + $shippingCost;
 
+        $buktiPath = null;
+        if ($r->hasFile('bukti_pembayaran')) {
+            $file = $r->file('bukti_pembayaran');
+            $filename = time() . '_' . Auth::id() . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/pembayaran'), $filename);
+            $buktiPath = 'uploads/pembayaran/' . $filename;
+        }
+
         $pesanan = Order_pembeli::create([
             'user_id' => Auth::id(),
             'receiver_name' => $user->name,
@@ -95,6 +104,7 @@ class PembeliCheckoutController extends Controller
             'metode_pembayaran' => $requestData['metode_pembayaran'],
             'kurir' => $requestData['shipping_method'],
             'status' => 'diproses',
+            'bukti_pembayaran' => $buktiPath,
         ]);
 
         foreach ($cart as $item) {

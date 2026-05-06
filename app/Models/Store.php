@@ -19,7 +19,10 @@ class Store extends Model
         'deskripsi',
         'alamat',
         'logo',
-        'catatan_admin'
+        'catatan_admin',
+        'bank_name',
+        'bank_account_number',
+        'bank_account_name',
     ];
 
     protected $casts = [

@@ -9,7 +9,7 @@
 
     <h1 class="text-3xl font-bold mb-8">Checkout</h1>
 
-    <form action="{{ route('checkout.process') }}" method="POST">
+    <form action="{{ route('checkout.process') }}" method="POST" enctype="multipart/form-data">
         @csrf
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -153,6 +153,52 @@
                             <span>E-Wallet</span>
                         </label>
                     </div>
+
+                    <div class="mt-6 p-4 bg-slate-50 rounded-xl border border-dashed border-slate-300 text-center">
+                        <label class="block text-sm font-semibold mb-2 text-slate-600">Unggah Bukti Pembayaran</label>
+                        <input type="file" name="bukti_pembayaran" accept="image/*" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100" required />
+                        <p class="mt-2 text-[10px] text-slate-400 italic">Format: JPG, PNG, WEBP (Maks. 2MB)</p>
+                    </div>
+                </div>
+
+                {{-- INFO REKENING DINAMIS CHECKOUT --}}
+                <div id="checkout_payment_info" class="bg-white p-6 rounded-lg shadow mt-6 hidden">
+                    <h2 class="text-xl font-bold mb-4">Informasi Pembayaran</h2>
+                    <div class="bg-emerald-50 rounded-2xl p-5 border border-emerald-100">
+                        <div id="checkout_info_transfer" class="hidden space-y-4">
+                            @php
+                                $uniqueStores = $cart->pluck('product.store')->unique('id')->filter();
+                            @endphp
+                            
+                            @forelse($uniqueStores as $store)
+                                <div class="p-3 bg-white rounded-xl border border-emerald-100">
+                                    <p class="text-[10px] font-black text-emerald-600 uppercase mb-2">TOKO: {{ $store->nama_toko }}</p>
+                                    @if($store->bank_account_number)
+                                        <div class="flex items-center justify-between">
+                                            <div>
+                                                <p class="text-[10px] font-bold text-slate-400 uppercase">{{ $store->bank_name ?? 'Transfer Bank' }}</p>
+                                                <p class="font-black text-slate-800 text-lg">{{ $store->bank_account_number }}</p>
+                                                <p class="text-xs text-slate-500">a/n {{ $store->bank_account_name }}</p>
+                                            </div>
+                                            <button type="button" onclick="copyToClipboard('{{ $store->bank_account_number }}')" class="text-emerald-600 font-bold text-xs hover:underline">Salin</button>
+                                        </div>
+                                    @else
+                                        <p class="text-xs text-slate-500 italic">Seller belum mengatur info rekening.</p>
+                                    @endif
+                                </div>
+                            @empty
+                                <p class="text-sm text-slate-500 italic">Tidak ada data toko.</p>
+                            @endforelse
+                        </div>
+                        <div id="checkout_info_ewallet" class="hidden text-center space-y-3">
+                            <p class="text-xs font-bold text-slate-500 uppercase">Gunakan QRIS Pembayaran Pusat</p>
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=CAMPIFY_EWALLET" class="mx-auto border-2 border-white rounded-xl shadow-sm">
+                            <p class="text-sm font-bold text-slate-700">Scan QRIS a/n Campify Indonesia</p>
+                        </div>
+                        <div id="checkout_info_cod" class="hidden">
+                            <p class="text-sm text-slate-700">Bayar langsung ke kurir saat barang tiba.</p>
+                        </div>
+                    </div>
                 </div>
 
                 {{-- METODE PENGIRIMAN --}}
@@ -171,7 +217,7 @@
                         <label class="flex items-center justify-between rounded-2xl border border-slate-200 px-4 py-4 cursor-pointer">
                             <div>
                                 <p class="font-semibold">GoSend</p>
-                                <p class="text-sm text-slate-500">Estimasi 1-2 hari</p>
+                                <p class="text-sm text-slate-500">Estimasi 1 hari</p>
                             </div>
                             <div class="text-slate-700 font-semibold">Rp 25.000</div>
                             <input type="radio" name="shipping_method" value="gosend" class="ml-4">
@@ -257,5 +303,34 @@
 
     shippingRadios.forEach(radio => radio.addEventListener('change', updateTotal));
     updateTotal();
+
+    // Payment Info Toggle Checkout
+    const payRadios = document.querySelectorAll('input[name="metode_pembayaran"]');
+    const payInfoBox = document.getElementById('checkout_payment_info');
+    const infoTransfer = document.getElementById('checkout_info_transfer');
+    const infoEwallet = document.getElementById('checkout_info_ewallet');
+    const infoCodCheckout = document.getElementById('checkout_info_cod');
+
+    function updatePayInfo() {
+        const selected = document.querySelector('input[name="metode_pembayaran"]:checked').value;
+        payInfoBox.classList.remove('hidden');
+        infoTransfer.classList.add('hidden');
+        infoEwallet.classList.add('hidden');
+        infoCodCheckout.classList.add('hidden');
+
+        if(selected === 'transfer') infoTransfer.classList.remove('hidden');
+        if(selected === 'ewallet') infoEwallet.classList.remove('hidden');
+        if(selected === 'cod') infoCodCheckout.classList.remove('hidden');
+    }
+
+    payRadios.forEach(r => r.addEventListener('change', updatePayInfo));
+    updatePayInfo();
+</script>
+<script>
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+        alert('Nomor rekening berhasil disalin!');
+    });
+}
 </script>
 @endsection

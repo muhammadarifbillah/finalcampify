@@ -19,6 +19,7 @@ class Order_pembeli extends Order
         'status',
         'kurir',
         'no_resi',
+        'bukti_pembayaran',
     ];
 
 public function details()

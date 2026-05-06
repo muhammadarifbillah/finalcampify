@@ -15,7 +15,7 @@ class PembeliProductController extends Controller
     // ================= FORM SEWA =================
     public function formSewa($id)
     {
-        $produk = Product_pembeli::findOrFail($id);
+        $produk = Product_pembeli::with('store')->findOrFail($id);
         $user = auth()->user();
         return view('pembeli.sewa.form_pembeli', compact('produk', 'user'));
     }
@@ -31,11 +31,21 @@ class PembeliProductController extends Controller
             'alamat' => 'required|string',
             'metode_pembayaran' => 'required|string',
             'metode_pengiriman' => 'required|string',
+            'bukti_pembayaran' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
 
         $user = auth()->user();
         $produk = Product_pembeli::findOrFail($request->product_id);
         $totalPrice = $produk->rent_price * $request->duration;
+
+        // 0. Handle Bukti Pembayaran
+        $buktiPath = null;
+        if ($request->hasFile('bukti_pembayaran')) {
+            $file = $request->file('bukti_pembayaran');
+            $filename = time() . '_' . $user->id . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/pembayaran'), $filename);
+            $buktiPath = 'uploads/pembayaran/' . $filename;
+        }
 
         // 1. Buat Header Order
         $pesanan = Order_pembeli::create([
@@ -50,6 +60,7 @@ class PembeliProductController extends Controller
             'metode_pembayaran' => $request->metode_pembayaran,
             'status' => 'menunggu', // Gunakan 'menunggu' agar sesuai dengan filter di detail
             'kurir' => $request->metode_pengiriman,
+            'bukti_pembayaran' => $buktiPath,
         ]);
 
         // 2. Buat Detail Order

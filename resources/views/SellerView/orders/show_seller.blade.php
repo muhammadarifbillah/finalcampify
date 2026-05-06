@@ -174,6 +174,19 @@
                         <p><strong>No Resi:</strong> {{ $order->resi }}</p>
                     @endif
 
+                    {{-- BUKTI PEMBAYARAN --}}
+                    @if($order->bukti_pembayaran)
+                        <div class="mt-4 p-3 bg-light rounded border">
+                            <p class="small fw-bold text-muted mb-2">BUKTI PEMBAYARAN</p>
+                            <a href="{{ asset($order->bukti_pembayaran) }}" target="_blank">
+                                <img src="{{ asset($order->bukti_pembayaran) }}" class="img-thumbnail" style="max-height:150px;">
+                            </a>
+                            <div class="mt-2">
+                                <small class="text-muted italic">*Klik gambar untuk memperbesar</small>
+                            </div>
+                        </div>
+                    @endif
+
                     {{-- ACTION --}}
                     <div class="mt-4">
                         <a href="/seller/orders/{{ $order->id }}/edit" 

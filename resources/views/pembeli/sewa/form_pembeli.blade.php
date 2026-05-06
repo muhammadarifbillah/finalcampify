@@ -8,7 +8,7 @@
         </div>
         <div class="bg-white rounded-3xl shadow-lg p-8">
             <h2 class="text-2xl font-bold mb-6">Formulir Penyewaan</h2>
-            <form action="{{ route('sewa.process') }}" method="POST" class="space-y-5">
+            <form action="{{ route('sewa.process') }}" method="POST" enctype="multipart/form-data" class="space-y-5">
                 @csrf
                 <input type="hidden" name="product_id" value="{{ $produk->id }}">
                 <div>
@@ -69,6 +69,48 @@
                             <input type="radio" name="metode_pembayaran" value="cod" class="w-4 h-4 text-green-600 focus:ring-green-500 mr-3">
                             <span class="font-medium">Cash on Delivery</span>
                         </label>
+                    </div>
+                </div>
+
+                {{-- INFO REKENING DINAMIS --}}
+                <div id="payment_info_box" class="hidden pt-4">
+                    <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-5">
+                        <p class="text-xs font-bold text-emerald-600 uppercase tracking-widest mb-3">Tujuan Pembayaran</p>
+                        
+                        <div id="info_qris" class="hidden space-y-3 text-center">
+                            <div class="bg-white p-4 rounded-xl inline-block border-2 border-emerald-200">
+                                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=CAMPIFY_PAYMENT" alt="QRIS" class="mx-auto">
+                            </div>
+                            <p class="text-sm font-bold text-slate-700">Scan QRIS a/n Campify Indonesia</p>
+                        </div>
+
+                        <div id="info_va" class="hidden space-y-2">
+                            @if($produk->store && $produk->store->bank_account_number)
+                            <div class="flex items-center justify-between p-3 bg-white rounded-xl border border-emerald-100">
+                                <div>
+                                    <p class="text-[10px] font-bold text-slate-400 uppercase">{{ $produk->store->bank_name ?? 'Transfer Bank' }}</p>
+                                    <p class="font-black text-slate-800 text-lg">{{ $produk->store->bank_account_number }}</p>
+                                    <p class="text-xs text-slate-500">a/n {{ $produk->store->bank_account_name }}</p>
+                                </div>
+                                <button type="button" onclick="copyToClipboard('{{ $produk->store->bank_account_number }}')" class="text-emerald-600 font-bold text-xs hover:underline">Salin</button>
+                            </div>
+                            @else
+                            <p class="text-sm text-slate-500 italic">Seller belum mengatur informasi rekening.</p>
+                            @endif
+                        </div>
+
+                        <div id="info_cod" class="hidden">
+                            <p class="text-sm text-slate-700 font-medium">Pembayaran dilakukan secara tunai kepada kurir saat barang sampai di lokasi Anda.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-slate-100">
+                    <h3 class="font-bold text-lg mb-3 uppercase tracking-wider text-slate-800">Bukti Pembayaran</h3>
+                    <div class="p-4 bg-slate-50 rounded-xl border border-dashed border-slate-300 text-center">
+                        <label class="block text-sm font-semibold mb-2 text-slate-600">Unggah Bukti Transfer / QRIS</label>
+                        <input type="file" name="bukti_pembayaran" accept="image/*" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100" required />
+                        <p class="mt-2 text-[10px] text-slate-400 italic">Format: JPG, PNG, WEBP (Maks. 2MB)</p>
                     </div>
                 </div>
                 <div class="pt-2">
@@ -137,7 +179,35 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     endDateInput.addEventListener('change', calculateDuration);
+
+    // Payment Info Toggle
+    const paymentRadios = document.querySelectorAll('input[name="metode_pembayaran"]');
+    const infoBox = document.getElementById('payment_info_box');
+    const infoQris = document.getElementById('info_qris');
+    const infoVa = document.getElementById('info_va');
+    const infoCod = document.getElementById('info_cod');
+
+    function updatePaymentInfo() {
+        const selected = document.querySelector('input[name="metode_pembayaran"]:checked').value;
+        infoBox.classList.remove('hidden');
+        infoQris.classList.add('hidden');
+        infoVa.classList.add('hidden');
+        infoCod.classList.add('hidden');
+
+        if(selected === 'qris') infoQris.classList.remove('hidden');
+        if(selected === 'va') infoVa.classList.remove('hidden');
+        if(selected === 'cod') infoCod.classList.remove('hidden');
+    }
+
+    paymentRadios.forEach(radio => radio.addEventListener('change', updatePaymentInfo));
+    updatePaymentInfo(); // Initial call
 });
+
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+        alert('Nomor rekening berhasil disalin!');
+    });
+}
 </script>
 
 @endsection

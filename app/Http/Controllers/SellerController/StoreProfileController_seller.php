@@ -45,6 +45,9 @@ class StoreProfileController_seller extends Controller
             'deskripsi' => 'nullable',
             'alamat' => 'nullable',
             'no_telp' => 'nullable',
+            'bank_name' => 'nullable|string',
+            'bank_account_number' => 'nullable|string',
+            'bank_account_name' => 'nullable|string',
         ]);
 
         if ($profile) {
