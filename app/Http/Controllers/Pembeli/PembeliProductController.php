@@ -23,20 +23,34 @@ class PembeliProductController extends Controller
     // ================= PROSES SEWA =================
     public function processSewa(Request $request)
     {
-        $request->validate([
+        $requestData = $request->validate([
             'product_id' => 'required|exists:products,id',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
             'duration' => 'required|integer|min:1',
-            'alamat' => 'required|string',
+            'alamat' => 'required|string|max:2000',
+            'kota' => 'required|string|max:255',
+            'kecamatan' => 'required|string|max:255',
+            'kode_pos' => 'required|string|max:20',
+            'telepon' => 'required|string|max:25',
             'metode_pembayaran' => 'required|string',
             'metode_pengiriman' => 'required|string',
             'bukti_pembayaran' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
 
         $user = auth()->user();
-        $produk = Product_pembeli::findOrFail($request->product_id);
-        $totalPrice = $produk->rent_price * $request->duration;
+        
+        // Update Profile User secara otomatis
+        $user->update([
+            'address' => $requestData['alamat'],
+            'city' => $requestData['kota'],
+            'district' => $requestData['kecamatan'],
+            'postal_code' => $requestData['kode_pos'],
+            'phone' => $requestData['telepon'],
+        ]);
+
+        $produk = Product_pembeli::findOrFail($requestData['product_id']);
+        $totalPrice = $produk->rent_price * $requestData['duration'];
 
         // 0. Handle Bukti Pembayaran
         $buktiPath = null;
@@ -52,14 +66,14 @@ class PembeliProductController extends Controller
             'user_id' => $user->id,
             'receiver_name' => $user->name,
             'total' => $totalPrice,
-            'shipping_address' => $request->alamat,
-            'shipping_city' => $user->city ?? '-',
-            'shipping_district' => $user->district ?? '-',
-            'shipping_postal_code' => $user->postal_code ?? '-',
-            'shipping_phone' => $user->phone ?? '-',
-            'metode_pembayaran' => $request->metode_pembayaran,
-            'status' => 'menunggu', // Gunakan 'menunggu' agar sesuai dengan filter di detail
-            'kurir' => $request->metode_pengiriman,
+            'shipping_address' => $user->address,
+            'shipping_city' => $user->city,
+            'shipping_district' => $user->district,
+            'shipping_postal_code' => $user->postal_code,
+            'shipping_phone' => $user->phone,
+            'metode_pembayaran' => $requestData['metode_pembayaran'],
+            'status' => 'menunggu', 
+            'kurir' => $requestData['metode_pengiriman'],
             'bukti_pembayaran' => $buktiPath,
         ]);
 
