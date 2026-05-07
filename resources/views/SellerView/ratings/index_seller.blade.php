@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="d-flex" style="min-height:100vh; background:#f9fafb;">
-    {{-- SIDEBAR --}}
+     {{-- SIDEBAR --}}
     <div style="width:260px; background:#ffffff; border-right:1px solid #e5e7eb; display:flex; flex-direction:column; justify-content:space-between;">
 
         {{-- TOP --}}
@@ -108,11 +108,6 @@
             <div>
                 <h3 class="fw-bold mb-1">Customer Feedback</h3>
                 <p class="text-muted mb-0">Monitor your store reputation and product quality</p>
-            </div>
-
-            <div class="d-flex gap-2">
-                <button class="btn btn-light rounded-pill px-3">Filter Reviews</button>
-                <button class="btn btn-success rounded-pill px-3">Export PDF</button>
             </div>
         </div>
 
