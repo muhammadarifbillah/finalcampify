@@ -11,25 +11,25 @@ class RentalController_seller extends Controller
 {
     public function index()
     {
-        $rentals = Rental_seller::with('product')->get();
+        $rentals = $this->sellerRentals()->latest()->get();
         return view('SellerView.rentals.index_seller', compact('rentals'));
     }
 
     public function show($id)
     {
-        $rental = Rental_seller::with('product')->findOrFail($id);
+        $rental = $this->sellerRentals()->findOrFail($id);
         return view('SellerView.rentals.show_seller', compact('rental'));
     }
 
     public function edit($id)
     {
-        $rental = Rental_seller::with('product')->findOrFail($id);
+        $rental = $this->sellerRentals()->findOrFail($id);
         return view('SellerView.rentals.edit_seller', compact('rental'));
     }
 
     public function update(Request $request, $id)
     {
-        $rental = Rental_seller::findOrFail($id);
+        $rental = $this->sellerRentals()->findOrFail($id);
 
         $rental->update([
             'status' => $request->status,
@@ -37,5 +37,14 @@ class RentalController_seller extends Controller
         ]);
 
         return redirect('/seller/rentals')->with('success', 'Penyewaan berhasil diupdate');
+    }
+
+    private function sellerRentals()
+    {
+        return Rental_seller::with(['product', 'user', 'order'])
+            ->whereHas('product', function ($query) {
+                $query->where('user_id', \Illuminate\Support\Facades\Auth::id())
+                    ->orWhereHas('store', fn ($store) => $store->where('user_id', \Illuminate\Support\Facades\Auth::id()));
+            });
     }
 }

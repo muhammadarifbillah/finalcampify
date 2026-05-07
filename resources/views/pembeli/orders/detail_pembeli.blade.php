@@ -1,5 +1,13 @@
 @extends('layouts.app_pembeli')
 
+@section('extra_css')
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+<style>
+    #tracking-map { height: 350px; border-radius: 20px; z-index: 10; }
+    .map-marker-label { background: white; border: 2px solid #10B981; padding: 2px 8px; border-radius: 10px; font-weight: bold; font-size: 10px; }
+</style>
+@endsection
+
 @section('content')
 <div class="pt-28 pb-20 bg-slate-50">
     <div class="max-w-4xl mx-auto px-4">
@@ -59,6 +67,53 @@
                         <div class="flex justify-between items-center pt-2 border-t">
                             <span class="font-bold text-slate-800">Total Transaksi</span>
                             <span class="text-xl font-black text-emerald-600">Rp {{ number_format($pesanan->total ?? 0) }}</span>
+                        </div>
+                        @if($pesanan->bukti_pembayaran)
+                        <div class="pt-4 mt-4 border-t border-dashed border-slate-200">
+                            <p class="text-[10px] font-bold text-slate-400 uppercase mb-2">Bukti Pembayaran</p>
+                            <a href="{{ asset($pesanan->bukti_pembayaran) }}" target="_blank" class="group block relative rounded-xl overflow-hidden border-2 border-slate-100 hover:border-emerald-500 transition-all">
+                                <img src="{{ asset($pesanan->bukti_pembayaran) }}" class="w-full h-32 object-cover opacity-80 group-hover:opacity-100 transition-opacity">
+                                <div class="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <span class="text-white text-xs font-bold px-3 py-1 bg-black/50 rounded-full">Lihat Full Image</span>
+                                </div>
+                            </a>
+                        </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+
+            <!-- MAP TRACKING SECTION -->
+            <div class="pt-6 border-b pb-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Lacak Posisi Paket</p>
+                        <h2 class="font-bold text-slate-800">Visual Maps Tracking</h2>
+                    </div>
+                    @if($pesanan->status == 'dikirim')
+                        <span class="flex items-center gap-2 text-xs font-bold text-emerald-600 animate-pulse">
+                            <span class="w-2 h-2 bg-emerald-600 rounded-full"></span> Live Tracking Active
+                        </span>
+                    @endif
+                </div>
+                
+                <div class="relative group">
+                    <div id="tracking-map" class="shadow-inner border border-slate-200"></div>
+                    <div class="absolute bottom-4 left-4 right-4 z-[1000] flex gap-2">
+                        <div class="bg-white/90 backdrop-blur px-3 py-2 rounded-xl shadow-sm border border-slate-200 flex items-center gap-3">
+                            <div class="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center text-emerald-600">
+                                🚚
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-bold text-slate-400 uppercase leading-none mb-1">Status Kurir</p>
+                                <p class="text-xs font-bold text-slate-800">
+                                    @if($pesanan->status == 'diproses') Pesanan sedang dikemas
+                                    @elseif($pesanan->status == 'dikirim') Sedang dalam perjalanan ke lokasi Anda
+                                    @elseif($pesanan->status == 'selesai') Paket telah diterima
+                                    @else Menunggu konfirmasi pembayaran
+                                    @endif
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -275,4 +330,61 @@
 
     </div>
 </div>
+@endsection
+
+@section('extra_js')
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Fallback koordinat jika data kosong
+        const storeLat = {{ $pesanan->details->first()->product->store->latitude ?? -6.1754 }};
+        const storeLng = {{ $pesanan->details->first()->product->store->longitude ?? 106.8272 }};
+        const destLat = {{ $pesanan->latitude ?? -6.2088 }};
+        const destLng = {{ $pesanan->longitude ?? 106.8456 }};
+        const status = "{{ $pesanan->status }}";
+
+        // Inisialisasi Map
+        const map = L.map('tracking-map').setView([storeLat, storeLng], 13);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Custom Icons
+        const storeIcon = L.divIcon({ className: 'map-marker-label', html: '🏪 Toko', iconSize: [60, 20], iconAnchor: [30, 20] });
+        const buyerIcon = L.divIcon({ className: 'map-marker-label', html: '🏠 Anda', iconSize: [60, 20], iconAnchor: [30, 20] });
+        const packageIcon = L.divIcon({
+            html: '<div style="font-size: 24px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3))">🚚</div>',
+            className: 'package-icon',
+            iconSize: [30, 30],
+            iconAnchor: [15, 15]
+        });
+
+        // Markers
+        L.marker([storeLat, storeLng], {icon: storeIcon}).addTo(map);
+        L.marker([destLat, destLng], {icon: buyerIcon}).addTo(map);
+
+        // Path Line
+        const path = L.polyline([[storeLat, storeLng], [destLat, destLng]], {
+            color: '#10B981',
+            weight: 3,
+            dashArray: '10, 10',
+            opacity: 0.6
+        }).addTo(map);
+
+        // Package Position Simulation based on Status
+        let packagePos = [storeLat, storeLng];
+        if (status === 'dikirim') {
+            // Animasi simulasi posisi (di tengah jalur)
+            packagePos = [(storeLat + destLat) / 2, (storeLng + destLng) / 2];
+        } else if (status === 'selesai') {
+            packagePos = [destLat, destLng];
+        }
+
+        const packageMarker = L.marker(packagePos, {icon: packageIcon}).addTo(map);
+        
+        // Fit bounds to show both markers
+        map.fitBounds(path.getBounds(), {padding: [50, 50]});
+    });
+</script>
 @endsection

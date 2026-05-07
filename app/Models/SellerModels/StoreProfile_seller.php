@@ -13,7 +13,8 @@ class StoreProfile_seller extends Store
     protected $table = 'stores';
     
     protected $fillable = [
-        'user_id', 'nama_toko', 'deskripsi', 'alamat', 'no_telp', 'logo', 'banner'
+        'user_id', 'nama_toko', 'deskripsi', 'alamat', 'no_telp', 'logo', 'banner',
+        'bank_name', 'bank_account_number', 'bank_account_name'
     ];
 
     public function getNoTelpAttribute()

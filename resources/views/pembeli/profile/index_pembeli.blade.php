@@ -547,6 +547,15 @@
                             { nama: 'Sukaraja', kode_pos: '43192' },
                             { nama: 'Surade', kode_pos: '43179' }
                         ]
+                    },
+                    {
+                        kota: 'Majalengka',
+                        kecamatan: [
+                            { nama: 'Kadipaten', kode_pos: '45452' },
+                            { nama: 'Jatiwangi', kode_pos: '45454' },
+                            { nama: 'Majalengka', kode_pos: '45411' },
+                            { nama: 'Bantarujeg', kode_pos: '45464' }
+                        ]
                     }
                 ];
 
