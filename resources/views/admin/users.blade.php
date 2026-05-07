@@ -68,7 +68,12 @@
                 <table class="admin-table">
                     <thead>
                         <tr>
+<<<<<<< HEAD
                             <th>Nama</th>
+=======
+                            <th class="p-3">Nama</th>
+                            <th>Email</th>
+>>>>>>> 99fca0c29a4975f967d1debf26d3af9878866c47
                             <th>Role</th>
                             <th>Status</th>
                             <th>Last Login</th>
@@ -80,6 +85,7 @@
                         @forelse($users as $u)
                             <tr>
                                 <td>
+<<<<<<< HEAD
                                     <div class="flex items-center gap-3">
                                         <div class="admin-avatar">{{ strtoupper(substr($u->name ?? $u->email, 0, 1)) }}</div>
                                         <div>
@@ -87,6 +93,21 @@
                                             <div class="text-xs text-slate-500">{{ $u->email }}</div>
                                         </div>
                                     </div>
+=======
+                                    <span class="inline-flex rounded-full 
+                                        @if($u->role == 'admin') bg-purple-100 text-purple-800
+                                        @elseif($u->role == 'seller') bg-blue-100 text-blue-800
+                                        @else bg-gray-100 text-gray-800
+                                        @endif px-3 py-1 text-xs font-semibold">{{ ucfirst($u->role ?? 'user') }}</span>
+                                </td>
+                                <td>
+                                    <span
+                                        class="inline-flex rounded-full 
+                                                    @if($u->status == 'active') bg-green-100 text-green-800
+                                                    @elseif($u->status == 'inactive') bg-yellow-100 text-yellow-800
+                                                    @else bg-red-100 text-red-800
+                                                    @endif px-3 py-1 text-xs font-semibold">{{ ucfirst($u->status ?? 'active') }}</span>
+>>>>>>> 99fca0c29a4975f967d1debf26d3af9878866c47
                                 </td>
                                 <td><span class="admin-badge admin-badge-muted">{{ $u->role ?? 'buyer' }}</span></td>
                                 <td><span class="admin-badge {{ $badgeClass($u->status) }}">{{ $u->status ?? 'active' }}</span></td>

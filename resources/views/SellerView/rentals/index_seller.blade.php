@@ -130,8 +130,8 @@
                             <td class="px-4">#RNT-{{ $rental->id }}</td>
                             <td>{{ $rental->user->name ?? '-' }}</td>
                             <td>{{ optional($rental->product)->nama_produk ?? '-' }}</td>
-                            <td>{{ \Carbon\Carbon::parse($rental->tanggal_mulai)->format('d/m/Y') }} - {{ \Carbon\Carbon::parse($rental->tanggal_selesai)->format('d/m/Y') }}</td>
-                            <td>Rp {{ number_format($rental->total_harga,0,',','.') }}</td>
+                            <td>{{ \Carbon\Carbon::parse($rental->start_date)->format('d/m/Y') }} - {{ \Carbon\Carbon::parse($rental->end_date)->format('d/m/Y') }}</td>
+                            <td>Rp {{ number_format($rental->price,0,',','.') }}</td>
                             <td>
                                 @switch($rental->status)
                                     @case('pending')

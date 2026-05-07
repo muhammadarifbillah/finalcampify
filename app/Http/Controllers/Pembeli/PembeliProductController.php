@@ -107,10 +107,7 @@ class PembeliProductController extends Controller
     public function index()
     {
         $produks = Product_pembeli::where('buy_price', '>', 0)
-            ->where(function ($q) {
-                $q->whereNull('rent_price')
-                  ->orWhere('rent_price', 0);
-            })
+            ->where('jenis_produk', 'jual')
             ->latest()
             ->paginate(12);
 
@@ -126,11 +123,7 @@ class PembeliProductController extends Controller
     // ================= SEWA =================
     public function rentalProducts()
     {
-        $produks = Product_pembeli::where('rent_price', '>', 0)
-            ->where(function ($q) {
-                $q->whereNull('buy_price')
-                  ->orWhere('buy_price', 0);
-            })
+        $produks = Product_pembeli::where('is_rental', true)
             ->latest()
             ->paginate(12);
 

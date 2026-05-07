@@ -36,6 +36,7 @@ use App\Http\Controllers\SellerController\RentalController_seller;
 use App\Http\Controllers\SellerController\StoreProfileController_seller;
 use App\Http\Controllers\SellerController\ChatController_seller;
 use App\Http\Controllers\SellerController\RatingController_seller;
+use App\Http\Controllers\SellerController\ReportController_seller;
 
 /*
 |--------------------------------------------------------------------------
@@ -227,6 +228,10 @@ Route::middleware(['auth', 'role:seller'])->prefix('seller')->name('seller.')->g
     Route::post('/ratings/store/{rating}/reply', [RatingController_seller::class, 'replyStoreRating'])->name('ratings.store.reply');
     Route::get('/ratings/product/{productId}', [RatingController_seller::class, 'getProductRatings'])->name('ratings.product.show');
     Route::get('/ratings/store/{storeId}', [RatingController_seller::class, 'getStoreRatings'])->name('ratings.store.show');
+
+    // Reports
+    Route::get('/reports/sales', [ReportController_seller::class, 'salesReport'])->name('reports.sales');
+    Route::get('/reports/rentals', [ReportController_seller::class, 'rentalReport'])->name('reports.rentals');
 });
 
 /*

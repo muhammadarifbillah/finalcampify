@@ -13,8 +13,16 @@ class Rental_seller extends Model
     protected $table = 'rentals';
 
     protected $fillable = [
-        'user_id', 'product_id', 'order_id', 'start_date', 'end_date', 
-        'duration', 'price', 'status', 'catatan'
+        'user_id',
+        'product_id',
+        'order_id',
+        'start_date',
+        'end_date',
+        'total_price',
+        'duration',
+        'price',
+        'status',
+        'note',
     ];
 
     public function user() {
