@@ -147,35 +147,6 @@
                     </div>
                 </div>
 
-                <hr class="my-4">
-                <h6 class="fw-bold mb-3 text-success">INFORMASI REKENING (Untuk Pembayaran Pembeli)</h6>
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="mb-3">
-                            <label class="form-label fw-bold small">Nama Bank</label>
-                            <input type="text" name="bank_name" class="form-control" 
-                                   value="{{ $profile->bank_name ?? '' }}" 
-                                   placeholder="Contoh: BCA, Mandiri, BRI">
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="mb-3">
-                            <label class="form-label fw-bold small">Nomor Rekening</label>
-                            <input type="text" name="bank_account_number" class="form-control" 
-                                   value="{{ $profile->bank_account_number ?? '' }}" 
-                                   placeholder="Masukkan nomor rekening">
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="mb-3">
-                            <label class="form-label fw-bold small">Nama Pemilik Rekening</label>
-                            <input type="text" name="bank_account_name" class="form-control" 
-                                   value="{{ $profile->bank_account_name ?? '' }}" 
-                                   placeholder="Masukkan nama sesuai buku tabungan">
-                        </div>
-                    </div>
-                </div>
-
                 <button class="btn text-white rounded-pill px-4" style="background:#10B981;">
                     Simpan Profil
                 </button>

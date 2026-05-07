@@ -70,10 +70,10 @@ $trendUp = collect($dataSales)->last() > collect($dataSales)->first();
 /* =========================
    🎒 RENTED GEAR
 ========================= */
-$rentedGear = $orders
-    ->whereIn('status', ['menunggu','diproses','dikirim'])
-    ->sum(function ($order) {
-        return $order->details
+$rentedGear = $rental
+    ->whereIn('status', ['Menunggu','Dikonfirmasi','Aktif'])
+    ->sum(function ($rental) {
+        return $rental->details
             ->filter(function ($d) {
                 return optional($d->product)->kategori === 'sewa';
             })

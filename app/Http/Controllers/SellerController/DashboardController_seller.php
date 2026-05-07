@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\SellerModels\Product_seller;
 use App\Models\SellerModels\Order_seller;
 use App\Models\SellerModels\StoreRating_seller;
+use App\Models\SellerModels\Rental_seller;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardController_seller extends Controller
@@ -13,6 +14,10 @@ class DashboardController_seller extends Controller
     public function index()
     {
         $userId = Auth::id();
+
+        $rental = Rental_seller::all();
+
+        return view('SellerView.seller.dashboard_seller', compact('rental'));
 
         $products = Product_seller::where('user_id', $userId)->get();
 
