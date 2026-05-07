@@ -33,6 +33,7 @@ class User extends Authenticatable
 
     protected $casts = [
         'password' => 'hashed',
+        'last_login' => 'datetime',
     ];
 
     public function getNameAttribute()

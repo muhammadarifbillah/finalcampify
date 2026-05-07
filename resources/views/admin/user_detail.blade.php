@@ -1,129 +1,110 @@
 @extends('layouts.admin')
 
+@section('title', 'Detail User')
+
+@php
+    $badgeClass = fn ($status) => match ($status ?? 'active') {
+        'active' => 'admin-badge-success',
+        'inactive' => 'admin-badge-warning',
+        'banned' => 'admin-badge-danger',
+        default => 'admin-badge-muted',
+    };
+@endphp
+
 @section('content')
-
-    <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between mb-6">
-        <div>
-            <h1 class="text-2xl font-bold">Detail User: {{ $user->name }}</h1>
-            <p class="text-gray-600">Kelola detail dan aktivitas pengguna.</p>
-        </div>
-        <a href="/admin/users" class="bg-gray-500 text-white px-5 py-3 rounded-xl font-semibold hover:bg-gray-600">←
-            Kembali</a>
-    </div>
-
-    @if(session('success'))
-        <div class="mb-4 rounded-xl bg-green-50 border border-green-200 p-4 text-green-800">
-            {{ session('success') }}
-        </div>
-    @endif
-
-    <!-- DATA LENGKAP USER -->
-    <div class="bg-white p-6 rounded-3xl shadow mb-6">
-        <h2 class="text-lg font-semibold mb-4">Informasi Akun</h2>
-        <div class="grid gap-4 md:grid-cols-2">
+    <div class="space-y-8">
+        <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
-                <p class="text-sm text-gray-500">Nama Lengkap</p>
-                <p class="text-lg font-semibold">{{ $user->name }}</p>
+                <h1 class="admin-section-title">{{ $user->name }}</h1>
+                <p class="admin-section-subtitle">{{ $user->email }}</p>
             </div>
-            <div>
-                <p class="text-sm text-gray-500">Email</p>
-                <p class="text-lg font-semibold">{{ $user->email }}</p>
-            </div>
-            <div>
-                <p class="text-sm text-gray-500">Role</p>
-                <p class="text-lg font-semibold">{{ ucfirst($user->role ?? 'user') }}</p>
-            </div>
-            <div>
-                <p class="text-sm text-gray-500">Status Akun</p>
-                <span class="inline-flex rounded-full 
-                        @if($user->status == 'active') bg-green-100 text-green-800
-                        @elseif($user->status == 'inactive') bg-yellow-100 text-yellow-800
-                        @else bg-red-100 text-red-800
-                        @endif px-3 py-1 text-sm font-semibold">{{ ucfirst($user->status ?? 'active') }}</span>
-            </div>
-            <div>
-                <p class="text-sm text-gray-500">Tanggal Daftar</p>
-                <p class="text-lg font-semibold">{{ $user->created_at ? $user->created_at->format('d M Y H:i') : '-' }}</p>
-            </div>
-            <div>
-                <p class="text-sm text-gray-500">Terakhir Login</p>
-                <p class="text-lg font-semibold">
-                    {{ $user->last_login ? $user->last_login->format('d M Y H:i') : 'Belum pernah' }}</p>
-            </div>
+            <a href="{{ route('admin.users.index') }}" class="admin-button admin-button-ghost">
+                <i data-lucide="arrow-left"></i>
+                Kembali
+            </a>
         </div>
 
-        @if($user->store)
-            <div class="mt-4 pt-4 border-t">
-                <p class="text-sm text-gray-500">Toko</p>
-                <p class="text-lg font-semibold">{{ $user->store->nama_toko }}</p>
-            </div>
-        @endif
-    </div>
-
-    <!-- AKSI ADMIN -->
-    <div class="bg-white p-6 rounded-3xl shadow mb-6">
-        <h2 class="text-lg font-semibold mb-4">Aksi Admin</h2>
-        <div class="flex flex-wrap gap-3">
-            @if($user->status != 'active')
-                <a href="/admin/users/{{ $user->id }}/activate"
-                    class="bg-green-600 text-white px-4 py-2 rounded-xl font-semibold hover:bg-green-700">Aktifkan User</a>
-            @endif
-            @if($user->status != 'inactive')
-                <a href="/admin/users/{{ $user->id }}/deactivate"
-                    class="bg-yellow-600 text-white px-4 py-2 rounded-xl font-semibold hover:bg-yellow-700">Nonaktifkan User</a>
-            @endif
-            @if($user->status != 'banned')
-                <a href="/admin/users/{{ $user->id }}/ban"
-                    class="bg-red-600 text-white px-4 py-2 rounded-xl font-semibold hover:bg-red-700">Ban User</a>
-            @endif
-            @if($user->role != 'admin')
-                <a href="/admin/users/delete/{{ $user->id }}" onclick="return confirm('Yakin hapus user ini?')"
-                    class="bg-gray-600 text-white px-4 py-2 rounded-xl font-semibold hover:bg-gray-700">Hapus User</a>
-            @endif
-        </div>
-    </div>
-
-    <!-- AKTIVITAS USER -->
-    <div class="bg-white p-6 rounded-3xl shadow mb-6">
-        <h2 class="text-lg font-semibold mb-4">Aktivitas User</h2>
-
-        <!-- TRANSAKSI -->
-        <div class="mb-6">
-            <h3 class="text-md font-semibold mb-3">Riwayat Transaksi</h3>
-            @if($transactions->isEmpty())
-                <p class="text-gray-500">Belum ada transaksi.</p>
-            @else
-                <div class="space-y-2">
-                    @foreach($transactions as $t)
-                        <div class="bg-gray-50 p-3 rounded-xl">
-                            <p class="font-semibold">{{ optional($t->product)->name ?? 'Product #' . $t->product_id }}</p>
-                            <p class="text-sm text-gray-600">Rp {{ number_format($t->total, 0, ',', '.') }} -
-                                {{ $t->created_at ? $t->created_at->format('d M Y H:i') : '-' }}</p>
-                        </div>
-                    @endforeach
+        <div class="grid gap-6 xl:grid-cols-[1.3fr_.7fr]">
+            <div class="admin-card p-6">
+                <div class="flex items-start justify-between">
+                    <h2 class="text-2xl font-extrabold">Informasi Akun</h2>
+                    <span class="admin-badge {{ $badgeClass($user->status) }}">{{ $user->status ?? 'active' }}</span>
                 </div>
-            @endif
+                <div class="mt-6 grid gap-5 md:grid-cols-2">
+                    <div><div class="admin-stat-label">Nama Lengkap</div><p class="mt-2 font-bold">{{ $user->name }}</p></div>
+                    <div><div class="admin-stat-label">Email</div><p class="mt-2 font-bold">{{ $user->email }}</p></div>
+                    <div><div class="admin-stat-label">Role</div><p class="mt-2 font-bold">{{ ucfirst($user->role ?? 'buyer') }}</p></div>
+                    <div><div class="admin-stat-label">Tanggal Daftar</div><p class="mt-2 font-bold">{{ $user->created_at?->format('d M Y H:i') ?? '-' }}</p></div>
+                    <div><div class="admin-stat-label">Terakhir Login</div><p class="mt-2 font-bold">{{ $user->last_login?->format('d M Y H:i') ?? 'Belum pernah' }}</p></div>
+                    <div><div class="admin-stat-label">Toko</div><p class="mt-2 font-bold">{{ $user->store?->nama_toko ?? '-' }}</p></div>
+                </div>
+            </div>
+
+            <div class="admin-card p-6">
+                <h2 class="text-2xl font-extrabold mb-5">Aksi Admin</h2>
+                <div class="space-y-3">
+                    @if($user->status !== 'active')
+                        <a href="/admin/users/{{ $user->id }}/activate" class="admin-button admin-button-primary w-full">Aktifkan User</a>
+                    @endif
+                    @if($user->status !== 'inactive')
+                        <a href="/admin/users/{{ $user->id }}/deactivate" class="admin-button admin-button-ghost w-full">Nonaktifkan User</a>
+                    @endif
+                    @if($user->status !== 'banned')
+                        <a href="/admin/users/{{ $user->id }}/ban" class="admin-button admin-button-danger w-full">Ban User</a>
+                    @endif
+                    @if($user->role !== 'admin')
+                        <a href="/admin/users/delete/{{ $user->id }}" onclick="return confirm('Yakin hapus user ini?')" class="admin-button admin-button-danger w-full">Hapus User</a>
+                    @endif
+                </div>
+            </div>
         </div>
 
-        <!-- LOGIN ACTIVITIES -->
-        <div>
-            <h3 class="text-md font-semibold mb-3">Riwayat Login</h3>
-            @if(empty($loginActivities) || !$user->last_login)
-                <p class="text-gray-500">Belum ada aktivitas login tercatat.</p>
-            @else
-                <div class="space-y-2">
-                    @foreach($loginActivities as $activity)
-                        @if($activity['timestamp'])
-                            <div class="bg-gray-50 p-3 rounded-xl">
-                                <p class="font-semibold">{{ ucfirst($activity['action']) }}</p>
-                                <p class="text-sm text-gray-600">{{ $activity['timestamp']->format('d M Y H:i') }} - IP:
-                                    {{ $activity['ip'] }}</p>
-                            </div>
-                        @endif
-                    @endforeach
+        <div class="grid gap-6 xl:grid-cols-2">
+            <div class="admin-card">
+                <div class="p-6">
+                    <h2 class="text-2xl font-extrabold">Riwayat Transaksi</h2>
                 </div>
-            @endif
+                <div class="admin-table-wrap">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Produk</th>
+                                <th>Total</th>
+                                <th>Tanggal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($transactions as $transaction)
+                                <tr>
+                                    <td>{{ optional($transaction->product)->name ?? 'Product #'.$transaction->product_id }}</td>
+                                    <td>Rp {{ number_format($transaction->total, 0, ',', '.') }}</td>
+                                    <td>{{ $transaction->created_at?->format('d M Y H:i') ?? '-' }}</td>
+                                </tr>
+                            @empty
+                                <tr><td colspan="3"><div class="admin-empty">Belum ada transaksi.</div></td></tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="admin-card p-6">
+                <h2 class="text-2xl font-extrabold mb-5">Riwayat Login</h2>
+                @if(empty($loginActivities) || !$user->last_login)
+                    <div class="admin-empty">Belum ada aktivitas login tercatat.</div>
+                @else
+                    <div class="space-y-3">
+                        @foreach($loginActivities as $activity)
+                            @if($activity['timestamp'])
+                                <div class="rounded-lg bg-slate-50 p-4">
+                                    <p class="font-bold">{{ ucfirst($activity['action']) }}</p>
+                                    <p class="text-sm text-slate-500">{{ $activity['timestamp']->format('d M Y H:i') }} - IP: {{ $activity['ip'] }}</p>
+                                </div>
+                            @endif
+                        @endforeach
+                    </div>
+                @endif
+            </div>
         </div>
     </div>
-
 @endsection

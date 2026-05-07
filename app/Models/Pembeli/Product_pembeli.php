@@ -4,12 +4,20 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Store;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 
 class Product_pembeli extends Model
 {
     use HasFactory;
     protected $table = 'products';
-    protected $fillable = ['name','category','description','buy_price','rent_price','rating','reviews_count','image','stock'];
+    protected $fillable = ['name','category','description','buy_price','rent_price','rating','reviews_count','image','stock','status'];
+
+    protected static function booted(): void
+    {
+        static::addGlobalScope('approved', function (Builder $builder) {
+            $builder->where('status', 'approved');
+        });
+    }
 
     public function productRatings()
     {

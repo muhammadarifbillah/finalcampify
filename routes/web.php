@@ -58,11 +58,11 @@ Route::post('/logout', [App\Http\Controllers\AuthController::class, 'logout'])->
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
 
     // 🔥 DASHBOARD
-    Route::get('/dashboard', [DashboardController::class, 'index']);
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
 
     // 👤 USER
-    Route::get('/users', [UserController::class, 'index']);
-    Route::get('/users/{id}', [UserController::class, 'show']);
+    Route::get('/users', [UserController::class, 'index'])->name('admin.users.index');
+    Route::get('/users/{id}', [UserController::class, 'show'])->name('admin.users.show');
     Route::get('/users/{id}/activate', [UserController::class, 'activate']);
     Route::get('/users/{id}/deactivate', [UserController::class, 'deactivate']);
     Route::get('/users/{id}/ban', [UserController::class, 'ban']);
@@ -102,6 +102,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
 
     // ORDERS (UNIFIED)
     Route::get('/orders', [OrderController::class, 'index'])->name('admin.orders.index');
+
+    Route::view('/settings', 'admin.settings')->name('admin.settings');
 
     // 💬 CHAT
     Route::get('/chats', [ChatController::class, 'index']);

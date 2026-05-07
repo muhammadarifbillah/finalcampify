@@ -7,19 +7,28 @@ use App\Models\Product;
 use App\Models\Report;
 use App\Models\Store;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 
 class StoreController extends Controller
 {
     public function index()
     {
         $stores = Store::with('user')->latest()->get();
+        $stores->each(function ($store) {
+            $products = $this->sellerProductsQuery($store)->get(['id', 'status']);
+            $store->admin_products_count = $products->count();
+            $store->admin_approved_products_count = $products->where('status', 'approved')->count();
+            $store->admin_waiting_products_count = $products->whereIn('status', ['waiting', 'pending'])->count();
+        });
+
         return view('admin.stores', compact('stores'));
     }
 
     public function show($id)
     {
-        $store = Store::with(['user', 'products', 'transactions'])->findOrFail($id);
-        $pendingProducts = $store->products()->where('status', 'pending')->latest()->get();
+        $store = Store::with(['user', 'transactions'])->findOrFail($id);
+        $sellerProducts = $this->sellerProductsQuery($store)->latest()->get();
+        $pendingProducts = $sellerProducts->whereIn('status', ['waiting', 'pending']);
         $reports = Report::with(['reporter', 'product'])
             ->where(function ($query) use ($store) {
                 $query->where('store_id', $store->id)
@@ -36,11 +45,12 @@ class StoreController extends Controller
 
         // ✅ VERIFIKASI: Semua produk di toko dapat dilihat jika toko sudah diverifikasi
         $stats = [
-            'total_products' => $store->products()->count(),
+            'total_products' => $sellerProducts->count(),
             'total_transactions' => $store->transactions()->count(),
             'total_sales' => $store->transactions()->sum('total'),
-            'approved_products' => $store->products()->where('status', 'approved')->count(),
-            'pending_products' => $store->products()->where('status', 'pending')->count(),
+            'approved_products' => $sellerProducts->where('status', 'approved')->count(),
+            'pending_products' => $sellerProducts->whereIn('status', ['waiting', 'pending'])->count(),
+            'rejected_products' => $sellerProducts->where('status', 'rejected')->count(),
         ];
 
         // Riwayat aktivitas (simulasi)
@@ -49,14 +59,15 @@ class StoreController extends Controller
             ['type' => 'product_added', 'message' => 'Menambah ' . $stats['total_products'] . ' produk', 'date' => $store->updated_at],
         ];
 
-        return view('admin.store_detail', compact('store', 'stats', 'activities', 'pendingProducts', 'reports'));
+        return view('admin.store_detail', compact('store', 'stats', 'activities', 'pendingProducts', 'reports', 'sellerProducts'));
     }
 
     public function approveProduct(Store $store, Product $product)
     {
-        abort_unless($product->store_id === $store->id, 403);
+        abort_unless($this->productBelongsToStore($store, $product), 403);
 
         $product->update([
+            'store_id' => $product->store_id ?: $store->id,
             'status' => 'approved',
             'reviewed_by' => \Illuminate\Support\Facades\Auth::id(),
             'reviewed_at' => now(),
@@ -67,9 +78,10 @@ class StoreController extends Controller
 
     public function rejectProduct(Store $store, Product $product)
     {
-        abort_unless($product->store_id === $store->id, 403);
+        abort_unless($this->productBelongsToStore($store, $product), 403);
 
         $product->update([
+            'store_id' => $product->store_id ?: $store->id,
             'status' => 'rejected',
             'reviewed_by' => \Illuminate\Support\Facades\Auth::id(),
             'reviewed_at' => now(),
@@ -146,5 +158,28 @@ class StoreController extends Controller
     public function unban($id)
     {
         return $this->activate($id);
+    }
+
+    private function sellerProductsQuery(Store $store)
+    {
+        return Product::with(['store', 'seller', 'owner'])
+            ->where(function ($query) use ($store) {
+                $query->where('store_id', $store->id);
+
+                if (Schema::hasColumn('products', 'user_id')) {
+                    $query->orWhere('user_id', $store->user_id);
+                }
+
+                if (Schema::hasColumn('products', 'seller_id')) {
+                    $query->orWhere('seller_id', $store->user_id);
+                }
+            });
+    }
+
+    private function productBelongsToStore(Store $store, Product $product): bool
+    {
+        return (int) $product->store_id === (int) $store->id
+            || (int) $product->user_id === (int) $store->user_id
+            || (int) $product->seller_id === (int) $store->user_id;
     }
 }

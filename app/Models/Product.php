@@ -40,6 +40,11 @@ class Product extends Model
         'kategori_id',
     ];
 
+    protected $casts = [
+        'reviewed_at' => 'datetime',
+        'is_rental' => 'boolean',
+    ];
+
     public function seller()
     {
         return $this->belongsTo(User::class, 'seller_id');

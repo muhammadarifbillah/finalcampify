@@ -170,11 +170,20 @@
                     <div class="card-body d-flex flex-column">
 
                         {{-- BADGE JENIS PRODUK --}}
-                        @if($product->jenis_produk == 'sewa')
-                            <span class="badge bg-primary mb-2">SEWA</span>
-                        @else
-                            <span class="badge bg-success mb-2">JUAL</span>
-                        @endif
+                        <div class="d-flex gap-2 flex-wrap mb-2">
+                            @if($product->jenis_produk == 'sewa')
+                                <span class="badge bg-primary">SEWA</span>
+                            @else
+                                <span class="badge bg-success">JUAL</span>
+                            @endif
+                            @if($product->status === 'approved')
+                                <span class="badge bg-success">APPROVED</span>
+                            @elseif($product->status === 'rejected')
+                                <span class="badge bg-danger">REJECTED</span>
+                            @else
+                                <span class="badge bg-warning text-dark">WAITING REVIEW</span>
+                            @endif
+                        </div>
 
                         {{-- KATEGORI --}}
                         <p class="small mb-1 fw-semibold" style="color:#10B981;">
@@ -278,4 +287,3 @@
 </div>
 
 @endsection
-

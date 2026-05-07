@@ -13,7 +13,10 @@ class ProductController extends Controller
 {
     public function index()
     {
-        $products = Product::with(['couriers', 'store'])->where('status', 'pending')->get();
+        $products = Product::with(['couriers', 'store'])
+            ->whereIn('status', ['waiting', 'pending'])
+            ->latest()
+            ->get();
         $couriers = Courier::all();
         $stores = Store::all();
 
@@ -33,7 +36,7 @@ class ProductController extends Controller
         $product = Product::with(['store', 'couriers'])->findOrFail($id);
 
         // ✅ VERIFIKASI: Produk harus dikelola oleh toko, user hanya bisa lihat produk toko mereka
-        if (auth()->check() && auth()->user()->role !== 'admin' && $product->store->user_id !== auth()->user()->id) {
+        if (auth()->check() && auth()->user()->role !== 'admin' && ($product->store?->user_id !== auth()->user()->id)) {
             return back()->with('error', 'Anda tidak memiliki akses ke produk ini.');
         }
 
@@ -71,7 +74,7 @@ class ProductController extends Controller
             'price' => $data['buy_price'],
             'stock' => $data['stock'],
             'image' => $data['image'] ?? 'https://via.placeholder.com/600x400?text=No+Image',
-            'status' => 'pending',
+            'status' => 'waiting',
             'is_rental' => !empty($data['rent_price']),
             'rating' => 0,
             'reviews_count' => 0,

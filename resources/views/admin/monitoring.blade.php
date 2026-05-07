@@ -1,199 +1,210 @@
 @extends('layouts.admin')
 
+@section('title', 'Monitoring Admin')
+
 @section('content')
-
-    <div class="max-w-7xl mx-auto space-y-6">
-
-        <!-- HEADER -->
+    <div class="space-y-8">
         <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
-                <h1 class="text-2xl font-bold">Monitoring Transaksi</h1>
-                <p class="text-gray-600">Pantau performa transaksi dan pendapatan sistem Campify.</p>
+                <h1 class="admin-section-title">Monitoring</h1>
+                <p class="admin-section-subtitle">Realtime activity marketplace: transaksi, seller, buyer, produk, dan laporan.</p>
             </div>
         </div>
 
-        <!-- 🔥 SUMMARY CARD -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-
-            <div class="bg-white p-5 rounded-2xl shadow">
-                <p class="text-gray-500 text-sm">Total Transaksi</p>
-                <h2 class="text-2xl font-bold">{{ $transactions->count() }}</h2>
+        <div class="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+            <div class="admin-card admin-stat-card">
+                <p class="admin-stat-label">Transaksi</p>
+                <h2 class="admin-stat-value">{{ number_format($orders->count()) }}</h2>
+                <p class="admin-stat-meta">Order marketplace</p>
             </div>
-
-            <div class="bg-white p-5 rounded-2xl shadow">
-                <p class="text-gray-500 text-sm">Total Pendapatan</p>
-                <h2 class="text-2xl font-bold">
-                    Rp {{ number_format($transactions->sum('total'), 0, ',', '.') }}
-                </h2>
+            <div class="admin-card admin-stat-card">
+                <p class="admin-stat-label">Seller</p>
+                <h2 class="admin-stat-value">{{ number_format($sellers->count()) }}</h2>
+                <p class="admin-stat-meta">Aktif memproses order</p>
             </div>
-
-            <div class="bg-white p-5 rounded-2xl shadow">
-                <p class="text-gray-500 text-sm">Fee Admin (3%)</p>
-                <h2 class="text-2xl font-bold text-green-600">
-                    Rp {{ number_format($transactions->sum('total') * 0.03, 0, ',', '.') }}
-                </h2>
+            <div class="admin-card admin-stat-card">
+                <p class="admin-stat-label">Buyer</p>
+                <h2 class="admin-stat-value">{{ number_format($buyers->count()) }}</h2>
+                <p class="admin-stat-meta">Aktif belanja</p>
             </div>
-
-            <div class="bg-white p-5 rounded-2xl shadow">
-                <p class="text-gray-500 text-sm">Transaksi Hari Ini</p>
-                <h2 class="text-2xl font-bold text-blue-600">
-                    {{ $transactions->where('created_at', '>=', now()->startOfDay())->count() }}
-                </h2>
+            <div class="admin-card admin-stat-card">
+                <p class="admin-stat-label">Flagged Chat</p>
+                <h2 class="admin-stat-value">{{ number_format($flaggedChats) }}</h2>
+                <p class="admin-stat-meta">Butuh review</p>
             </div>
-
         </div>
 
-        <!-- 🔥 TABEL TRANSAKSI -->
-        <div class="bg-white p-6 rounded-3xl shadow">
-            <h2 class="text-lg font-semibold mb-4">Riwayat Transaksi</h2>
+        <div class="grid gap-6 xl:grid-cols-2">
+            <div class="admin-card p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-extrabold">Aktivitas 7 Hari</h2>
+                    <span class="admin-badge admin-badge-muted">Realtime</span>
+                </div>
+                <div class="h-72"><canvas id="monitorChart"></canvas></div>
+            </div>
+            <div class="admin-card p-6">
+                <h2 class="text-2xl font-extrabold mb-6">Status Transaksi</h2>
+                <div class="space-y-4">
+                    @foreach($statusSummary as $status => $count)
+                        <div>
+                            <div class="flex items-center justify-between text-sm">
+                                <span class="font-bold">{{ $status }}</span>
+                                <span>{{ $count }}</span>
+                            </div>
+                            <div class="mt-2 h-2 rounded-full bg-slate-100">
+                                <div class="h-2 rounded-full bg-emerald-700" style="width: {{ max(10, min(100, ($count / max(1, $orders->count())) * 100)) }}%"></div>
+                            </div>
+                        </div>
+                    @endforeach
+                    @if($statusSummary->isEmpty())
+                        <div class="admin-empty">Belum ada status transaksi.</div>
+                    @endif
+                </div>
+            </div>
+        </div>
 
-            @if($transactions->isEmpty())
-                <p class="text-gray-500">Belum ada transaksi yang tercatat.</p>
-            @else
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left">
-                        <thead class="bg-gray-100">
+        <div class="grid gap-6 xl:grid-cols-2">
+            <div class="admin-card">
+                <div class="p-6">
+                    <h2 class="text-2xl font-extrabold">Aktivitas Transaksi</h2>
+                </div>
+                <div class="admin-table-wrap">
+                    <table class="admin-table">
+                        <thead>
                             <tr>
-                                <th class="p-3">User</th>
+                                <th>Pembeli</th>
                                 <th>Produk</th>
+                                <th>Status</th>
                                 <th>Total</th>
-                                <th>Fee Admin</th>
-                                <th>Status</th>
-                                <th>Tanggal</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($transactions as $t)
-                                <tr class="border-b hover:bg-gray-50">
-
-                                    <td class="p-3">
-                                        {{ optional($t->user)->name ?? 'User #' . $t->user_id }}
-                                    </td>
-
-                                    <td>
-                                        {{ optional($t->product)->name ?? 'Product #' . $t->product_id }}
-                                    </td>
-
-                                    <td>
-                                        Rp {{ number_format($t->total, 0, ',', '.') }}
-                                    </td>
-
-                                    <!-- 🔥 FEE 3% -->
-                                    <td class="text-green-600 font-semibold">
-                                        Rp {{ number_format($t->total * 0.03, 0, ',', '.') }}
-                                    </td>
-
-                                    <!-- 🔥 STATUS (kalau ada field) -->
-                                    <td>
-                                        <span
-                                            class="px-2 py-1 rounded text-xs 
-                                                    {{ $t->status == 'success' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700' }}">
-                                            {{ $t->status ?? 'success' }}
-                                        </span>
-                                    </td>
-
-                                    <td>
-                                        {{ $t->created_at ? $t->created_at->format('d M Y H:i') : '-' }}
-                                    </td>
-
+                            @forelse($orders->take(8) as $order)
+                                <tr>
+                                    <td>{{ $order->buyer->name ?? '-' }}</td>
+                                    <td>{{ $order->details->pluck('product.name')->filter()->implode(', ') ?: '-' }}</td>
+                                    <td><span class="admin-badge admin-badge-info">{{ $order->status }}</span></td>
+                                    <td>Rp {{ number_format($order->total, 0, ',', '.') }}</td>
                                 </tr>
-                            @endforeach
+                            @empty
+                                <tr><td colspan="4"><div class="admin-empty">Belum ada transaksi.</div></td></tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
-            @endif
-        </div>
+            </div>
 
-        <div class="bg-white p-6 rounded-3xl shadow">
-            <h2 class="text-lg font-semibold mb-4">Laporan Buyer</h2>
-
-            @if(session('success'))
-                <div class="mb-4 rounded-xl bg-green-50 border border-green-200 p-4 text-green-800">{{ session('success') }}</div>
-            @endif
-
-            @if($reports->isEmpty())
-                <p class="text-gray-500">Belum ada laporan seller.</p>
-            @else
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left">
-                        <thead class="bg-gray-100">
+            <div class="admin-card">
+                <div class="p-6">
+                    <h2 class="text-2xl font-extrabold">Produk Terbaru</h2>
+                </div>
+                <div class="admin-table-wrap">
+                    <table class="admin-table">
+                        <thead>
                             <tr>
-                                <th class="p-3">Buyer</th>
-                                <th>Seller</th>
                                 <th>Produk</th>
-                                <th>Alasan</th>
+                                <th>Seller</th>
                                 <th>Status</th>
-                                <th>Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($reports as $report)
-                                <tr class="border-b align-top">
-                                    <td class="p-3">{{ $report->reporter?->name ?? '-' }}</td>
-                                    <td>{{ $report->seller?->name ?? '-' }}</td>
-                                    <td>{{ $report->product?->name ?? '-' }}</td>
-                                    <td>
-                                        <div class="font-semibold">{{ $report->reason }}</div>
-                                        <div class="text-sm text-gray-500">{{ $report->description }}</div>
-                                    </td>
-                                    <td>{{ $report->status }}</td>
-                                    <td>
-                                        <form method="POST" action="{{ route('admin.monitoring.seller.action', $report->seller_id) }}" class="flex flex-col gap-2 min-w-48">
-                                            @csrf
-                                            <input type="hidden" name="report_id" value="{{ $report->id }}">
-                                            <input type="hidden" name="product_id" value="{{ $report->product_id }}">
-                                            <select name="action" class="border rounded-lg p-2 text-sm">
-                                                <option value="warning">Warning</option>
-                                                <option value="suspend">Suspend</option>
-                                                <option value="ban">Ban</option>
-                                            </select>
-                                            <input name="reason" value="{{ $report->reason }}" class="border rounded-lg p-2 text-sm" required>
-                                            <button class="bg-slate-900 text-white rounded-lg px-3 py-2 text-sm">Simpan</button>
-                                        </form>
-                                    </td>
+                            @forelse($products as $product)
+                                <tr>
+                                    <td>{{ $product->name }}</td>
+                                    <td>{{ $product->store?->nama_toko ?? $product->owner?->name ?? '-' }}</td>
+                                    <td><span class="admin-badge {{ $product->status === 'approved' ? 'admin-badge-success' : ($product->status === 'rejected' ? 'admin-badge-danger' : 'admin-badge-warning') }}">{{ $product->status }}</span></td>
                                 </tr>
-                            @endforeach
+                            @empty
+                                <tr><td colspan="3"><div class="admin-empty">Belum ada produk terbaru.</div></td></tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
-            @endif
+            </div>
         </div>
 
-        <div class="bg-white p-6 rounded-3xl shadow">
-            <h2 class="text-lg font-semibold mb-4">Riwayat Pelanggaran Seller</h2>
+        <div class="grid gap-6 xl:grid-cols-2">
+            <div class="admin-card">
+                <div class="p-6">
+                    <h2 class="text-2xl font-extrabold">Laporan Sistem</h2>
+                </div>
+                <div class="space-y-3 px-6 pb-6">
+                    @forelse($reports as $report)
+                        <div class="rounded-lg border border-slate-200 p-4">
+                            <div class="flex flex-wrap items-center gap-2">
+                                <span class="admin-badge admin-badge-danger">{{ $report->type }}</span>
+                                <span class="text-xs text-slate-500">{{ $report->created_at?->diffForHumans() }}</span>
+                            </div>
+                            <p class="mt-2 font-bold">{{ $report->reason }}</p>
+                            <p class="text-sm text-slate-600">{{ $report->description }}</p>
+                        </div>
+                    @empty
+                        <div class="admin-empty">Tidak ada laporan.</div>
+                    @endforelse
+                </div>
+            </div>
 
-            @if($violations->isEmpty())
-                <p class="text-gray-500">Belum ada pelanggaran.</p>
-            @else
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left">
-                        <thead class="bg-gray-100">
+            <div class="admin-card">
+                <div class="p-6">
+                    <h2 class="text-2xl font-extrabold">Pelanggaran Seller</h2>
+                </div>
+                <div class="admin-table-wrap">
+                    <table class="admin-table">
+                        <thead>
                             <tr>
-                                <th class="p-3">Seller</th>
+                                <th>Seller</th>
                                 <th>Aksi</th>
                                 <th>Strike</th>
-                                <th>Sumber</th>
                                 <th>Alasan</th>
-                                <th>Tanggal</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($violations as $violation)
-                                <tr class="border-b">
-                                    <td class="p-3">{{ $violation->seller?->name ?? '-' }}</td>
-                                    <td>{{ $violation->action }}</td>
+                            @forelse($violations as $violation)
+                                <tr>
+                                    <td>{{ $violation->seller?->name ?? '-' }}</td>
+                                    <td><span class="admin-badge admin-badge-muted">{{ $violation->action }}</span></td>
                                     <td>{{ $violation->strike_count }}</td>
-                                    <td>{{ $violation->source }}</td>
                                     <td>{{ $violation->reason }}</td>
-                                    <td>{{ $violation->created_at?->format('d M Y H:i') }}</td>
                                 </tr>
-                            @endforeach
+                            @empty
+                                <tr><td colspan="4"><div class="admin-empty">Belum ada pelanggaran.</div></td></tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
-            @endif
+            </div>
         </div>
-
     </div>
+@endsection
 
+@section('scripts')
+    <script>
+        new Chart(document.getElementById('monitorChart'), {
+            type: 'bar',
+            data: {
+                labels: @json($activityLabels),
+                datasets: [
+                    {
+                        label: 'Order',
+                        data: @json($orderActivity),
+                        backgroundColor: '#007a52'
+                    },
+                    {
+                        label: 'Produk',
+                        data: @json($productActivity),
+                        backgroundColor: '#0057d8'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: true } },
+                scales: {
+                    x: { grid: { display: false } },
+                    y: { beginAtZero: true, grid: { color: '#dbe7de' } }
+                }
+            }
+        });
+    </script>
 @endsection

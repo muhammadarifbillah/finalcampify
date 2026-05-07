@@ -6,19 +6,41 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 
 class UserController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::latest()->get();
-        return view('admin.users', compact('users'));
+        $query = User::with('store')
+            ->when($request->filled('role'), fn ($q) => $q->where('role', $request->role))
+            ->when($request->filled('status'), fn ($q) => $q->where('status', $request->status))
+            ->when($request->filled('q'), function ($q) use ($request) {
+                $keyword = $request->q;
+                $q->where(function ($inner) use ($keyword) {
+                    $inner->where('name', 'like', "%{$keyword}%")
+                        ->orWhere('nama', 'like', "%{$keyword}%")
+                        ->orWhere('email', 'like', "%{$keyword}%");
+                });
+            })
+            ->latest();
+
+        $users = $query->paginate(10)->withQueryString();
+        $roleCounts = User::selectRaw('COALESCE(role, "buyer") as role_name, COUNT(*) as total')
+            ->groupByRaw('COALESCE(role, "buyer")')
+            ->pluck('total', 'role_name');
+
+        return view('admin.users', compact('users', 'roleCounts'));
     }
 
     public function show($id)
     {
         $user = User::with(['store'])->findOrFail($id);
-        $transactions = Transaction::where('user_id', $id)->latest()->limit(10)->get();
+        $transactionsQuery = Transaction::where('user_id', $id);
+        if (Schema::hasColumn('transactions', 'created_at')) {
+            $transactionsQuery->latest();
+        }
+        $transactions = $transactionsQuery->limit(10)->get();
 
         // Simulasi aktivitas login (dalam implementasi nyata, ini dari log atau event)
         $loginActivities = [

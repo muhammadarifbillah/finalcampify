@@ -1,80 +1,89 @@
 @extends('layouts.admin')
 
-@section('content')
+@section('title', 'Stores Admin')
 
-    <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between mb-6">
+@php
+    $statusBadge = fn ($status) => match ($status) {
+        'active' => 'admin-badge-success',
+        'pending' => 'admin-badge-warning',
+        'rejected', 'banned' => 'admin-badge-danger',
+        'suspended' => 'admin-badge-info',
+        default => 'admin-badge-muted',
+    };
+@endphp
+
+@section('content')
+    <div class="space-y-8">
         <div>
-            <h1 class="text-2xl font-bold">Manajemen Seller</h1>
-            <p class="text-gray-600">Kelola status seller dan lakukan moderasi jika diperlukan.</p>
+            <h1 class="admin-section-title">Detail Toko</h1>
+            <p class="admin-section-subtitle">Kelola seller, status toko, dan validasi produk yang dikirim penjual.</p>
+        </div>
+
+        <div class="grid gap-5 md:grid-cols-3">
+            <div class="admin-card admin-stat-card">
+                <p class="admin-stat-label">Total Seller</p>
+                <h2 class="admin-stat-value">{{ number_format($stores->count()) }}</h2>
+                <p class="admin-stat-meta">{{ $stores->where('status', 'active')->count() }} aktif</p>
+            </div>
+            <div class="admin-card admin-stat-card">
+                <p class="admin-stat-label">Produk Waiting</p>
+                <h2 class="admin-stat-value">{{ number_format($stores->sum('admin_waiting_products_count')) }}</h2>
+                <p class="admin-stat-meta">Butuh review admin</p>
+            </div>
+            <div class="admin-card admin-stat-card">
+                <p class="admin-stat-label">Produk Approved</p>
+                <h2 class="admin-stat-value">{{ number_format($stores->sum('admin_approved_products_count')) }}</h2>
+                <p class="admin-stat-meta">Tampil ke buyer</p>
+            </div>
+        </div>
+
+        <div class="admin-card">
+            <div class="p-6">
+                <h2 class="text-2xl font-extrabold">Daftar Seller</h2>
+            </div>
+            <div class="admin-table-wrap">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Pemilik</th>
+                            <th>Nama Toko</th>
+                            <th>Status</th>
+                            <th>Produk</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($stores as $store)
+                            <tr>
+                                <td>
+                                    <div class="font-extrabold">{{ $store->user->name ?? '-' }}</div>
+                                    <div class="text-xs text-slate-500">{{ $store->user->email ?? '-' }}</div>
+                                </td>
+                                <td>
+                                    <div class="font-extrabold">{{ $store->nama_toko }}</div>
+                                    <div class="text-xs text-slate-500">{{ \Illuminate\Support\Str::limit($store->alamat, 42) }}</div>
+                                </td>
+                                <td><span class="admin-badge {{ $statusBadge($store->status) }}">{{ $store->status }}</span></td>
+                                <td>
+                                    <div class="font-extrabold">{{ $store->admin_products_count }} produk</div>
+                                    <div class="text-xs text-slate-500">{{ $store->admin_approved_products_count }} approved, {{ $store->admin_waiting_products_count }} waiting</div>
+                                </td>
+                                <td>
+                                    <a href="{{ route('admin.stores.show', $store->id) }}" class="admin-button admin-button-primary">
+                                        Detail
+                                    </a>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="5">
+                                    <div class="admin-empty">Tidak ada seller yang terdaftar.</div>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-
-    @if(session('success'))
-        <div class="bg-green-50 border-l-4 border-green-400 p-4 mb-6 rounded-xl">
-            <p class="text-green-800">{{ session('success') }}</p>
-        </div>
-    @endif
-
-    @if($stores->isEmpty())
-        <div class="bg-white p-6 rounded-3xl shadow text-gray-500">Tidak ada seller yang terdaftar saat ini.</div>
-    @else
-        <div class="bg-white rounded-xl shadow overflow-x-auto">
-            <div class="p-4 border-b">
-                <h2 class="font-bold">Daftar Seller</h2>
-            </div>
-            <table class="w-full text-left">
-                <thead class="bg-gray-100">
-                    <tr>
-                        <th class="p-4">Nama User</th>
-                        <th>Nama Toko</th>
-                        <th>Status</th>
-                        <th>Produk</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($stores as $store)
-                        <tr class="border-b hover:bg-gray-50">
-                            <td class="p-4">
-                                <div class="font-medium">{{ $store->user->name }}</div>
-                                <div class="text-sm text-gray-500">{{ $store->user->email }}</div>
-                            </td>
-                            <td>
-                                <div class="font-medium">{{ $store->nama_toko }}</div>
-                                @if($store->alamat)
-                                    <div class="text-sm text-gray-500">{{ Str::limit($store->alamat, 30) }}</div>
-                                @endif
-                            </td>
-                            <td>
-                                <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold
-                                                @if($store->status == 'active') bg-green-100 text-green-800
-                                                @elseif($store->status == 'pending') bg-yellow-100 text-yellow-800
-                                                @elseif($store->status == 'rejected') bg-red-100 text-red-800
-                                                @elseif($store->status == 'suspended') bg-orange-100 text-orange-800
-                                                @elseif($store->status == 'banned') bg-red-100 text-red-800
-                                                @else bg-gray-100 text-gray-800
-                                                @endif">
-                                    {{ ucfirst($store->status) }}
-                                </span>
-                            </td>
-                            <td>
-                                <div class="text-sm">
-                                    <div>{{ $store->products->count() }} produk</div>
-                                    <div class="text-gray-500">{{ $store->products->where('status', 'approved')->count() }} aktif
-                                    </div>
-                                </div>
-                            </td>
-                            <td>
-                                <a href="{{ route('admin.stores.show', $store->id) }}"
-                                    class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition">
-                                    Detail
-                                </a>
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-    @endif
-
 @endsection
