@@ -110,16 +110,8 @@
 
                     <div class="grid gap-4 mb-6">
                         <div class="rounded-3xl bg-slate-50 p-4">
-                            <p class="text-sm text-slate-500">Harga Beli</p>
-                            <p class="text-2xl font-bold text-emerald-700">Rp {{ number_format($produk->buy_price) }}</p>
-                        </div>
-                        <div class="rounded-3xl bg-slate-50 p-4">
-                            <p class="text-sm text-slate-500">Harga Sewa</p>
-                            @if($produk->rent_price && $produk->rent_price > 0)
-                                <p class="text-2xl font-bold text-emerald-600">Rp {{ number_format($produk->rent_price) }}/hari</p>
-                            @else
-                                <p class="text-sm text-slate-400 italic">Tidak tersedia untuk sewa</p>
-                            @endif
+                            <p class="text-sm text-slate-500 uppercase font-bold tracking-wider mb-1">Harga Sewa</p>
+                            <p class="text-3xl font-black text-emerald-600">Rp {{ number_format($produk->rent_price) }}<span class="text-sm font-bold text-slate-400">/hari</span></p>
                         </div>
                     </div>
 
@@ -127,16 +119,10 @@
                         <div class="bg-slate-50 rounded-3xl p-5 border border-slate-200">
                             <h3 class="text-lg font-semibold text-slate-900 mb-4">Sewa Sekarang</h3>
                             <form action="{{ route('sewa.form', $produk->id) }}" method="GET" class="space-y-4">
-                                <button type="submit" class="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-5 py-4 text-base font-bold text-white hover:bg-emerald-700 w-full shadow-lg shadow-emerald-100 transition-all">Sewa Sekarang</button>
+                                <p class="text-sm text-slate-500 mb-3 leading-relaxed">Klik tombol di bawah untuk mengisi formulir penyewaan, memilih durasi, dan metode pengiriman.</p>
+                                <button type="submit" class="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-5 py-4 text-base font-bold text-white hover:bg-emerald-700 w-full shadow-lg shadow-emerald-100 transition-all">Lanjutkan ke Formulir Sewa</button>
                             </form>
                         </div>
-
-                        @if($produk->buy_price && $produk->buy_price > 0)
-                            <div class="bg-emerald-50 rounded-3xl p-5 border border-emerald-200">
-                                <p class="text-sm text-slate-500 mb-3">Atau pilih pembelian jika kamu ingin memiliki barang ini.</p>
-                                <a href="{{ route('produk.detail.buy', $produk->id) }}" class="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white hover:bg-emerald-700">Lihat Detail Beli</a>
-                            </div>
-                        @endif
                     </div>
                 </div>
             </aside>

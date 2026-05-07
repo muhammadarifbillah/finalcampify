@@ -114,16 +114,8 @@
 
                     <div class="grid gap-4 mb-6">
                         <div class="rounded-3xl bg-slate-50 p-4">
-                            <p class="text-sm text-slate-500">Harga Beli</p>
-                            <p class="text-2xl font-bold text-emerald-700">Rp {{ number_format($produk->buy_price) }}</p>
-                        </div>
-                        <div class="rounded-3xl bg-slate-50 p-4">
-                            <p class="text-sm text-slate-500">Harga Sewa</p>
-                            @if($produk->rent_price && $produk->rent_price > 0)
-                                <p class="text-2xl font-bold text-blue-700">Rp {{ number_format($produk->rent_price) }}/hari</p>
-                            @else
-                                <p class="text-sm text-slate-400 italic">Tidak tersedia untuk sewa</p>
-                            @endif
+                            <p class="text-sm text-slate-500 uppercase font-bold tracking-wider mb-1">Harga Barang</p>
+                            <p class="text-3xl font-black text-emerald-700">Rp {{ number_format($produk->buy_price) }}</p>
                         </div>
                     </div>
 
@@ -136,23 +128,16 @@
                                 <input type="hidden" name="type" value="buy">
 
                                 <div>
-                                    <p class="text-sm text-slate-500">Jumlah Pembelian</p>
-                                    <input type="number" name="quantity" min="1" max="{{ max(1, $produk->stock) }}" value="1" class="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3" />
+                                    <p class="text-sm text-slate-500 font-medium">Jumlah Pembelian</p>
+                                    <input type="number" name="quantity" min="1" max="{{ max(1, $produk->stock) }}" value="1" class="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3 focus:ring-2 focus:ring-emerald-500" />
                                 </div>
 
                                 <div class="grid gap-3 sm:grid-cols-[1fr_auto]">
-                                    <button type="submit" class="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white hover:bg-slate-800 w-full">Tambah Keranjang</button>
-                                    <a href="{{ route('checkout.now', $produk->id) }}" class="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white hover:bg-emerald-700">Beli Sekarang</a>
+                                    <button type="submit" class="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-5 py-4 text-sm font-bold text-white hover:bg-slate-800 w-full transition-all">Tambah Keranjang</button>
+                                    <a href="{{ route('checkout.now', $produk->id) }}" class="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-5 py-4 text-sm font-bold text-white hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-100">Beli Sekarang</a>
                                 </div>
                             </form>
                         </div>
-
-                        @if($produk->rent_price && $produk->rent_price > 0)
-                            <div class="bg-blue-50 rounded-3xl p-5 border border-blue-200">
-                                <p class="text-sm text-slate-500 mb-3">Atau pilih penyewaan jika kamu butuh sementara.</p>
-                                <a href="{{ route('produk.detail.rent', $produk->id) }}" class="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-700">Lihat Detail Sewa</a>
-                            </div>
-                        @endif
                     </div>
                 </div>
             </aside>

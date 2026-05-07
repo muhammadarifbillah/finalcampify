@@ -1,7 +1,7 @@
 <div class="card-outdoor group bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition duration-300">
 
   @php
-    $isBuy = !empty($product->buy_price) && $product->buy_price > 0;
+    $isBuy = $product->jenis_produk === 'jual' || ($product->buy_price > 0 && $product->rent_price <= 0);
   @endphp
 
   <!-- IMAGE -->
