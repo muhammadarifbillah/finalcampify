@@ -20,6 +20,7 @@
                         <tr>
                             <th class="p-3">Nama</th>
                             <th>Email</th>
+                            <th>Role</th>
                             <th>Status</th>
                             <th>Last Login</th>
                             <th>Aksi</th>
@@ -30,6 +31,13 @@
                             <tr class="border-b hover:bg-gray-50">
                                 <td class="p-3">{{ $u->name }}</td>
                                 <td>{{ $u->email }}</td>
+                                <td>
+                                    <span class="inline-flex rounded-full 
+                                        @if($u->role == 'admin') bg-purple-100 text-purple-800
+                                        @elseif($u->role == 'seller') bg-blue-100 text-blue-800
+                                        @else bg-gray-100 text-gray-800
+                                        @endif px-3 py-1 text-xs font-semibold">{{ ucfirst($u->role ?? 'user') }}</span>
+                                </td>
                                 <td>
                                     <span
                                         class="inline-flex rounded-full 

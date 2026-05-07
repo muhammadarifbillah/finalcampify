@@ -54,14 +54,14 @@
             <h2 class="text-2xl font-semibold text-slate-900">Kelola Kurir</h2>
             <p class="text-slate-500">Tambah, edit, atau atur layanan pengiriman tanpa mengubah logika yang sudah ada.</p>
         </div>
-        <button id="openCourierModal"
-            class="bg-emerald-600 text-white px-5 py-3 rounded-3xl font-semibold hover:bg-emerald-700 transition">Tambah Kurir</button>
+        <!--<button id="openCourierModal"
+            class="bg-emerald-600 text-white px-5 py-3 rounded-3xl font-semibold hover:bg-emerald-700 transition">Tambah Kurir</button>-->
     </div>
 
     <div id="courierModal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/40 p-4">
         <div class="w-full max-w-xl rounded-[32px] bg-white p-6 shadow-2xl max-h-[calc(100vh-3rem)] overflow-y-auto">
             <div class="flex items-center justify-between mb-4">
-                <h2 id="courierModalTitle" class="text-2xl font-semibold">Tambah Kurir</h2>
+                <!--<h2 id="courierModalTitle" class="text-2xl font-semibold">Tambah Kurir</h2>-->
                 <button type="button" id="closeCourierModal" class="text-slate-500 hover:text-slate-900">Tutup</button>
             </div>
             <form id="courierForm" method="POST" action="/admin/couriers/store" class="space-y-4">

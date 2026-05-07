@@ -14,7 +14,7 @@ class Rental_seller extends Model
 
     protected $fillable = [
         'user_id', 'product_id', 'tanggal_mulai', 'tanggal_selesai', 
-        'total_harga', 'status', 'catatan'
+        'total_harga', 'status', 'catatan', 'price', 'duration'
     ];
 
     public function user() {
