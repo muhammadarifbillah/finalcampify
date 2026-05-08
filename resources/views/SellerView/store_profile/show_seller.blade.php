@@ -211,6 +211,29 @@
                                 <span class="badge bg-success rounded-pill">Aktif</span>
                             </div>
                         </div>
+                        
+                        <div class="col-md-12 mt-2">
+                            <hr>
+                            <h6 class="fw-bold mb-3">Informasi Rekening Bank</h6>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <small class="text-muted d-block">Nama Bank</small>
+                                <p class="mb-0 fw-bold">{{ $profile->bank_name ?? '-' }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <small class="text-muted d-block">Nomor Rekening</small>
+                                <p class="mb-0 fw-bold">{{ $profile->bank_account_number ?? '-' }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <small class="text-muted d-block">Atas Nama</small>
+                                <p class="mb-0 fw-bold">{{ $profile->bank_account_name ?? '-' }}</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
 

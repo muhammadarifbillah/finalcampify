@@ -100,6 +100,11 @@ class PembeliProductController extends Controller
             'status' => 'pending' // Status awal di tabel rentals
         ]);
 
+        // 4. Hapus dari keranjang jika ada
+        \App\Models\Pembeli\Keranjang_pembeli::where('user_id', $user->id)
+            ->where('product_id', $produk->id)
+            ->delete();
+
         return redirect()->route('orders.detail', $pesanan->id)->with('success', 'Pengajuan sewa berhasil dibuat!');
     }
 

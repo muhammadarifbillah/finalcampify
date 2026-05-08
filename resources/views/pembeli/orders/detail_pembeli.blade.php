@@ -3,8 +3,25 @@
 @section('extra_css')
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 <style>
-    #tracking-map { height: 350px; border-radius: 20px; z-index: 10; }
-    .map-marker-label { background: white; border: 2px solid #10B981; padding: 2px 8px; border-radius: 10px; font-weight: bold; font-size: 10px; }
+    #tracking-map { height: 400px; border-radius: 24px; z-index: 10; }
+    .map-marker-label { 
+        background: white; 
+        border: 2px solid #10B981; 
+        padding: 4px 12px; 
+        border-radius: 50px; 
+        font-weight: 800; 
+        font-size: 11px; 
+        color: #064E3B;
+        white-space: nowrap; 
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .package-icon {
+        filter: drop-shadow(0 4px 6px rgb(0 0 0 / 0.3));
+        transition: all 0.5s ease;
+    }
 </style>
 @endsection
 
@@ -21,6 +38,7 @@
             <span class="px-4 py-1 rounded-full text-sm font-semibold
                 @if($pesanan->status == 'diproses') bg-yellow-100 text-yellow-700
                 @elseif($pesanan->status == 'selesai') bg-green-100 text-green-700
+                @elseif($pesanan->status == 'menunggu') bg-amber-100 text-amber-700
                 @else bg-red-100 text-red-700
                 @endif">
                 {{ ucfirst($pesanan->status) }}
@@ -139,7 +157,7 @@
                                 <!-- FOTO PRODUK -->
                                 <div class="w-full md:w-32 h-32 flex-shrink-0">
                                     <img 
-                                        src="{{ $produk && $produk->image ? asset($produk->image) : 'https://via.placeholder.com/150' }}"
+                                        src="{{ $produk && $produk->image ? asset('storage/' . $produk->image) : 'https://via.placeholder.com/150' }}"
                                         class="w-full h-full object-cover rounded-2xl shadow-sm"
                                     >
                                 </div>
@@ -336,55 +354,113 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Fallback koordinat jika data kosong
-        const storeLat = {{ $pesanan->details->first()->product->store->latitude ?? -6.1754 }};
-        const storeLng = {{ $pesanan->details->first()->product->store->longitude ?? 106.8272 }};
-        const destLat = {{ $pesanan->latitude ?? -6.2088 }};
-        const destLng = {{ $pesanan->longitude ?? 106.8456 }};
+        // Data dari PHP
+        let storeLat = {{ $pesanan->details->first()->product->store->latitude ?? 'null' }};
+        let storeLng = {{ $pesanan->details->first()->product->store->longitude ?? 'null' }};
+        let destLat = {{ $pesanan->latitude ?? 'null' }};
+        let destLng = {{ $pesanan->longitude ?? 'null' }};
+        
+        const storeAddr = "{{ $pesanan->details->first()->product->store->alamat ?? '' }}";
+        const buyerAddr = "{{ $pesanan->shipping_address }}, {{ $pesanan->shipping_district }}, {{ $pesanan->shipping_city }}";
         const status = "{{ $pesanan->status }}";
 
-        // Inisialisasi Map
-        const map = L.map('tracking-map').setView([storeLat, storeLng], 13);
+        // Inisialisasi Map (Default ke Jakarta jika benar-benar kosong)
+        const map = L.map('tracking-map').setView([storeLat || -6.1754, storeLng || 106.8272], 13);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
         // Custom Icons
-        const storeIcon = L.divIcon({ className: 'map-marker-label', html: '🏪 Toko', iconSize: [60, 20], iconAnchor: [30, 20] });
-        const buyerIcon = L.divIcon({ className: 'map-marker-label', html: '🏠 Anda', iconSize: [60, 20], iconAnchor: [30, 20] });
+        const storeIcon = L.divIcon({ 
+            className: 'custom-div-icon', 
+            html: '<div class="map-marker-label"><span>🏪</span> Toko</div>', 
+            iconSize: [null, null], 
+            iconAnchor: [35, 15] 
+        });
+        const buyerIcon = L.divIcon({ 
+            className: 'custom-div-icon', 
+            html: '<div class="map-marker-label"><span>🏠</span> Anda</div>', 
+            iconSize: [null, null], 
+            iconAnchor: [35, 15] 
+        });
         const packageIcon = L.divIcon({
-            html: '<div style="font-size: 24px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3))">🚚</div>',
+            html: '<div style="font-size: 32px;">🚚</div>',
             className: 'package-icon',
-            iconSize: [30, 30],
-            iconAnchor: [15, 15]
+            iconSize: [40, 40],
+            iconAnchor: [20, 20]
         });
 
-        // Markers
-        L.marker([storeLat, storeLng], {icon: storeIcon}).addTo(map);
-        L.marker([destLat, destLng], {icon: buyerIcon}).addTo(map);
+        let storeMarker, buyerMarker, path, packageMarker;
 
-        // Path Line
-        const path = L.polyline([[storeLat, storeLng], [destLat, destLng]], {
-            color: '#10B981',
-            weight: 3,
-            dashArray: '10, 10',
-            opacity: 0.6
-        }).addTo(map);
+        async function geocode(address) {
+            if (!address) return null;
+            try {
+                // Percobaan 1: Alamat Lengkap
+                let response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`);
+                let data = await response.json();
+                
+                // Percobaan 2: Jika gagal, coba ambil bagian kota/kecamatan saja
+                if (data.length === 0) {
+                    const parts = address.split(',');
+                    if (parts.length > 1) {
+                        const simplified = parts.slice(-2).join(',').trim();
+                        response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(simplified)}&limit=1`);
+                        data = await response.json();
+                    }
+                }
 
-        // Package Position Simulation based on Status
-        let packagePos = [storeLat, storeLng];
-        if (status === 'dikirim') {
-            // Animasi simulasi posisi (di tengah jalur)
-            packagePos = [(storeLat + destLat) / 2, (storeLng + destLng) / 2];
-        } else if (status === 'selesai') {
-            packagePos = [destLat, destLng];
+                if (data.length > 0) {
+                    return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
+                }
+            } catch (e) { console.error("Geocoding error:", e); }
+            return null;
         }
 
-        const packageMarker = L.marker(packagePos, {icon: packageIcon}).addTo(map);
-        
-        // Fit bounds to show both markers
-        map.fitBounds(path.getBounds(), {padding: [50, 50]});
+        async function initTracking() {
+            // Jika koordinat kosong, cari otomatis
+            if (!storeLat || !storeLng) {
+                const geo = await geocode(storeAddr);
+                if (geo) { storeLat = geo.lat; storeLng = geo.lon; }
+            }
+            if (!destLat || !destLng) {
+                const geo = await geocode(buyerAddr);
+                if (geo) { destLat = geo.lat; destLng = geo.lon; }
+            }
+
+            // Gunakan fallback akhir jika tetap gagal
+            storeLat = storeLat || -6.1754;
+            storeLng = storeLng || 106.8272;
+            destLat = destLat || -6.2088;
+            destLng = destLng || 106.8456;
+
+            // Tambahkan Markers
+            storeMarker = L.marker([storeLat, storeLng], {icon: storeIcon}).addTo(map);
+            buyerMarker = L.marker([destLat, destLng], {icon: buyerIcon}).addTo(map);
+
+            // Tambahkan Jalur
+            path = L.polyline([[storeLat, storeLng], [destLat, destLng]], {
+                color: '#10B981',
+                weight: 4,
+                dashArray: '10, 15',
+                opacity: 0.5
+            }).addTo(map);
+
+            // Tentukan Posisi Paket
+            let packagePos = [storeLat, storeLng];
+            if (status === 'dikirim') {
+                packagePos = [(storeLat + destLat) / 2, (storeLng + destLng) / 2];
+            } else if (status === 'selesai') {
+                packagePos = [destLat, destLng];
+            }
+
+            packageMarker = L.marker(packagePos, {icon: packageIcon}).addTo(map);
+            
+            // Zoom ke area rute
+            map.fitBounds(path.getBounds(), {padding: [70, 70]});
+        }
+
+        initTracking();
     });
 </script>
 @endsection

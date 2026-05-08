@@ -18,7 +18,7 @@ class Product_pembeli extends Model
 
     public function store()
     {
-        return $this->belongsTo(Store::class);
+        return $this->belongsTo(Store::class, 'user_id', 'user_id');
     }
 
     public function seller()

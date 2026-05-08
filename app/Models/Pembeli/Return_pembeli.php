@@ -14,6 +14,7 @@ class Return_pembeli extends Model
     protected $fillable = [
         'rental_id',
         'resi_return',
+        'foto_kondisi',
         'bukti_denda',
         'kondisi_barang',
         'denda',

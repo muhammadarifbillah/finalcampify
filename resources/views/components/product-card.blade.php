@@ -11,7 +11,7 @@
         : route('produk.detail.rent', $product->id) }}">
         
       <img
-  src="{{ asset($product->image) }}"
+  src="{{ asset('storage/' . $product->image) }}"
   alt="{{ $product->name }}"
   class="w-full h-full object-cover transition duration-500 group-hover:scale-110"
   onerror="this.src='https://images.unsplash.com/photo-1501785888041-af3ef285b470'"

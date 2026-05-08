@@ -15,34 +15,69 @@ class DashboardController_seller extends Controller
     {
         $userId = Auth::id();
 
-        $rental = Rental_seller::all();
-
-        return view('SellerView.seller.dashboard_seller', compact('rental'));
-
+        // 1. Ambil Produk Seller
         $products = Product_seller::where('user_id', $userId)->get();
-
         $productIds = $products->pluck('id');
 
+        // 2. Ambil Data Penyewaan (Rentals)
+        $rentals = Rental_seller::whereIn('product_id', $productIds)->get();
+
+        // 3. Ambil Data Pesanan (Orders)
         $orders = Order_seller::with(['details.product'])
             ->whereHas('details', fn ($query) => $query->whereIn('product_id', $productIds))
             ->get();
 
-        $pendingOrders = $orders->whereIn('status', ['menunggu', 'diproses'])->count();
+        // 4. Hitung Statistik Dasar
+        $ordersDone = $orders->where('status', 'selesai');
+        $totalRevenue = $ordersDone->sum('total');
+        $pendingOrdersCount = $orders->whereIn('status', ['menunggu', 'diproses'])->count();
+        
+        // RE-FILTER: Rented Gear = Hanya yang status 'active'
+        $rentedGearCount = $rentals->where('status', 'active')->sum('qty'); 
+        // Jika tidak ada kolom qty di rentals, kita gunakan count(). Berdasarkan schema sebelumnya sepertinya rentals adalah per item.
+        // Tapi di blade lama ada sum('qty'). Mari kita cek apakah rentals ada qty.
+        // Ternyata schema rentals tidak punya qty, tapi detail order punya. 
+        // Namun user minta "barang rental yang status nya rental aktif".
+        $rentedGearCount = $rentals->where('status', 'active')->count();
 
-        $totalRevenue = $orders
-            ->where('status', 'selesai')
-            ->sum('total');
+        // RE-FILTER: Permintaan Sewa = Hanya yang perlu konfirmasi (pending)
+        $totalRentalRequestsCount = $rentals->where('status', 'pending')->count();
 
-        $avgStoreRating = StoreRating_seller::getAverageRating($userId);
-        $storeRatingCount = StoreRating_seller::getRatingCount($userId);
+        // 5. Rating Toko/Produk
+        $productRatings = \App\Models\SellerModels\ProductRating_seller::whereIn('product_id', $productIds)->get();
+        $avgProductRating = $productRatings->avg('rating') ?? 0;
+        $qualityScore = round(($avgProductRating / 5) * 100);
+
+        // 6. Sales Chart Data (7 Hari Terakhir)
+        $labels = [];
+        $dataSales = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = \Carbon\Carbon::now()->subDays($i)->format('Y-m-d');
+            $labels[] = \Carbon\Carbon::now()->subDays($i)->format('d M');
+            $dataSales[] = $ordersDone->filter(fn($o) => \Carbon\Carbon::parse($o->created_at)->format('Y-m-d') == $date)->sum('total');
+        }
+        $trendUp = count($dataSales) >= 2 ? end($dataSales) >= $dataSales[0] : true;
+
+        // 7. Stock & Chat Score (Gunakan default atau logic simpel)
+        $totalStock = $products->sum('stok');
+        $stockScore = $totalStock > 0 ? 100 : 0;
+        $chatScore = 90; // Placeholder
 
         return view('SellerView.seller.dashboard_seller', compact(
             'products',
             'orders',
-            'pendingOrders',
+            'pendingOrdersCount',
             'totalRevenue',
-            'avgStoreRating',
-            'storeRatingCount'
+            'avgProductRating',
+            'rentals',
+            'rentedGearCount',
+            'totalRentalRequestsCount',
+            'labels',
+            'dataSales',
+            'qualityScore',
+            'stockScore',
+            'chatScore',
+            'trendUp'
         ));
     }
 }

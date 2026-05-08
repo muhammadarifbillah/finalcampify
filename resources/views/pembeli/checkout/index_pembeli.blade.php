@@ -532,10 +532,6 @@
                             <input type="radio" name="metode_pembayaran" value="cod" class="mr-3">
                             <span>Cash on Delivery</span>
                         </label>
-                        <label class="flex items-center rounded-2xl border border-slate-200 px-4 py-3 cursor-pointer">
-                            <input type="radio" name="metode_pembayaran" value="ewallet" class="mr-3">
-                            <span>E-Wallet</span>
-                        </label>
                     </div>
 
                     <div class="mt-6 p-4 bg-slate-50 rounded-xl border border-dashed border-slate-300 text-center">
@@ -574,11 +570,7 @@
                                 <p class="text-sm text-slate-500 italic">Tidak ada data toko.</p>
                             @endforelse
                         </div>
-                        <div id="checkout_info_ewallet" class="hidden text-center space-y-3">
-                            <p class="text-xs font-bold text-slate-500 uppercase">Gunakan QRIS Pembayaran Pusat</p>
-                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=CAMPIFY_EWALLET" class="mx-auto border-2 border-white rounded-xl shadow-sm">
-                            <p class="text-sm font-bold text-slate-700">Scan QRIS a/n Campify Indonesia</p>
-                        </div>
+
                         <div id="checkout_info_cod" class="hidden">
                             <p class="text-sm text-slate-700">Bayar langsung ke kurir saat barang tiba.</p>
                         </div>
@@ -629,15 +621,18 @@
                                 $total += $subtotal;
                             @endphp
 
-                            <div class="flex justify-between items-center">
-                                <div>
-                                    <p class="font-medium">{{ $item->product->name ?? 'Produk Tidak Ditemukan' }}</p>
-                                    <p class="text-sm text-gray-500">
-                                        {{ $item->type === 'buy' ? 'Beli' : 'Sewa' }} x{{ $item->qty }}
-                                        @if($item->type === 'rent')
-                                            ({{ $item->duration }} hari)
-                                        @endif
-                                    </p>
+                            <div class="flex justify-between items-center gap-4">
+                                <div class="flex items-center gap-3">
+                                    <img src="{{ asset('storage/' . $item->product->image) }}" class="w-12 h-12 object-cover rounded-lg shadow-sm">
+                                    <div>
+                                        <p class="font-medium">{{ $item->product->name ?? 'Produk Tidak Ditemukan' }}</p>
+                                        <p class="text-sm text-gray-500">
+                                            {{ $item->type === 'buy' ? 'Beli' : 'Sewa' }} x{{ $item->qty }}
+                                            @if($item->type === 'rent')
+                                                ({{ $item->duration }} hari)
+                                            @endif
+                                        </p>
+                                    </div>
                                 </div>
                                 <span class="font-medium">Rp {{ number_format($subtotal) }}</span>
                             </div>
@@ -692,18 +687,15 @@
     const payRadios = document.querySelectorAll('input[name="metode_pembayaran"]');
     const payInfoBox = document.getElementById('checkout_payment_info');
     const infoTransfer = document.getElementById('checkout_info_transfer');
-    const infoEwallet = document.getElementById('checkout_info_ewallet');
     const infoCodCheckout = document.getElementById('checkout_info_cod');
 
     function updatePayInfo() {
         const selected = document.querySelector('input[name="metode_pembayaran"]:checked').value;
         payInfoBox.classList.remove('hidden');
         infoTransfer.classList.add('hidden');
-        infoEwallet.classList.add('hidden');
         infoCodCheckout.classList.add('hidden');
 
         if(selected === 'transfer') infoTransfer.classList.remove('hidden');
-        if(selected === 'ewallet') infoEwallet.classList.remove('hidden');
         if(selected === 'cod') infoCodCheckout.classList.remove('hidden');
     }
 

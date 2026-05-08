@@ -22,8 +22,18 @@ class Rental_seller extends Model
         'duration',
         'price',
         'status',
-        'note',
+        'catatan',
     ];
+
+    protected $casts = [
+        'start_date' => 'date',
+        'end_date' => 'date',
+    ];
+
+    public function returnRequest()
+    {
+        return $this->hasOne(Return_seller::class, 'rental_id');
+    }
 
     public function user() {
         return $this->belongsTo(User::class, 'user_id');

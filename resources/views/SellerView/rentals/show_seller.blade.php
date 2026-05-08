@@ -158,13 +158,66 @@
                     {{-- BUKTI PEMBAYARAN --}}
                     @if($rental->order && $rental->order->bukti_pembayaran)
                         <div class="mt-4 p-3 bg-light rounded border">
-                            <p class="small fw-bold text-muted mb-2">BUKTI PEMBAYARAN</p>
+                            <p class="small fw-bold text-muted mb-2">BUKTI PEMBAYARAN SEWA</p>
                             <a href="{{ asset($rental->order->bukti_pembayaran) }}" target="_blank">
                                 <img src="{{ asset($rental->order->bukti_pembayaran) }}" class="img-thumbnail" style="max-height:150px;">
                             </a>
-                            <div class="mt-2">
-                                <small class="text-muted italic">*Klik gambar untuk memperbesar</small>
+                        </div>
+                    @endif
+
+                    {{-- DETAIL PENGEMBALIAN (RETURN) --}}
+                    @if($rental->returnRequest)
+                        <div class="mt-4 p-4 rounded border" style="background:#f0fdf4; border-color:#dcfce7 !important;">
+                            <p class="small fw-bold text-success mb-3 uppercase tracking-wider">Informasi Pengembalian (Return)</p>
+                            
+                            <div class="row g-3">
+                                <div class="col-sm-6">
+                                    <label class="text-muted small d-block">No. Resi Balik</label>
+                                    <span class="fw-bold">{{ $rental->returnRequest->resi_return }}</span>
+                                </div>
+                                <div class="col-sm-6">
+                                    <label class="text-muted small d-block">Tanggal Kembali</label>
+                                    <span class="fw-bold">{{ $rental->returnRequest->tanggal_pengembalian ? $rental->returnRequest->tanggal_pengembalian->format('d F Y H:i') : '-' }}</span>
+                                </div>
+                                <div class="col-sm-6">
+                                    <label class="text-muted small d-block">Kondisi Barang</label>
+                                    <span class="badge bg-white text-dark border uppercase">{{ $rental->returnRequest->kondisi_barang }}</span>
+                                </div>
+                                <div class="col-sm-6">
+                                    <label class="text-muted small d-block">Nominal Denda</label>
+                                    <span class="fw-bold text-danger">Rp {{ number_format($rental->returnRequest->denda) }}</span>
+                                </div>
                             </div>
+
+                            @if($rental->returnRequest->foto_kondisi)
+                                <div class="mt-3 pt-3 border-top">
+                                    <label class="text-muted small d-block mb-2">Bukti Kondisi Barang (Dari Pembeli)</label>
+                                    @php
+                                        $ext = pathinfo($rental->returnRequest->foto_kondisi, PATHINFO_EXTENSION);
+                                        $isVideo = in_array(strtolower($ext), ['mp4', 'mov', 'avi']);
+                                    @endphp
+
+                                    @if($isVideo)
+                                        <video width="100%" height="auto" controls class="rounded">
+                                            <source src="{{ asset('storage/' . $rental->returnRequest->foto_kondisi) }}" type="video/{{ $ext }}">
+                                            Your browser does not support the video tag.
+                                        </video>
+                                    @else
+                                        <a href="{{ asset('storage/' . $rental->returnRequest->foto_kondisi) }}" target="_blank">
+                                            <img src="{{ asset('storage/' . $rental->returnRequest->foto_kondisi) }}" class="img-thumbnail" style="max-height:200px;">
+                                        </a>
+                                    @endif
+                                </div>
+                            @endif
+
+                            @if($rental->returnRequest->bukti_denda)
+                                <div class="mt-3 pt-3 border-top">
+                                    <label class="text-muted small d-block mb-2">Bukti Pembayaran Denda</label>
+                                    <a href="{{ asset('storage/' . $rental->returnRequest->bukti_denda) }}" target="_blank">
+                                        <img src="{{ asset('storage/' . $rental->returnRequest->bukti_denda) }}" class="img-thumbnail" style="max-height:120px;">
+                                    </a>
+                                </div>
+                            @endif
                         </div>
                     @endif
 

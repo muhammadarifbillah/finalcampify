@@ -1,122 +1,5 @@
 @php
-use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
-
-$userId = Auth::id();
-
-/* =========================
-   📦 DATA DASAR
-========================= */
-$products = \App\Models\SellerModels\Product_seller::where('user_id', $userId)->get();
-$productIds = $products->pluck('id');
-
-$orders = \App\Models\SellerModels\Order_seller::with(['details.product'])
-    ->whereHas('details', fn ($q) => $q->whereIn('product_id', $productIds))
-    ->get();
-
-$ordersDone = $orders->where('status','selesai');
-
-$pendingOrders = $orders->whereIn('status',['menunggu','diproses'])->count();
-$totalRevenue = $ordersDone->sum('total');
-
-/* =========================
-   📊 SALES 7 HARI
-========================= */
-$labels = [];
-$dataSales = [];
-
-for ($i = 6; $i >= 0; $i--) {
-    $date = Carbon::now()->subDays($i)->format('Y-m-d');
-
-    $labels[] = Carbon::now()->subDays($i)->format('d M');
-
-    $total = $ordersDone->filter(function ($o) use ($date) {
-        return Carbon::parse($o->created_at)->format('Y-m-d') == $date;
-    })->sum('total');
-
-    $dataSales[] = $total;
-}
-
-/* =========================
-   ⭐ PRODUCT QUALITY
-========================= */
-$productRatings = \App\Models\SellerModels\ProductRating_seller::whereIn('product_id', $productIds)->get();
-$avgProductRating = $productRatings->avg('rating') ?? 0;
-$qualityScore = round(($avgProductRating / 5) * 100);
-
-/* =========================
-   💬 CHAT SPEED (sementara)
-========================= */
-$chatScore = 85;
-
-/* =========================
-   📦 STOCK DATA
-========================= */
-$totalStock = $products->sum('stok');
-
-$totalOrderedQty = $ordersDone->sum(function ($order) {
-    return $order->details->sum('qty');
-});
-
-$stockScore = $totalStock > 0
-    ? max(50, min(100, 100 - (($totalOrderedQty / $totalStock) * 100)))
-    : 100;
-
-/* =========================
-   📈 TREND
-========================= */
-$trendUp = collect($dataSales)->last() > collect($dataSales)->first();
-
-/* =========================
-   🎒 RENTED GEAR
-========================= */
-$rentedGear = $rental
-    ->whereIn('status', ['Menunggu','Dikonfirmasi','Aktif'])
-    ->sum(function ($rental) {
-        return $rental->details
-            ->filter(function ($d) {
-                return optional($d->product)->kategori === 'sewa';
-            })
-            ->sum('qty');
-    });
-
-/* =========================
-   🔍 respon massage 
-========================= */
-$messages = \App\Models\Chat::where('receiver_id', $userId)->get();
-
-$responseTimes = [];
-
-foreach ($messages as $msg) {
-    $reply = \App\Models\Chat::where('sender_id', $userId)
-        ->where('created_at', '>', $msg->created_at)
-        ->first();
-
-    if ($reply) {
-        $diff = $reply->created_at->diffInMinutes($msg->created_at);
-        $responseTimes[] = $diff;
-    }
-}
-
-$avgResponse = count($responseTimes) 
-    ? array_sum($responseTimes)/count($responseTimes) 
-    : 0;
-
-/* convert ke score */
-$chatScore = $avgResponse == 0 ? 100 : max(40, 100 - $avgResponse);
-
-/* =========================
-   📥 RENTAL REQUEST
-========================= */
-$rentalRequests = $orders
-    ->where('status', 'menunggu')
-    ->filter(function ($order) {
-        return $order->details->contains(function ($d) {
-            return optional($d->product)->jenis_produk === 'sewa';
-        });
-    });
-
-$totalRentalRequests = $rentalRequests->count();
+    // Logic moved to DashboardController_seller
 @endphp
 
 
@@ -211,6 +94,14 @@ $totalRentalRequests = $rentalRequests->count();
                     </a>
                 </li>
 
+                {{-- LAPORAN --}}
+                <li class="nav-item mb-1">
+                    <a class="nav-link sidebar-link {{ request()->routeIs('seller.reports.*') ? 'active' : '' }}"
+                    href="{{ route('seller.reports.index') }}">
+                        📈 Laporan Bisnis
+                    </a>
+                </li>
+
             </ul>
         </div>
 
@@ -249,14 +140,14 @@ $totalRentalRequests = $rentalRequests->count();
                 <div class="card p-3 shadow-sm border-0 rounded-4">
                     <small>Orders</small>
                     <h5 class="fw-bold">{{ $orders->count() }}</h5>
-                    <small class="text-danger">{{ $pendingOrders }} pending</small>
+                    <small class="text-danger">{{ $pendingOrdersCount }} pending</small>
                 </div>
             </div>
 
             <div class="col-md-3">
                 <div class="card p-3 shadow-sm border-0 rounded-4">
                     <small>Rented Gear</small>
-                    <h5 class="fw-bold">{{ $rentedGear }}</h5>
+                    <h5 class="fw-bold">{{ $rentedGearCount }}</h5>
                     <small class="text-primary">Sedang disewa</small>
                 </div>
             </div>
@@ -272,11 +163,11 @@ $totalRentalRequests = $rentalRequests->count();
                 <a href="{{ route('seller.rentals.index') }}" class="text-decoration-none text-dark">
                     <div class="card p-3 shadow-sm border-0 rounded-4">
                         <small>Permintaan Sewa</small>
-                        <h5 class="fw-bold">{{ $totalRentalRequests }}</h5>
+                        <h5 class="fw-bold">{{ $totalRentalRequestsCount }}</h5>
 
-                        @if($totalRentalRequests > 0)
+                        @if($totalRentalRequestsCount > 0)
                             <small class="text-danger">
-                                {{ $totalRentalRequests }} perlu diproses
+                                {{ $totalRentalRequestsCount }} perlu diproses
                             </small>
                         @else
                             <small class="text-success">Semua aman</small>

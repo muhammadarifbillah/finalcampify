@@ -147,6 +147,34 @@
                     </div>
                 </div>
 
+                <div class="row mt-2">
+                    <div class="col-12"><h6 class="fw-bold mb-3">Informasi Rekening Bank</h6></div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Nama Bank</label>
+                            <input type="text" name="bank_name" class="form-control" 
+                                   value="{{ $profile->bank_name ?? '' }}" 
+                                   placeholder="Contoh: BCA, Mandiri, BNI dll">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Nomor Rekening</label>
+                            <input type="text" name="bank_account_number" class="form-control" 
+                                   value="{{ $profile->bank_account_number ?? '' }}" 
+                                   placeholder="Masukkan nomor rekening">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Atas Nama</label>
+                            <input type="text" name="bank_account_name" class="form-control" 
+                                   value="{{ $profile->bank_account_name ?? '' }}" 
+                                   placeholder="Masukkan nama pemilik rekening">
+                        </div>
+                    </div>
+                </div>
+
                 <button class="btn text-white rounded-pill px-4" style="background:#10B981;">
                     Simpan Profil
                 </button>

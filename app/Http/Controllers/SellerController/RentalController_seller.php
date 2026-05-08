@@ -24,7 +24,14 @@ class RentalController_seller extends Controller
     public function edit($id)
     {
         $rental = $this->sellerRentals()->findOrFail($id);
-        return view('SellerView.rentals.edit_seller', compact('rental'));
+
+        // Hitung denda telat otomatis
+        $endDate = \Carbon\Carbon::parse($rental->end_date)->startOfDay();
+        $today = now()->startOfDay();
+        $daysLate = max(0, $endDate->diffInDays($today, false));
+        $dendaTelat = $daysLate * 10000;
+
+        return view('SellerView.rentals.edit_seller', compact('rental', 'dendaTelat', 'daysLate'));
     }
 
     public function update(Request $request, $id)
@@ -33,8 +40,35 @@ class RentalController_seller extends Controller
 
         $rental->update([
             'status' => $request->status,
-            'catatan' => $request->catatan
+            'catatan' => $request->catatan ?? $rental->catatan
         ]);
+
+        // Jika ada data return (pengembalian), update denda dan kondisi
+        if ($rental->returnRequest) {
+            // Hitung ulang denda telat
+            $endDate = \Carbon\Carbon::parse($rental->end_date)->startOfDay();
+            $today = now()->startOfDay();
+            $daysLate = max(0, $endDate->diffInDays($today, false));
+            $dendaTelat = $daysLate * 10000;
+
+            $dendaKerusakan = $request->denda_kerusakan ?? 0;
+            $totalDenda = $dendaTelat + $dendaKerusakan;
+
+            $rental->returnRequest->update([
+                'denda' => $totalDenda,
+                'kondisi_barang' => $request->kondisi_barang ?? 'baik',
+            ]);
+
+            // Jika status diset ke denda_pending, pastikan denda > 0
+            if ($request->status === 'denda_pending' && $totalDenda <= 0) {
+                return back()->with('error', 'Tidak ada denda yang perlu dibayar (Telat: 0, Kerusakan: 0).');
+            }
+        }
+
+        // Jika seller set ke completed, otomatis anggap denda & order selesai
+        if ($request->status === 'completed' && $rental->order) {
+            $rental->order->update(['status' => 'selesai']);
+        }
 
         return redirect('/seller/rentals')->with('success', 'Penyewaan berhasil diupdate');
     }

@@ -17,7 +17,7 @@
 
             <div class="space-y-6">
                 <div class="rounded-[32px] overflow-hidden shadow-lg bg-white">
-                    <img src="{{ asset($produk->image) }}"
+                    <img src="{{ asset('storage/' . $produk->image) }}"
                          alt="{{ $produk->name }}"
                          class="w-full h-[520px] object-cover object-center">
                 </div>
@@ -132,9 +132,13 @@
                                     <input type="number" name="quantity" min="1" max="{{ max(1, $produk->stock) }}" value="1" class="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3 focus:ring-2 focus:ring-emerald-500" />
                                 </div>
 
-                                <div class="grid gap-3 sm:grid-cols-[1fr_auto]">
-                                    <button type="submit" class="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-5 py-4 text-sm font-bold text-white hover:bg-slate-800 w-full transition-all">Tambah Keranjang</button>
-                                    <a href="{{ route('checkout.now', $produk->id) }}" class="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-5 py-4 text-sm font-bold text-white hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-100">Beli Sekarang</a>
+                                <div class="grid gap-3 sm:grid-cols-2">
+                                    <button type="submit" name="redirect" value="cart" class="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-5 py-4 text-sm font-bold text-white hover:bg-slate-800 transition-all">
+                                        Tambah Keranjang
+                                    </button>
+                                    <button type="submit" name="redirect" value="checkout" class="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-5 py-4 text-sm font-bold text-white hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-100">
+                                        Beli Sekarang
+                                    </button>
                                 </div>
                             </form>
                         </div>

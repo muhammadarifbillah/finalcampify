@@ -50,6 +50,27 @@ class StoreProfileController_seller extends Controller
             'bank_account_name' => 'nullable|string',
         ]);
 
+        // Otomatis Geocoding Alamat Toko
+        if (!empty($data['alamat'])) {
+            try {
+                $response = \Illuminate\Support\Facades\Http::withoutVerifying()->withHeaders([
+                    'User-Agent' => 'CampifyApp/1.0'
+                ])->get('https://nominatim.openstreetmap.org/search', [
+                    'q' => $data['alamat'],
+                    'format' => 'json',
+                    'limit' => 1
+                ]);
+
+                if ($response->successful() && isset($response->json()[0])) {
+                    $geo = $response->json()[0];
+                    $data['latitude'] = $geo['lat'];
+                    $data['longitude'] = $geo['lon'];
+                }
+            } catch (\Exception $e) {
+                // Silently fail or log error
+            }
+        }
+
         if ($profile) {
             $profile->update($data);
         } else {
@@ -58,6 +79,6 @@ class StoreProfileController_seller extends Controller
             StoreProfile_seller::create($data);
         }
 
-        return redirect('/seller/store-profile/show')->with('success', 'Profil toko berhasil disimpan');
+        return redirect('/seller/store-profile/show')->with('success', 'Profil toko berhasil disimpan' . (isset($data['latitude']) ? '' : ' (Gagal mendapatkan koordinat otomatis)'));
     }
 }

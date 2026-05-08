@@ -26,7 +26,7 @@ class PembeliOrderController extends Controller
 
     public function returnForm($detail_id)
     {
-        $detail = OrderDetail_pembeli::with('product')->findOrFail($detail_id);
+        $detail = OrderDetail_pembeli::with('product.store')->findOrFail($detail_id);
         $pesanan = Order_pembeli::findOrFail($detail->order_id);
         
         // Cek kepemilikan
@@ -53,7 +53,7 @@ class PembeliOrderController extends Controller
 
         $return = $rental?->returnRequest;
 
-        return view('pembeli.orders.return_pembeli', compact('detail', 'pesanan', 'denda', 'daysLate', 'endDate', 'return'));
+        return view('pembeli.orders.return_pembeli', compact('detail', 'pesanan', 'denda', 'daysLate', 'endDate', 'return', 'rental'));
     }
 
     public function returnStore(Request $request, $detail_id)
@@ -70,23 +70,20 @@ class PembeliOrderController extends Controller
         }
 
         $request->validate([
-            'resi_return' => 'required|string|max:255',
-            'kondisi_barang' => 'nullable|string|max:50',
-            'bukti_denda' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'metode_return' => 'required|in:antar,kurir',
+            'resi_return' => 'required_if:metode_return,kurir|nullable|string|max:255',
+            'foto_kondisi' => 'required|file|mimes:jpg,jpeg,png,webp,mp4,mov,avi|max:10240',
         ]);
+
+        $resi = $request->metode_return === 'antar' ? 'DIANTAR_LANGSUNG' : $request->resi_return;
+
+        $fotoKondisiPath = null;
+        if ($request->hasFile('foto_kondisi')) {
+            $fotoKondisiPath = $request->file('foto_kondisi')->store('returns/conditions', 'public');
+        }
 
         $startDate = Carbon::parse($detail->start_date)->startOfDay();
         $endDate = (clone $startDate)->addDays((int) $detail->duration)->startOfDay();
-        $today = now()->startOfDay();
-
-        $daysLate = max(0, $endDate->diffInDays($today, false));
-        $denda = $daysLate * 10000;
-
-        if ($denda > 0 && !$request->hasFile('bukti_denda')) {
-            return back()
-                ->withInput()
-                ->withErrors(['bukti_denda' => 'Bukti pembayaran denda wajib diupload jika ada denda.']);
-        }
 
         $rental = Rental_pembeli::firstOrCreate(
             [
@@ -109,17 +106,12 @@ class PembeliOrderController extends Controller
             return back()->with('error', 'Pengembalian untuk sewa ini sudah pernah disubmit.');
         }
 
-        $buktiPath = null;
-        if ($request->hasFile('bukti_denda')) {
-            $buktiPath = $request->file('bukti_denda')->store('returns', 'public');
-        }
-
         $return->fill([
-            'resi_return' => $request->resi_return,
-            'bukti_denda' => $buktiPath,
-            'kondisi_barang' => $request->kondisi_barang ?: 'baik',
-            'denda' => $denda,
+            'resi_return' => $resi,
+            'foto_kondisi' => $fotoKondisiPath,
             'tanggal_pengembalian' => now(),
+            'denda' => 0, // Akan diisi oleh seller
+            'kondisi_barang' => 'baik', // Akan diupdate oleh seller
         ]);
         $return->save();
 
@@ -128,7 +120,30 @@ class PembeliOrderController extends Controller
 
         return redirect()
             ->route('orders.detail', $pesanan->id)
-            ->with('success', 'Pengembalian berhasil disubmit.');
+            ->with('success', 'Resi pengembalian berhasil dikirim. Menunggu pengecekan toko.');
+    }
+
+    public function uploadBuktiDenda(Request $request, $return_id)
+    {
+        $return = Return_pembeli::findOrFail($return_id);
+        $rental = Rental_pembeli::findOrFail($return->rental_id);
+
+        if ($rental->user_id !== \Illuminate\Support\Facades\Auth::id()) {
+            abort(403);
+        }
+
+        $request->validate([
+            'bukti_denda' => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
+        ]);
+
+        if ($request->hasFile('bukti_denda')) {
+            $buktiPath = $request->file('bukti_denda')->store('returns', 'public');
+            $return->update(['bukti_denda' => $buktiPath]);
+            
+            $rental->update(['status' => 'denda_dibayar']);
+        }
+
+        return back()->with('success', 'Bukti pembayaran denda berhasil diunggah. Menunggu verifikasi toko.');
     }
 
     public function cancel($id)

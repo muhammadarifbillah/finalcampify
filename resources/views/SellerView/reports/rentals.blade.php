@@ -208,16 +208,94 @@
 
                 <h5 class="fw-bold mb-3">Detail Penyewaan</h5>
 
+                {{-- CARD LAPORAN FORMAL --}}
+                <div class="card border-0 shadow-sm mt-4 mb-4" style="border-radius:16px;">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-0 fw-bold">Laporan Formal (Preview Cetak)</h5>
+                            <small class="text-muted">Tampilan ini akan digunakan saat print / export PDF</small>
+                        </div>
+                        <button class="btn btn-outline-dark btn-sm" onclick="window.print()">
+                            🖨️ Cetak
+                        </button>
+                    </div>
+
+                    <div class="card-body">
+                        {{-- HEADER LAPORAN --}}
+                        <div class="text-center border-bottom pb-3 mb-3">
+                            <h6 class="fw-bold mb-1">CAMPIFY MARKETPLACE</h6>
+                            <h5 class="fw-bold text-uppercase">LAPORAN PENYEWAAN ALAT</h5>
+                            <small>
+                                Periode: {{ \Carbon\Carbon::parse($startDate)->format('d M Y') }}
+                                - {{ \Carbon\Carbon::parse($endDate)->format('d M Y') }}
+                            </small>
+                        </div>
+
+                        {{-- SUMMARY --}}
+                        <div class="row text-center mb-3">
+                            <div class="col">
+                                <small>Total Pendapatan Sewa</small>
+                                <h6>Rp {{ number_format($totalRentalIncome, 0, ',', '.') }}</h6>
+                            </div>
+                            <div class="col">
+                                <small>Jumlah Penyewaan</small>
+                                <h6>{{ $totalRentals }}</h6>
+                            </div>
+                            <div class="col">
+                                <small>Rata-rata</small>
+                                <h6>
+                                    Rp {{ $totalRentals > 0 ? number_format($totalRentalIncome / $totalRentals, 0, ',', '.') : 0 }}
+                                </h6>
+                            </div>
+                        </div>
+
+                        {{-- TABEL SINGKAT --}}
+                        <div class="table-responsive">
+                            <table class="table table-sm table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Tanggal</th>
+                                        <th>Penyewa</th>
+                                        <th>Produk</th>
+                                        <th>Durasi</th>
+                                        <th>Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @php $no = 1; @endphp
+                                    @foreach($rentals as $rental)
+                                    <tr>
+                                        <td>{{ $no++ }}</td>
+                                        <td>{{ $rental->created_at->format('d/m/Y') }}</td>
+                                        <td>{{ $rental->user->name ?? '-' }}</td>
+                                        <td>{{ $rental->product->nama_produk ?? '-' }}</td>
+                                        <td>{{ $rental->duration }} Hari</td>
+                                        <td>Rp {{ number_format($rental->price * $rental->duration, 0, ',', '.') }}</td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th colspan="5" class="text-end">TOTAL</th>
+                                        <th>Rp {{ number_format($totalRentalIncome, 0, ',', '.') }}</th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
                 @foreach($rentals as $rental)
                 <div class="card border-0 shadow-sm p-3 mb-3" style="border-radius:14px;">
                     <div class="d-flex justify-content-between align-items-start mb-2">
                         <div>
                             <strong>{{ $rental->user->name ?? 'User' }}</strong><br>
                             <small class="text-muted">{{ $rental->product->nama_produk ?? '-' }}</small><br>
-                            <small class="text-muted">{{ $rental->tanggal_mulai->format('d M Y') }} - {{ $rental->tanggal_selesai->format('d M Y') }}</small>
+                            <small class="text-muted">{{ optional($rental->start_date)->format('d M Y') }} - {{ optional($rental->end_date)->format('d M Y') }}</small>
                         </div>
                         <div class="text-end">
-                            <div class="fw-bold">Rp {{ number_format($rental->total_harga, 0, ',', '.') }}</div>
+                            <div class="fw-bold">Rp {{ number_format($rental->price * $rental->duration, 0, ',', '.') }}</div>
                             <small class="badge bg-success">Selesai</small>
                         </div>
                     </div>
@@ -325,7 +403,7 @@
                 <td>{{ $rental->product->nama_produk ?? '-' }}</td>
                 <td class="number">{{ $rental->duration }} hari</td>
                 <td class="number">Rp {{ number_format($rental->price, 0, ',', '.') }}</td>
-                <td class="number">Rp {{ number_format($rental->total_harga, 0, ',', '.') }}</td>
+                <td class="number">Rp {{ number_format($rental->price * $rental->duration, 0, ',', '.') }}</td>
             </tr>
             @endforeach
             @if($rentals->isEmpty())
@@ -671,7 +749,7 @@ function exportPDF() {
             <td>{{ $rental->product->nama_produk ?? '-' }}</td>
             <td class="number">{{ $rental->duration ?? 1 }} hari</td>
             <td class="number">1</td>
-            <td class="number">Rp {{ number_format($rental->price ?? $rental->total_harga, 0, ',', '.') }}</td>
+            <td class="number">Rp {{ number_format($rental->price * $rental->duration, 0, ',', '.') }}</td>
         </tr>
         @endforeach
         @if($rentals->isEmpty())

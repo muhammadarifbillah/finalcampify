@@ -26,7 +26,7 @@
 
                 <div class="bg-white p-6 rounded-2xl flex gap-6 shadow">
 
-                    <img src="{{ $item->product->image }}" class="w-24 h-24 object-cover rounded-xl">
+                    <img src="{{ asset('storage/' . $item->product->image) }}" class="w-24 h-24 object-cover rounded-xl">
 
                     <div class="flex-1">
                         <h3 class="font-bold">{{ $item->product->name }}</h3>
