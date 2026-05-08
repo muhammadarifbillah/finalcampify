@@ -4,122 +4,143 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Campify</title>
-
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>@yield('title', 'Campify Admin')</title>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
 
-<body class="bg-gray-100 text-gray-800">
+@php
+    $adminNav = [
+        ['label' => 'Dashboard', 'icon' => 'layout-dashboard', 'href' => route('admin.dashboard'), 'active' => Request::is('admin/dashboard')],
+        ['label' => 'Users', 'icon' => 'users', 'href' => route('admin.users.index'), 'active' => Request::is('admin/users*')],
+        ['label' => 'Products', 'icon' => 'package', 'href' => route('admin.products.list'), 'active' => Request::is('admin/products-list*') || Request::is('admin/products/*')],
+        ['label' => 'Stores', 'icon' => 'store', 'href' => route('admin.stores.index'), 'active' => Request::is('admin/stores*')],
+        ['label' => 'Orders', 'icon' => 'shopping-cart', 'href' => route('admin.orders.index'), 'active' => Request::is('admin/orders*')],
+        ['label' => 'Articles', 'icon' => 'newspaper', 'href' => '/admin/articles', 'active' => Request::is('admin/articles*')],
+        ['label' => 'Courier', 'icon' => 'truck', 'href' => '/admin/couriers', 'active' => Request::is('admin/couriers*')],
+        ['label' => 'Chat', 'icon' => 'messages-square', 'href' => '/admin/chats', 'active' => Request::is('admin/chats*')],
+        ['label' => 'Chatbot', 'icon' => 'bot', 'href' => '/admin/chatbot', 'active' => Request::is('admin/chatbot*')],
+        ['label' => 'Monitoring', 'icon' => 'chart-no-axes-combined', 'href' => '/admin/monitoring', 'active' => Request::is('admin/monitoring*')],
+        ['label' => 'Settings', 'icon' => 'settings', 'href' => route('admin.settings'), 'active' => Request::is('admin/settings*')],
+    ];
+    $adminName = auth()->user()->name ?? 'Admin';
+    $initials = collect(explode(' ', $adminName))->filter()->take(2)->map(fn ($part) => mb_substr($part, 0, 1))->join('');
+@endphp
 
-    <div class="flex min-h-screen">
+<body class="admin-page">
+    <div id="adminLoading" class="admin-loading hidden">
+        <div class="admin-loading-bar"></div>
+    </div>
 
-        <!-- SIDEBAR -->
-        <aside class="hidden md:flex md:w-64 flex-col bg-emerald-700 text-white p-5">
+    <div class="admin-shell">
+        <div id="adminBackdrop" class="admin-backdrop hidden"></div>
 
-            <!-- LOGO -->
-            <div class="flex items-center gap-3 mb-8">
-                <img src="{{ asset('logocampify.png') }}" class="w-10 h-10 object-contain">
-                <span class="text-xl font-bold">Campify</span>
+        <aside id="adminSidebar" class="admin-sidebar">
+            <div class="admin-brand">
+                <div>
+                    <div class="admin-brand-title">Campify</div>
+                    <div class="admin-brand-subtitle">Marketplace Admin</div>
+                </div>
             </div>
 
-            <!-- MENU -->
-            <nav class="space-y-1 text-sm">
-
-                <a href="/admin/dashboard"
-                    class="block px-4 py-2 rounded-xl transition 
-                {{ Request::is('admin/dashboard') ? 'bg-white text-emerald-700 font-semibold' : 'hover:bg-emerald-600' }}">
-                    Dashboard
-                </a>
-
-                <a href="/admin/users" class="block px-4 py-2 rounded-xl transition 
-                {{ Request::is('admin/users') ? 'bg-white text-emerald-700 font-semibold' : 'hover:bg-emerald-600' }}">
-                    Users
-                </a>
-
-                <a href="/admin/products"
-                    class="block px-4 py-2 rounded-xl transition 
-                {{ Request::is('admin/products') ? 'bg-white text-emerald-700 font-semibold' : 'hover:bg-emerald-600' }}">
-                    Produk
-                </a>
-
-                <a href="/admin/stores"
-                    class="block px-4 py-2 rounded-xl transition 
-                {{ Request::is('admin/stores') ? 'bg-white text-emerald-700 font-semibold' : 'hover:bg-emerald-600' }}">
-                    Toko
-                </a>
-
-                <a href="/admin/orders"
-                    class="block px-4 py-2 rounded-xl transition 
-                {{ Request::is('admin/orders') ? 'bg-white text-emerald-700 font-semibold' : 'hover:bg-emerald-600' }}">
-                    Orders
-                </a>
-
-                <a href="/admin/articles"
-                    class="block px-4 py-2 rounded-xl transition 
-                {{ Request::is('admin/articles') ? 'bg-white text-emerald-700 font-semibold' : 'hover:bg-emerald-600' }}">
-                    Artikel
-                </a>
-
-                <a href="/admin/couriers"
-                    class="block px-4 py-2 rounded-xl transition 
-                {{ Request::is('admin/couriers') ? 'bg-white text-emerald-700 font-semibold' : 'hover:bg-emerald-600' }}">
-                    Kurir
-                </a>
-
-                <a href="/admin/chats" class="block px-4 py-2 rounded-xl transition 
-                {{ Request::is('admin/chats') ? 'bg-white text-emerald-700 font-semibold' : 'hover:bg-emerald-600' }}">
-                    Chat
-                </a>
-
-                <a href="/admin/chatbot"
-                    class="block px-4 py-2 rounded-xl transition 
-                {{ Request::is('admin/chatbot') ? 'bg-white text-emerald-700 font-semibold' : 'hover:bg-emerald-600' }}">
-                    Chatbot
-                </a>
-
-                <a href="/admin/monitoring"
-                    class="block px-4 py-2 rounded-xl transition 
-                {{ Request::is('admin/monitoring') ? 'bg-white text-emerald-700 font-semibold' : 'hover:bg-emerald-600' }}">
-                    Monitoring
-                </a>
-
+            <nav class="admin-nav">
+                @foreach($adminNav as $item)
+                    <a href="{{ $item['href'] }}" class="admin-nav-link {{ $item['active'] ? 'is-active' : '' }}">
+                        <i data-lucide="{{ $item['icon'] }}"></i>
+                        <span>{{ $item['label'] }}</span>
+                    </a>
+                @endforeach
             </nav>
 
+            <div class="admin-sidebar-user">
+                <div class="admin-avatar">{{ $initials ?: 'A' }}</div>
+                <div>
+                    <div class="admin-user-name">{{ $adminName }}</div>
+                    <div class="admin-user-role">Super Admin</div>
+                </div>
+            </div>
         </aside>
 
-        <!-- MAIN -->
-        <div class="flex-1 flex flex-col">
+        <div class="admin-main">
+            <header class="admin-topbar">
+                <button id="adminMenuButton" class="admin-icon-button md:hidden" type="button" aria-label="Buka menu">
+                    <i data-lucide="menu"></i>
+                </button>
 
-            <!-- TOPBAR -->
-            <header class="bg-white border-b px-6 py-4 flex justify-between items-center">
+                <form method="GET" action="{{ url()->current() }}" class="admin-search">
+                    <i data-lucide="search"></i>
+                    <input type="search" name="q" value="{{ request('q') }}" placeholder="Cari data admin..." />
+                </form>
 
-                <!-- LOGO MINI -->
-                <div class="flex items-center gap-2">
-
-                    <span class="font-semibold text-lg">Campify Admin</span>
-                </div>
-
-                <div class="flex items-center gap-4">
-                    <span class="text-sm text-gray-500">{{ auth()->user()->name ?? 'Admin' }}</span>
+                <div class="admin-topbar-actions">
+                    <button class="admin-icon-button" type="button" aria-label="Notifikasi">
+                        <i data-lucide="bell"></i>
+                    </button>
+                    <a href="{{ route('admin.settings') }}" class="admin-icon-button" aria-label="Pengaturan">
+                        <i data-lucide="settings"></i>
+                    </a>
+                    <div class="admin-profile">
+                        <div class="hidden sm:block text-right">
+                            <div class="admin-user-name">{{ $adminName }}</div>
+                            <div class="admin-user-role">Campify Admin</div>
+                        </div>
+                        <div class="admin-avatar">{{ $initials ?: 'A' }}</div>
+                    </div>
                     <form action="{{ route('logout') }}" method="POST">
                         @csrf
-                        <button type="submit" class="rounded bg-red-600 px-3 py-2 text-sm font-semibold text-white hover:bg-red-700">
-                            Logout
-                        </button>
+                        <button type="submit" class="admin-button admin-button-ghost">Logout</button>
                     </form>
                 </div>
             </header>
 
-            <!-- CONTENT -->
-            <main class="p-6">
+            @if(session('success') || session('error') || $errors->any())
+                <div class="admin-toast-wrap">
+                    @if(session('success'))
+                        <div class="admin-toast admin-toast-success">{{ session('success') }}</div>
+                    @endif
+                    @if(session('error'))
+                        <div class="admin-toast admin-toast-danger">{{ session('error') }}</div>
+                    @endif
+                    @if($errors->any())
+                        <div class="admin-toast admin-toast-danger">{{ $errors->first() }}</div>
+                    @endif
+                </div>
+            @endif
+
+            <main class="admin-content">
                 @yield('content')
             </main>
-
         </div>
-
     </div>
 
+    @yield('scripts')
+    <script>
+        lucide.createIcons();
+
+        const sidebar = document.getElementById('adminSidebar');
+        const backdrop = document.getElementById('adminBackdrop');
+        const menuButton = document.getElementById('adminMenuButton');
+        const loading = document.getElementById('adminLoading');
+
+        function toggleSidebar(show) {
+            sidebar.classList.toggle('is-open', show);
+            backdrop.classList.toggle('hidden', !show);
+        }
+
+        menuButton?.addEventListener('click', () => toggleSidebar(true));
+        backdrop?.addEventListener('click', () => toggleSidebar(false));
+
+        document.querySelectorAll('a[href]:not([target]), form').forEach((node) => {
+            node.addEventListener(node.tagName === 'FORM' ? 'submit' : 'click', () => {
+                loading?.classList.remove('hidden');
+            });
+        });
+
+        setTimeout(() => {
+            document.querySelectorAll('.admin-toast').forEach((toast) => toast.remove());
+        }, 4200);
+    </script>
 </body>
 
 </html>

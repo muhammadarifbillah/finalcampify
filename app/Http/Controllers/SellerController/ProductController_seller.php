@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\SellerModels\Product_seller;
+use App\Models\Store;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -62,10 +63,12 @@ class ProductController_seller extends Controller
         }
 
         $flagReasons = \App\Models\Product::flagReasonsFor($request->only(['nama_produk', 'harga', 'deskripsi']));
+        $store = Store::where('user_id', Auth::id())->first();
 
         // Simpan ke database
         Product_seller::create([
             'user_id'       => \Illuminate\Support\Facades\Auth::id(),
+            'store_id'      => $store?->id,
             'name'          => $request->nama_produk,
             'nama_produk'   => $request->nama_produk,
             'description'   => $request->deskripsi,
@@ -82,7 +85,7 @@ class ProductController_seller extends Controller
             'stok'          => $request->stok,
             'image'         => $imagePath,
             'gambar'        => $imagePath,
-            'status'        => 'pending',
+            'status'        => 'waiting',
             'flag_reason'   => $flagReasons ? implode(', ', $flagReasons) : null,
         ]);
 
@@ -123,6 +126,7 @@ class ProductController_seller extends Controller
         ]);
 
         $data = [
+            'store_id'      => $product->store_id ?: Store::where('user_id', Auth::id())->value('id'),
             'name'          => $request->nama_produk,
             'nama_produk'   => $request->nama_produk,
             'price'         => $request->harga,
@@ -140,7 +144,7 @@ class ProductController_seller extends Controller
         ];
 
         $flagReasons = \App\Models\Product::flagReasonsFor($data);
-        $data['status'] = 'pending';
+        $data['status'] = 'waiting';
         $data['flag_reason'] = $flagReasons ? implode(', ', $flagReasons) : null;
 
         // Jika upload gambar baru
@@ -153,6 +157,7 @@ class ProductController_seller extends Controller
 
             // Simpan gambar baru
             $data['gambar'] = $request->file('gambar')->store('products', 'public');
+            $data['image'] = $data['gambar'];
         }
 
         $product->update($data);
