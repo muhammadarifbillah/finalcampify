@@ -37,6 +37,7 @@ class OrderController extends Controller
             'shipping_phone' => 'required|string',
             'metode_pembayaran' => 'required|string|in:transfer,cod',
             'kurir' => 'required|string',
+            'bukti_pembayaran' => 'required_if:metode_pembayaran,transfer|nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'items' => 'required|array',
             'items.*.product_id' => 'required|exists:products,id',
             'items.*.qty' => 'required|integer|min:1',
@@ -79,6 +80,14 @@ class OrderController extends Controller
             $shippingCost = $request->shipping_cost ?? 15000;
             $total += $shippingCost;
 
+            $buktiPath = null;
+            if ($request->hasFile('bukti_pembayaran')) {
+                $file = $request->file('bukti_pembayaran');
+                $filename = time() . '_api_' . Auth::id() . '.' . $file->getClientOriginalExtension();
+                $file->move(public_path('uploads/pembayaran'), $filename);
+                $buktiPath = 'uploads/pembayaran/' . $filename;
+            }
+
             $order = Order::create([
                 'user_id' => Auth::id(),
                 'receiver_name' => $request->receiver_name,
@@ -91,6 +100,7 @@ class OrderController extends Controller
                 'metode_pembayaran' => $request->metode_pembayaran,
                 'kurir' => $request->kurir,
                 'status' => 'diproses',
+                'bukti_pembayaran' => $buktiPath,
             ]);
 
             foreach ($orderItems as $orderItem) {

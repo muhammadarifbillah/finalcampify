@@ -76,37 +76,7 @@
                         </a>
                     </div>
 
-                    @auth
-                        @if(auth()->user()->role === 'buyer')
-                            <form method="POST" action="{{ route('products.report', $produk->id) }}" class="mb-6 grid gap-2 sm:grid-cols-[160px_1fr_auto]">
-                                @csrf
-                                <select name="reason" class="rounded-2xl border border-slate-200 px-3 py-2 text-sm">
-                                    <option value="Produk mencurigakan">Produk mencurigakan</option>
-                                    <option value="Harga tidak wajar">Harga tidak wajar</option>
-                                    <option value="Deskripsi menyesatkan">Deskripsi menyesatkan</option>
-                                </select>
-                                <input name="description" class="rounded-2xl border border-slate-200 px-3 py-2 text-sm" placeholder="Detail laporan (opsional)">
-                                <button class="rounded-2xl border border-red-200 px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-50">Laporkan</button>
-                            </form>
-                        @endif
-                    @endauth
 
-                    @if($produk->store_id)
-                        @auth
-                            @if(auth()->user()->role === 'buyer')
-                                <form method="POST" action="{{ route('stores.report', $produk->store_id) }}" class="mb-6 grid gap-2 sm:grid-cols-[160px_1fr_auto]">
-                                    @csrf
-                                    <select name="reason" class="rounded-2xl border border-slate-200 px-3 py-2 text-sm">
-                                        <option value="Toko mencurigakan">Toko mencurigakan</option>
-                                        <option value="Pelayanan buruk">Pelayanan buruk</option>
-                                        <option value="Informasi toko tidak valid">Informasi toko tidak valid</option>
-                                    </select>
-                                    <input name="description" class="rounded-2xl border border-slate-200 px-3 py-2 text-sm" placeholder="Detail laporan toko (opsional)">
-                                    <button class="rounded-2xl border border-orange-200 px-4 py-2 text-sm font-semibold text-orange-600 hover:bg-orange-50">Laporkan Toko</button>
-                                </form>
-                            @endif
-                        @endauth
-                    @endif
 
                     <div class="grid gap-4 mb-6">
                         <div class="rounded-3xl bg-slate-50 p-4">
@@ -123,6 +93,40 @@
                                 <button type="submit" class="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-5 py-4 text-base font-bold text-white hover:bg-emerald-700 w-full shadow-lg shadow-emerald-100 transition-all">Lanjutkan ke Formulir Sewa</button>
                             </form>
                         </div>
+                    </div>
+
+                    <div class="mt-8 pt-8 border-t border-slate-100">
+                        @auth
+                            @if(auth()->user()->role === 'buyer')
+                                <form method="POST" action="{{ route('products.report', $produk->id) }}" class="mb-4 grid gap-2 sm:grid-cols-[160px_1fr_auto]">
+                                    @csrf
+                                    <select name="reason" class="rounded-2xl border border-slate-200 px-3 py-2 text-sm">
+                                        <option value="Produk mencurigakan">Produk mencurigakan</option>
+                                        <option value="Harga tidak wajar">Harga tidak wajar</option>
+                                        <option value="Deskripsi menyesatkan">Deskripsi menyesatkan</option>
+                                    </select>
+                                    <input name="description" class="rounded-2xl border border-slate-200 px-3 py-2 text-sm" placeholder="Detail laporan (opsional)">
+                                    <button class="rounded-2xl border border-red-200 px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-50">Laporkan</button>
+                                </form>
+                            @endif
+                        @endauth
+
+                        @if($produk->store_id)
+                            @auth
+                                @if(auth()->user()->role === 'buyer')
+                                    <form method="POST" action="{{ route('stores.report', $produk->store_id) }}" class="grid gap-2 sm:grid-cols-[160px_1fr_auto]">
+                                        @csrf
+                                        <select name="reason" class="rounded-2xl border border-slate-200 px-3 py-2 text-sm">
+                                            <option value="Toko mencurigakan">Toko mencurigakan</option>
+                                            <option value="Pelayanan buruk">Pelayanan buruk</option>
+                                            <option value="Informasi toko tidak valid">Informasi toko tidak valid</option>
+                                        </select>
+                                        <input name="description" class="rounded-2xl border border-slate-200 px-3 py-2 text-sm" placeholder="Detail laporan toko (opsional)">
+                                        <button class="rounded-2xl border border-orange-200 px-4 py-2 text-sm font-semibold text-orange-600 hover:bg-orange-50">Laporkan Toko</button>
+                                    </form>
+                                @endif
+                            @endauth
+                        @endif
                     </div>
                 </div>
             </aside>

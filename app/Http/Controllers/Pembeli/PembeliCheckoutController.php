@@ -57,7 +57,7 @@ class PembeliCheckoutController extends Controller
             'telepon' => 'required|string|max:25',
             'metode_pembayaran' => 'required|string|in:transfer,cod',
             'shipping_method' => 'required|string|in:jne,gosend',
-            'bukti_pembayaran' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'bukti_pembayaran' => 'required_if:metode_pembayaran,transfer|nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
 
         $user->update([
