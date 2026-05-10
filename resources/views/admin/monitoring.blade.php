@@ -129,14 +129,30 @@
                     <h2 class="text-2xl font-extrabold">Laporan Sistem</h2>
                 </div>
                 <div class="space-y-3 px-6 pb-6">
-                    @forelse($reports as $report)
+                    @forelse($reports->take(10) as $report)
                         <div class="rounded-lg border border-slate-200 p-4">
-                            <div class="flex flex-wrap items-center gap-2">
-                                <span class="admin-badge admin-badge-danger">{{ $report->type }}</span>
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <div class="flex items-center gap-2">
+                                    <span class="admin-badge {{ $report->type === 'product' ? 'admin-badge-warning' : 'admin-badge-danger' }}">{{ strtoupper($report->type) }}</span>
+                                    <span class="text-xs font-bold text-slate-700">Pelapor: {{ $report->reporter->name ?? 'User' }}</span>
+                                </div>
                                 <span class="text-xs text-slate-500">{{ $report->created_at?->diffForHumans() }}</span>
                             </div>
-                            <p class="mt-2 font-bold">{{ $report->reason }}</p>
-                            <p class="text-sm text-slate-600">{{ $report->description }}</p>
+                            
+                            <div class="mt-3 mb-2 px-3 py-2 bg-slate-50 rounded text-xs font-medium text-slate-600">
+                                @if($report->type === 'store')
+                                    Toko yang dilaporkan: <span class="font-bold text-slate-800">{{ $report->store->nama_toko ?? 'Toko #'.$report->store_id }}</span>
+                                @elseif($report->type === 'product')
+                                    Produk yang dilaporkan: <span class="font-bold text-slate-800">{{ $report->product->name ?? 'Produk #'.$report->product_id }}</span>
+                                @elseif($report->type === 'chat')
+                                    Chat dengan: <span class="font-bold text-slate-800">{{ $report->seller->name ?? 'Seller #'.$report->seller_id }}</span>
+                                @else
+                                    Dilaporkan: <span class="font-bold text-slate-800">{{ $report->seller->name ?? 'Seller #'.$report->seller_id }}</span>
+                                @endif
+                            </div>
+
+                            <p class="font-bold text-slate-800">{{ $report->reason }}</p>
+                            <p class="text-sm text-slate-600 mt-1">{{ $report->description ?: 'Tidak ada detail tambahan.' }}</p>
                         </div>
                     @empty
                         <div class="admin-empty">Tidak ada laporan.</div>

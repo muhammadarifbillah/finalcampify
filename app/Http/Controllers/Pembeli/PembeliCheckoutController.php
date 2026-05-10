@@ -48,15 +48,18 @@ class PembeliCheckoutController extends Controller
 
         $user = Auth::user();
 
+        $couriers = \App\Models\Courier::where('status', 'aktif')->get();
+        $validServices = $couriers->pluck('service')->toArray();
+
         $requestData = $r->validate([
-            'nama' => 'required|string|max:255',
-            'alamat' => 'required|string|max:2000',
-            'kota' => 'required|string|max:255',
-            'kecamatan' => 'required|string|max:255',
-            'kode_pos' => 'required|string|max:20',
-            'telepon' => 'required|string|max:25',
+            'nama'              => 'required|string|max:255',
+            'alamat'            => 'required|string|max:2000',
+            'kota'              => 'required|string|max:255',
+            'kecamatan'        => 'required|string|max:255',
+            'kode_pos'         => 'required|string|max:20',
+            'telepon'          => 'required|string|max:25',
             'metode_pembayaran' => 'required|string|in:transfer,cod',
-            'shipping_method' => 'required|string|in:jne,gosend',
+            'shipping_method'  => ['required', 'string', \Illuminate\Validation\Rule::in($validServices)],
             'bukti_pembayaran' => 'required_if:metode_pembayaran,transfer|nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
 
@@ -76,12 +79,9 @@ class PembeliCheckoutController extends Controller
             return $price * $item->qty;
         });
 
-        $shippingRates = [
-            'jne' => 15000,
-            'gosend' => 25000,
-        ];
-
-        $shippingCost = $shippingRates[$requestData['shipping_method']] ?? 0;
+        // Ambil ongkir dari database berdasarkan kurir yang dipilih
+        $selectedCourier = $couriers->firstWhere('service', $requestData['shipping_method']);
+        $shippingCost = $selectedCourier ? $selectedCourier->price : 0;
         $total = $subtotal + $shippingCost;
 
         $buktiPath = null;

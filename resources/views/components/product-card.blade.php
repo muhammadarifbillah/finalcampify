@@ -90,6 +90,7 @@
           @csrf
           <input type="hidden" name="product_id" value="{{ $product->id }}">
           <input type="hidden" name="type" value="buy">
+          <input type="hidden" name="quantity" value="1">
           <button type="submit" class="w-full py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl text-xs font-semibold flex items-center justify-center transition">Masukkan Keranjang</button>
         </form>
         <a href="{{ route('produk.detail.buy', $product->id) }}" class="w-full py-2 bg-emerald-50 hover:bg-emerald-600 hover:text-white text-emerald-700 rounded-xl text-xs font-semibold flex items-center justify-center transition">Beli Sekarang</a>

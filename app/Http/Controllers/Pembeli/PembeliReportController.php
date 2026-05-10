@@ -21,7 +21,9 @@ class PembeliReportController extends Controller
 
         $sellerId = $product->sellerUserId();
 
-        abort_unless($sellerId && $sellerId !== \Illuminate\Support\Facades\Auth::id(), 422, 'Produk tidak memiliki seller valid.');
+        if (!$sellerId || $sellerId === \Illuminate\Support\Facades\Auth::id()) {
+            return back()->with('error', 'Gagal: Anda tidak bisa melaporkan produk Anda sendiri atau produk tidak valid.');
+        }
 
         Report::create([
             'reporter_id' => \Illuminate\Support\Facades\Auth::id(),
@@ -43,7 +45,9 @@ class PembeliReportController extends Controller
             'description' => 'nullable|string|max:1000',
         ]);
 
-        abort_unless($store->user_id && $store->user_id !== \Illuminate\Support\Facades\Auth::id(), 422, 'Toko tidak valid.');
+        if (!$store->user_id || $store->user_id === \Illuminate\Support\Facades\Auth::id()) {
+            return back()->with('error', 'Gagal: Anda tidak bisa melaporkan toko Anda sendiri atau toko tidak valid.');
+        }
 
         Report::create([
             'reporter_id' => \Illuminate\Support\Facades\Auth::id(),

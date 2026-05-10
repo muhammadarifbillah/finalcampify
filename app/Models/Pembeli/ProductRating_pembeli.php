@@ -21,7 +21,7 @@ class ProductRating_pembeli extends Model
 
     public function user()
     {
-        return $this->belongsTo(User_pembeli::class, 'user_id');
+        return $this->belongsTo(\App\Models\User::class, 'user_id');
     }
 
     public function product()

@@ -122,6 +122,7 @@
                         <th class="py-4 px-4 text-left font-bold">PRODUK</th>
                         <th class="py-4 px-4 text-left font-bold">PENYEWA</th>
                         <th class="py-4 px-4 text-left font-bold">TGL KEMBALI (SLA)</th>
+                        <th class="py-4 px-4 text-center font-bold">DURASI</th>
                         <th class="py-4 px-4 text-center font-bold">DENDA</th>
                         <th class="py-4 px-4 text-center font-bold">STATUS</th>
                         <th class="py-4 px-4 text-center font-bold">AKSI</th>
@@ -137,12 +138,23 @@
                             $isOverdue = $item->expected_date && $item->expected_date < now() && !in_array($item->status, ['completed', 'rejected']);
                             $lateString = $settlement->formatLateDuration($item->expected_date, $item->actual_date);
                             
+                            // Hitung denda keterlambatan live dari DB (atau hitung dari overdue jika belum tersimpan)
+                            $liveLateFeeDays = 0;
+                            if ($isOverdue) {
+                                $expected = \Carbon\Carbon::parse($item->expected_date)->startOfDay();
+                                $actual   = $item->actual_date ? \Carbon\Carbon::parse($item->actual_date)->startOfDay() : now()->startOfDay();
+                                $liveLateFeeDays = max(0, (int) $expected->diffInDays($actual, false));
+                            }
+                            $dailyRentTotal = $item->rental_fee_amount > 0 ? $item->rental_fee_amount : ($item->order->details->first()->harga ?? 0);
+                            $liveFinePerDay = (int) ($dailyRentTotal * 0.3);
+                            $liveTotalLateFee = ($item->late_fee > 0) ? (int)$item->late_fee : ($liveLateFeeDays * $liveFinePerDay);
+                            
                             $statusMap = [
-                                'dispute' => ['text' => 'DAMAGE FOUND', 'class' => 'bg-red-100 text-red-600'],
-                                'pending' => ['text' => $isOverdue ? 'OVERDUE' : 'ACTIVE', 'class' => $isOverdue ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'],
-                                'checking' => ['text' => 'CHECKING', 'class' => 'bg-indigo-100 text-indigo-600'],
-                                'completed' => ['text' => 'COMPLETED', 'class' => 'bg-gray-100 text-gray-600'],
-                                'rejected' => ['text' => 'REJECTED', 'class' => 'bg-gray-100 text-gray-600'],
+                                'dispute' => ['text' => 'SENGKETA', 'class' => 'bg-red-100 text-red-600'],
+                                'pending' => ['text' => $isOverdue ? 'TERLAMBAT' : 'AKTIF', 'class' => $isOverdue ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'],
+                                'checking' => ['text' => 'PEMERIKSAAN', 'class' => 'bg-indigo-100 text-indigo-600'],
+                                'completed' => ['text' => 'SELESAI', 'class' => 'bg-gray-100 text-gray-600'],
+                                'rejected' => ['text' => 'DITOLAK', 'class' => 'bg-gray-100 text-gray-600'],
                             ];
                             $statusInfo = $statusMap[$item->status] ?? ['text' => strtoupper($item->status), 'class' => 'bg-gray-100 text-gray-600'];
                         @endphp
@@ -163,43 +175,59 @@
                                 <div class="font-bold text-gray-800">{{ $buyerName }}</div>
                                 @if($item->order->user->ktp_verified_at)
                                     <div class="flex items-center gap-1 text-[9px] font-black text-blue-600 uppercase tracking-widest mt-1">
-                                        <i data-lucide="shield-check" style="width: 10px; height: 10px;"></i> Verified KTP
+                                        <i data-lucide="shield-check" style="width: 10px; height: 10px;"></i> KTP Terverifikasi
                                     </div>
                                 @else
                                     <div class="flex items-center gap-1 text-[9px] font-black text-amber-500 uppercase tracking-widest mt-1">
-                                        <i data-lucide="shield-alert" style="width: 10px; height: 10px;"></i> Not Verified
+                                        <i data-lucide="shield-alert" style="width: 10px; height: 10px;"></i> Belum Verifikasi
                                     </div>
                                 @endif
                             </td>
                             <td class="py-4 px-4">
                                 <div class="font-semibold text-gray-700 {{ $isOverdue ? 'text-red-500' : '' }}">{{ $item->expected_date ? $item->expected_date->format('d M Y, H:i') : '-' }}</div>
                                 @if($isOverdue)
-                                    <div class="text-[10px] font-bold text-red-500 uppercase mt-0.5">TERLAMBAT {{ strtoupper($lateString) }}</div>
+                                    <div class="text-[10px] font-bold text-red-500 uppercase mt-0.5">⚠️ TERLAMBAT {{ $lateString }}</div>
                                 @elseif($item->expected_date && $item->expected_date->isToday())
-                                    <div class="text-[10px] font-bold text-[#0f6b52] uppercase mt-0.5">HARI INI</div>
+                                    <div class="text-[10px] font-bold text-[#0f6b52] uppercase mt-0.5">⏰ HARI INI</div>
                                 @endif
                             </td>
                             <td class="py-4 px-4 text-center">
+                                <div class="font-bold text-gray-800">{{ $item->order->details->first()->duration ?? '-' }} Hari</div>
+                            </td>
+                            <td class="py-4 px-4">
                                 @if($item->deposit_amount > 0)
                                     <div class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Jaminan: Rp {{ number_format((int)$item->deposit_amount, 0, ',', '.') }}</div>
                                 @endif
-                                @if($item->late_fee > 0 || $item->damage_fee > 0)
-                                    <div class="font-bold text-red-600">Denda: Rp {{ number_format((int) ($item->late_fee + $item->damage_fee), 0, ',', '.') }}</div>
-                                @else
-                                    <div class="font-semibold text-gray-500">No Fines</div>
+                                @if($liveTotalLateFee > 0)
+                                    <div class="text-[10px] text-orange-600 font-bold">⏱ Terlambat: Rp {{ number_format($liveTotalLateFee, 0, ',', '.') }}</div>
+                                    @if($liveLateFeeDays > 0)
+                                        <div class="text-[9px] text-orange-400">{{ $liveLateFeeDays }} hari × Rp {{ number_format($liveFinePerDay, 0, ',', '.') }}</div>
+                                    @endif
+                                @endif
+                                @if($item->damage_fee > 0)
+                                    <div class="text-[10px] text-red-600 font-bold">🔧 Kerusakan: Rp {{ number_format((int)$item->damage_fee, 0, ',', '.') }}</div>
+                                @endif
+                                @if($liveTotalLateFee <= 0 && $item->damage_fee <= 0)
+                                    <div class="font-semibold text-gray-400 text-xs">Tidak Ada Denda</div>
                                 @endif
                             </td>
                             <td class="py-4 px-4 text-center">
                                 <span class="inline-block px-2.5 py-1 text-[9px] font-bold tracking-wider rounded-full {{ $statusInfo['class'] }}">{{ $statusInfo['text'] }}</span>
                             </td>
-                            <td class="py-4 px-6 text-center">
+                            <td class="py-4 px-4 text-center">
                                 @php
                                     $isActualDispute = $item->status === 'dispute' || ($item->status === 'completed' && ($item->damage_fee > 0 || !empty($item->dispute_chat_log)));
                                 @endphp
                                 @if($isActualDispute && $item->status !== 'completed')
-                                    <a href="{{ route('admin.returns.show', $item->id) }}" class="inline-block bg-red-600 hover:bg-red-700 text-white text-[11px] font-bold w-40 py-2 rounded shadow-sm transition-all duration-200 hover:-translate-y-0.5 active:scale-95">Resolusi Sengketa</a>
+                                    <a href="{{ route('admin.returns.show', $item->id) }}"
+                                       class="inline-flex items-center justify-center w-36 h-9 bg-red-600 hover:bg-red-700 text-white text-[9.5px] font-bold rounded-lg shadow-sm transition-all duration-200 hover:-translate-y-0.5 active:scale-95 whitespace-nowrap px-2">
+                                        Resolusi Sengketa
+                                    </a>
                                 @else
-                                    <a href="{{ route('admin.returns.show', $item->id) }}" class="inline-block bg-[#0f6b52] hover:bg-[#0c5843] text-white text-[11px] font-bold w-40 py-2 rounded shadow-sm transition-all duration-200 hover:-translate-y-0.5 active:scale-95">Proses</a>
+                                    <a href="{{ route('admin.returns.show', $item->id) }}"
+                                       class="inline-flex items-center justify-center w-36 h-9 bg-[#0f6b52] hover:bg-[#0c5843] text-white text-[9.5px] font-bold rounded-lg shadow-sm transition-all duration-200 hover:-translate-y-0.5 active:scale-95 whitespace-nowrap px-2">
+                                        Proses
+                                    </a>
                                 @endif
                             </td>
                         </tr>

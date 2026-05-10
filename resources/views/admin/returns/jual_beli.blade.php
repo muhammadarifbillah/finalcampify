@@ -58,8 +58,8 @@
 
     <!-- Filter -->
     <div class="bg-[#f6faf8] p-5 border border-[#dcebe5] rounded-xl mb-6">
-        <form method="GET" action="{{ route('admin.returns.jual_beli') }}" class="flex flex-col gap-5">
-            <div class="flex flex-wrap gap-8 items-start">
+        <form method="GET" action="{{ route('admin.returns.jual_beli') }}">
+            <div class="flex flex-wrap gap-8 items-end">
                 <div>
                     <label class="block text-[11px] font-bold text-gray-500 mb-2" for="status">Filter Status</label>
                     <div class="relative">
@@ -96,9 +96,10 @@
                         <input type="hidden" id="tipe_marketplace" name="tipe_marketplace" value="{{ request('tipe_marketplace', 'produk_fisik') }}">
                     </div>
                 </div>
-            </div>
-            <div>
-                <a href="{{ route('admin.returns.jual_beli') }}" class="inline-block border border-gray-300 text-gray-600 bg-transparent hover:bg-gray-100/50 px-5 py-2 rounded-md text-[13px] font-semibold transition-colors">Reset Filter</a>
+
+                <a href="{{ route('admin.returns.jual_beli') }}" class="inline-flex items-center h-[42px] px-5 border border-gray-300 text-gray-600 bg-transparent hover:bg-gray-100/50 rounded-md text-[13px] font-semibold transition-colors whitespace-nowrap">
+                    Reset Filter
+                </a>
             </div>
         </form>
     </div>
@@ -149,11 +150,17 @@
                                     {{ $statusLabel }}
                                 </span>
                             </td>
-                            <td class="py-4 px-6 text-center">
+                            <td class="py-4 px-4 text-center">
                                 @if($item->status == 'dispute')
-                                    <a href="{{ route('admin.returns.show', $item->id) }}" class="inline-block bg-red-600 hover:bg-red-700 text-white text-[11px] font-bold w-40 py-2 rounded shadow-sm transition-all duration-200 hover:-translate-y-0.5 active:scale-95">Resolusi Sengketa</a>
+                                    <a href="{{ route('admin.returns.show', $item->id) }}"
+                                       class="inline-flex items-center justify-center w-36 h-9 bg-red-600 hover:bg-red-700 text-white text-[9.5px] font-bold rounded-lg shadow-sm transition-all duration-200 hover:-translate-y-0.5 active:scale-95 whitespace-nowrap px-2">
+                                        Resolusi Sengketa
+                                    </a>
                                 @else
-                                    <a href="{{ route('admin.returns.show', $item->id) }}" class="inline-block bg-[#0f6b52] hover:bg-[#0c5843] text-white text-[11px] font-bold w-40 py-2 rounded shadow-sm transition-all duration-200 hover:-translate-y-0.5 active:scale-95">Kelola</a>
+                                    <a href="{{ route('admin.returns.show', $item->id) }}"
+                                       class="inline-flex items-center justify-center w-36 h-9 bg-[#0f6b52] hover:bg-[#0c5843] text-white text-[9.5px] font-bold rounded-lg shadow-sm transition-all duration-200 hover:-translate-y-0.5 active:scale-95 whitespace-nowrap px-2">
+                                        Kelola
+                                    </a>
                                 @endif
                             </td>
                         </tr>

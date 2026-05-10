@@ -285,36 +285,40 @@
             </div>
 
             <!-- Filters Area -->
-            <div class="bg-surface-container-low p-lg rounded-xl mb-gutter flex flex-wrap items-center gap-lg border border-outline-variant">
-                <div class="flex flex-col gap-xs min-w-[200px]">
-                    <label class="text-label-bold text-on-surface-variant">Filter Status</label>
-                    <select class="bg-surface border-outline-variant rounded-lg py-sm px-md text-body-sm focus:ring-primary focus:border-primary">
-                        <option>Semua Status</option>
-                        <option>Pending Approval</option>
-                        <option>Dalam Mediasi</option>
-                        <option>Disetujui</option>
-                        <option>Ditolak</option>
-                        <option>Selesai</option>
-                    </select>
-                </div>
-                <div class="flex flex-col gap-xs min-w-[240px]">
-                    <label class="text-label-bold text-on-surface-variant">Rentang Tanggal</label>
-                    <div class="flex items-center gap-xs">
-                        <input class="bg-surface border-outline-variant rounded-lg py-sm px-md text-body-sm w-full" type="date" />
-                        <span class="text-on-surface-variant">-</span>
-                        <input class="bg-surface border-outline-variant rounded-lg py-sm px-md text-body-sm w-full" type="date" />
+            <div class="bg-surface-container-low p-lg rounded-xl mb-gutter border border-outline-variant">
+                <div class="grid grid-cols-4 items-end gap-lg">
+                    <div class="flex flex-col gap-xs">
+                        <label class="text-label-bold text-on-surface-variant">Filter Status</label>
+                        <select class="bg-surface border-outline-variant rounded-lg py-sm px-md text-body-sm focus:ring-primary focus:border-primary w-full">
+                            <option>Semua Status</option>
+                            <option>Pending Approval</option>
+                            <option>Dalam Mediasi</option>
+                            <option>Disetujui</option>
+                            <option>Ditolak</option>
+                            <option>Selesai</option>
+                        </select>
+                    </div>
+                    <div class="flex flex-col gap-xs">
+                        <label class="text-label-bold text-on-surface-variant">Rentang Tanggal</label>
+                        <div class="flex items-center gap-xs">
+                            <input class="bg-surface border-outline-variant rounded-lg py-sm px-md text-body-sm w-full" type="date" />
+                            <span class="text-on-surface-variant shrink-0">-</span>
+                            <input class="bg-surface border-outline-variant rounded-lg py-sm px-md text-body-sm w-full" type="date" />
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-xs">
+                        <label class="text-label-bold text-on-surface-variant">Tipe Marketplace</label>
+                        <div class="flex bg-surface rounded-lg border border-outline-variant p-xs">
+                            <button class="flex-1 py-xs px-md rounded-md bg-primary text-on-primary text-xs font-bold">Produk Fisik</button>
+                            <button class="flex-1 py-xs px-md rounded-md text-on-surface-variant text-xs hover:bg-surface-container transition-colors">Layanan</button>
+                        </div>
+                    </div>
+                    <div class="flex items-end">
+                        <button class="w-full h-[42px] border border-outline text-on-surface font-label-bold rounded-lg hover:bg-surface-variant transition-colors">
+                            Reset Filter
+                        </button>
                     </div>
                 </div>
-                <div class="flex flex-col gap-xs min-w-[200px]">
-                    <label class="text-label-bold text-on-surface-variant">Tipe Marketplace</label>
-                    <div class="flex bg-surface rounded-lg border border-outline-variant p-xs">
-                        <button class="flex-1 py-xs px-md rounded-md bg-primary text-on-primary text-xs font-bold">Produk Fisik</button>
-                        <button class="flex-1 py-xs px-md rounded-md text-on-surface-variant text-xs hover:bg-surface-container transition-colors">Layanan</button>
-                    </div>
-                </div>
-                <button class="self-end mb-[2px] px-lg py-sm h-[42px] border border-outline text-on-surface font-label-bold rounded-lg hover:bg-surface-variant transition-colors">
-                    Reset Filter
-                </button>
             </div>
 
             <!-- Interactive Table -->

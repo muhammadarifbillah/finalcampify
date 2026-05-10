@@ -78,7 +78,43 @@ class UserController extends Controller
 
     public function destroy($id)
     {
-        User::findOrFail($id)->delete();
-        return back()->with('success', 'User berhasil dihapus.');
+        \Illuminate\Support\Facades\DB::transaction(function () use ($id) {
+            // Hapus data terkait yang mungkin tidak memiliki ON DELETE CASCADE di database
+            $tables = [
+                'product_ratings' => 'user_id',
+                'store_ratings' => 'user_id',
+                'wishlists' => 'user_id',
+                'rentals' => 'user_id',
+                'transactions' => 'user_id',
+                'messages' => 'sender_id',
+            ];
+            
+            foreach ($tables as $table => $column) {
+                if (\Illuminate\Support\Facades\Schema::hasTable($table)) {
+                    \Illuminate\Support\Facades\DB::table($table)->where($column, $id)->delete();
+                }
+            }
+
+            if (\Illuminate\Support\Facades\Schema::hasTable('reports')) {
+                \Illuminate\Support\Facades\DB::table('reports')->where('reporter_id', $id)->orWhere('seller_id', $id)->delete();
+            }
+            if (\Illuminate\Support\Facades\Schema::hasTable('violations')) {
+                \Illuminate\Support\Facades\DB::table('violations')->where('seller_id', $id)->orWhere('admin_id', $id)->delete();
+            }
+            if (\Illuminate\Support\Facades\Schema::hasTable('conversations')) {
+                \Illuminate\Support\Facades\DB::table('conversations')->where('buyer_id', $id)->orWhere('seller_id', $id)->delete();
+            }
+            if (\Illuminate\Support\Facades\Schema::hasTable('chats')) {
+                \Illuminate\Support\Facades\DB::table('chats')
+                    ->where('user_id', $id)
+                    ->orWhere('sender_id', $id)
+                    ->orWhere('receiver_id', $id)
+                    ->delete();
+            }
+
+            User::findOrFail($id)->delete();
+        });
+
+        return back()->with('success', 'User dan seluruh data terkait berhasil dihapus.');
     }
 }
