@@ -13,7 +13,7 @@ class ReturnSettlementService
         return (int) config('returns.daily_fine', 10000);
     }
 
-    public function calculateExpectedDateForOrder(Order $order): ?Carbon
+    public function calculateExpectedDateForOrder($order): ?Carbon
     {
         $latest = null;
 
@@ -69,7 +69,7 @@ class ReturnSettlementService
     }
 
 
-    public function calculateLateFee(ReturnEscrow $return): int
+    public function calculateLateFee($return): int
     {
         if ($return->type !== ReturnEscrow::TYPE_SEWA) {
             return 0;
@@ -83,7 +83,7 @@ class ReturnSettlementService
         return $daysLate * $this->dailyFine();
     }
 
-    public function rentalSubtotal(Order $order): int
+    public function rentalSubtotal($order): int
     {
         $subtotal = 0;
 
@@ -100,7 +100,7 @@ class ReturnSettlementService
         return $subtotal;
     }
 
-    public function applyAutoCalculations(ReturnEscrow $return): ReturnEscrow
+    public function applyAutoCalculations($return)
     {
         $lateFee = $this->calculateLateFee($return);
         $damageFee = $this->moneyStringToInt($return->damage_fee);
@@ -109,11 +109,15 @@ class ReturnSettlementService
         $return->denda = $lateFee;
 
         if ($return->type === ReturnEscrow::TYPE_SEWA) {
-            $order = $return->order;
-            $product = $order?->details?->first()?->product;
+            // Because order is a relation, it might return a specific Model class depending on caller context
+            $order = $return->order ?? null;
+            
+            // Getting the first detail to fetch the product (which has buy_price)
+            $firstDetail = $order ? (is_iterable($order->details) ? collect($order->details)->first() : null) : null;
+            $product = $firstDetail ? $firstDetail->product : null;
             
             // Logika baru: Sewa + Jaminan (25% harga barang)
-            if ($return->rental_fee_amount <= 0) {
+            if ($return->rental_fee_amount <= 0 && $order) {
                 $return->rental_fee_amount = (string) $this->rentalSubtotal($order);
             }
             
@@ -155,7 +159,7 @@ class ReturnSettlementService
         return $return;
     }
 
-    public function finalize(ReturnEscrow $return, string $finalStatus): ReturnEscrow
+    public function finalize($return, string $finalStatus)
     {
         $finalStatus = strtolower($finalStatus);
         if (!in_array($finalStatus, [ReturnEscrow::STATUS_COMPLETED, ReturnEscrow::STATUS_REJECTED], true)) {

@@ -92,4 +92,10 @@ class RentalController_seller extends Controller
                     ->orWhereHas('store', fn ($store) => $store->where('user_id', \Illuminate\Support\Facades\Auth::id()));
             });
     }
+}       return Rental_seller::with(['product', 'user', 'order'])
+            ->whereHas('product', function ($query) {
+                $query->where('user_id', \Illuminate\Support\Facades\Auth::id())
+                    ->orWhereHas('store', fn ($store) => $store->where('user_id', \Illuminate\Support\Facades\Auth::id()));
+            });
+    }
 }
