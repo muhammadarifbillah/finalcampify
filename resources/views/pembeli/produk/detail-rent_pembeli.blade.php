@@ -28,20 +28,91 @@
                         <p class="text-sm leading-7 text-slate-600">{{ $produk->description }}</p>
                     </div>
                     <div class="bg-white rounded-3xl p-6 shadow-sm">
-                        <h2 class="text-xl font-bold mb-4">Rating & Review</h2>
-                        <div class="flex items-center gap-3 mb-4">
-                            <div class="flex text-yellow-400 text-xl">
-                                @for($i=1; $i<=5; $i++)
-                                    @if($i <= $produk->rating)
-                                        <span>★</span>
-                                    @else
-                                        <span class="text-slate-300">★</span>
-                                    @endif
-                                @endfor
+                        <h2 class="text-xl font-bold mb-4">Rating & Review Produk</h2>
+                        <div class="flex items-center gap-6 mb-8 p-4 bg-slate-50 rounded-2xl">
+                            <div>
+                                <p class="text-5xl font-black text-slate-900">{{ number_format($produk->productRatings->avg('rating') ?: 0, 1) }}</p>
+                                <p class="text-xs text-slate-500 mt-1">dari 5.0</p>
                             </div>
-                            <span class="text-sm text-slate-500">({{ $produk->reviews_count }} ulasan)</span>
+                            <div class="flex-1">
+                                <div class="flex text-yellow-400 text-lg mb-1">
+                                    @for($i=1; $i<=5; $i++)
+                                        <span>{!! $i <= round($produk->productRatings->avg('rating') ?: 0) ? '★' : '☆' !!}</span>
+                                    @endfor
+                                </div>
+                                <p class="text-xs font-bold text-slate-600 uppercase tracking-wider">{{ $produk->productRatings->count() }} Ulasan Pelanggan</p>
+                            </div>
                         </div>
-                        <p class="text-6xl font-bold text-slate-900">{{ number_format($produk->rating, 1) }}</p>
+
+                        <!-- LIST REVIEW PRODUK -->
+                        <div class="space-y-6 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                            @forelse($produk->productRatings as $rating)
+                                <div class="border-b border-slate-100 pb-4 last:border-0">
+                                    <div class="flex justify-between items-start mb-2">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-xs font-bold text-emerald-700">
+                                                {{ substr($rating->user->name ?? 'U', 0, 1) }}
+                                            </div>
+                                            <div>
+                                                <p class="text-sm font-bold text-slate-800">{{ $rating->user->name ?? 'Anonim' }}</p>
+                                                <div class="flex text-yellow-400 text-[10px]">
+                                                    @for($i=1; $i<=5; $i++)
+                                                        <span>{!! $i <= $rating->rating ? '★' : '☆' !!}</span>
+                                                    @endfor
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <span class="text-[10px] text-slate-400">{{ $rating->created_at->format('d M Y') }}</span>
+                                    </div>
+                                    <p class="text-sm text-slate-600 italic">"{{ $rating->comment }}"</p>
+                                </div>
+                            @empty
+                                <p class="text-sm text-slate-400 text-center py-4">Belum ada ulasan untuk produk ini.</p>
+                            @endforelse
+                        </div>
+                    </div>
+
+                    <!-- RATING TOKO -->
+                    <div class="bg-white rounded-3xl p-6 shadow-sm">
+                        <h2 class="text-xl font-bold mb-4">Rating & Reputasi Toko</h2>
+                        @php
+                            $avgStoreRating = $storeRatings->avg('rating') ?? 0;
+                            $totalStoreReviews = $storeRatings->count();
+                        @endphp
+                        <div class="flex items-center gap-4 mb-6">
+                            <div class="w-16 h-16 rounded-2xl bg-emerald-600 flex items-center justify-center text-2xl shadow-lg shadow-emerald-100">
+                                🏪
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-slate-800">{{ $produk->store?->nama_toko ?? 'Toko Penjual' }}</h3>
+                                <div class="flex items-center gap-2">
+                                    <div class="flex text-yellow-400 text-sm">
+                                        @for($i=1; $i<=5; $i++)
+                                            <span>{!! $i <= round($avgStoreRating) ? '★' : '☆' !!}</span>
+                                        @endfor
+                                    </div>
+                                    <span class="text-xs font-bold text-slate-500">{{ number_format($avgStoreRating, 1) }} ({{ $totalStoreReviews }} Rating)</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                            @forelse($storeRatings->take(5) as $sRating)
+                                <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <p class="text-[10px] font-bold text-slate-700">{{ $sRating->user->name ?? 'Pembeli' }}</p>
+                                        <div class="flex text-yellow-400 text-[8px]">
+                                            @for($i=1; $i<=5; $i++)
+                                                <span>{!! $i <= $sRating->rating ? '★' : '☆' !!}</span>
+                                            @endfor
+                                        </div>
+                                    </div>
+                                    <p class="text-xs text-slate-500 line-clamp-2">"{{ $sRating->comment }}"</p>
+                                </div>
+                            @empty
+                                <p class="text-xs text-slate-400 text-center py-2">Toko belum memiliki ulasan.</p>
+                            @endforelse
+                        </div>
                     </div>
                 </div>
             </div>

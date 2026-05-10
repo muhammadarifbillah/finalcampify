@@ -47,6 +47,7 @@
                     $tabs = [
                         'profile' => 'Profile Saya',
                         'orders' => 'Pesanan Saya',
+                        'reports' => 'Riwayat Laporan',
                         'edit' => 'Edit Profile',
                     ];
                 @endphp
@@ -149,7 +150,6 @@
                                 }
                             }
                         </script>
-                    @endif
                 </div>
             @elseif($tab === 'orders')
                 <div class="bg-white rounded-3xl p-8 shadow-sm">
@@ -690,6 +690,57 @@
                 });
                 </script>
 
+            @elseif($tab === 'reports')
+                <div class="bg-white rounded-3xl p-8 shadow-sm">
+                    <h2 class="text-2xl font-bold mb-4">Riwayat Laporan</h2>
+                    <p class="text-gray-600 mb-6 text-sm">Daftar laporan produk, toko, atau chat yang telah Anda kirimkan ke admin.</p>
+                    
+                    @if($reports->isEmpty())
+                        <div class="rounded-3xl border border-dashed border-gray-300 p-12 text-center text-gray-500">
+                            <div class="text-4xl mb-3">📋</div>
+                            <p>Belum ada laporan yang dibuat.</p>
+                        </div>
+                    @else
+                        <div class="space-y-4">
+                            @foreach($reports as $report)
+                                <div class="rounded-3xl border p-6 hover:border-emerald-500 transition-colors group">
+                                    <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                                        <div class="space-y-1">
+                                            <div class="flex items-center gap-2">
+                                                <span class="px-3 py-1 bg-rose-50 text-rose-600 rounded-full text-[10px] font-bold uppercase tracking-wider">
+                                                    Laporan {{ $report->type }}
+                                                </span>
+                                                <span class="text-xs text-gray-400">
+                                                    {{ $report->created_at->format('d M Y, H:i') }}
+                                                </span>
+                                            </div>
+                                            <h3 class="font-bold text-gray-900 mt-2">{{ $report->reason }}</h3>
+                                            <p class="text-sm text-gray-600 line-clamp-2 italic">"{{ $report->description }}"</p>
+                                            
+                                            @if($report->product)
+                                                <div class="mt-3 flex items-center gap-2 bg-slate-50 p-2 rounded-xl border border-slate-100 w-fit">
+                                                    <img src="{{ asset($report->product->image) }}" class="w-8 h-8 rounded-lg object-cover">
+                                                    <span class="text-xs font-medium text-slate-700">{{ $report->product->name }}</span>
+                                                </div>
+                                            @elseif($report->store)
+                                                <div class="mt-3 flex items-center gap-2 bg-slate-50 p-2 rounded-xl border border-slate-100 w-fit">
+                                                    <span class="text-xs font-medium text-slate-700">Toko: {{ $report->store->nama_toko }}</span>
+                                                </div>
+                                            @endif
+                                        </div>
+                                        
+                                        <div class="flex flex-col items-end gap-2">
+                                            <span class="px-4 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-widest
+                                                {{ $report->status === 'reviewed' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700' }}">
+                                                {{ $report->status === 'reviewed' ? 'Telah Ditinjau' : 'Menunggu Review' }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
+                </div>
             @endif
         </section>
     </div>

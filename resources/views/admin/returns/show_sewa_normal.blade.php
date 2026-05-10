@@ -35,6 +35,10 @@
                         <span class="text-sm text-gray-500 font-medium">Tanggal Sewa</span>
                         <span class="text-sm font-bold text-gray-900">{{ $return->order->created_at->format('d M Y') }}</span>
                     </div>
+                    <div class="flex justify-between items-center py-3 border-b border-gray-50">
+                        <span class="text-sm text-gray-500 font-medium">Durasi Sewa</span>
+                        <span class="text-sm font-bold text-gray-900">{{ $return->order->details->first()->duration ?? '-' }} Hari</span>
+                    </div>
                     <div class="flex justify-between items-center py-3">
                         <span class="text-sm text-gray-500 font-medium">Status Saat Ini</span>
                         <span class="px-2.5 py-1 bg-indigo-50 text-indigo-600 text-[10px] font-black rounded-full uppercase tracking-wider border border-indigo-100">{{ $return->status }}</span>

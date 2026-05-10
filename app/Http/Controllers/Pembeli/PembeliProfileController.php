@@ -15,19 +15,24 @@ class PembeliProfileController extends Controller
     {
         $user = auth()->user();
         $tab = $request->query('tab', 'profile');
-        $validTabs = ['profile', 'orders', 'address', 'security', 'edit', 'chat'];
+        $validTabs = ['profile', 'orders', 'address', 'security', 'edit', 'chat', 'reports'];
         if (!in_array($tab, $validTabs)) {
             $tab = 'profile';
         }
 
         $orders = Order_pembeli::where('user_id', $user->id)->latest()->get();
         $wishlists = [];
+        $reports = [];
 
         if ($tab === 'favorites') {
             $wishlists = Wishlist_pembeli::with('product')->where('user_id', $user->id)->get();
         }
 
-        return view('pembeli.profile.index_pembeli', compact('user', 'tab', 'orders', 'wishlists'));
+        if ($tab === 'reports') {
+            $reports = \App\Models\Report::with(['product', 'store'])->where('reporter_id', $user->id)->latest()->get();
+        }
+
+        return view('pembeli.profile.index_pembeli', compact('user', 'tab', 'orders', 'wishlists', 'reports'));
     }
 
     public function updateProfile(Request $request)

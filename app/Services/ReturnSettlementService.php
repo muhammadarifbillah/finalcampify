@@ -60,12 +60,24 @@ class ReturnSettlementService
             return 'Tepat Waktu';
         }
 
-        // Use Carbon's diffForHumans for a natural feel, but customized
-        return $expectedDate->diffForHumans($actual, [
-            'syntax' => Carbon::DIFF_ABSOLUTE,
-            'parts' => 2,
-            'skip' => ['week'],
-        ]);
+        // Hitung selisih dalam satuan terkecil yang relevan
+        $diffTotal = $expectedDate->diff($actual);
+
+        $parts = [];
+        if ($diffTotal->m > 0) {
+            $parts[] = $diffTotal->m . ' Bulan';
+        }
+        if ($diffTotal->d > 0) {
+            $parts[] = $diffTotal->d . ' Hari';
+        }
+        if ($diffTotal->h > 0) {
+            $parts[] = $diffTotal->h . ' Jam';
+        }
+        if ($diffTotal->i > 0) {
+            $parts[] = $diffTotal->i . ' Menit';
+        }
+
+        return count($parts) > 0 ? implode(' ', $parts) : 'Kurang dari 1 Menit';
     }
 
 
@@ -79,8 +91,16 @@ class ReturnSettlementService
         $actual = $return->actual_date ? Carbon::parse($return->actual_date) : null;
 
         $daysLate = $this->calculateLateDays($expected, $actual);
+        
+        $order = $return->order ?? null;
+        if (!$order) return 0;
 
-        return $daysLate * $this->dailyFine();
+        $dailyRentTotal = $this->rentalSubtotal($order);
+        
+        // Denda = 30% dari total biaya sewa harian per hari keterlambatan
+        $finePerDay = (int) ($dailyRentTotal * 0.3);
+
+        return $daysLate * $finePerDay;
     }
 
     public function rentalSubtotal($order): int

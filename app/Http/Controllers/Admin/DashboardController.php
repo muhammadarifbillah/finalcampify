@@ -72,12 +72,80 @@ class DashboardController extends Controller
         $marketplaceRevenue = $orderRevenue ?: $legacyRevenue;
         $waitingStatuses = ['waiting', 'pending'];
 
+        // Return Statistics
+        $totalReturns = \App\Models\ReturnEscrow::count();
+        $disputeReturns = \App\Models\ReturnEscrow::where('status', 'dispute')->count();
+        $pendingReturnsCount = \App\Models\ReturnEscrow::whereIn('status', ['pending', 'checking'])->count();
+        $completedReturns = \App\Models\ReturnEscrow::where('status', 'completed')->count();
+        
+        // Escrow Logic
+        $jaminanSewaEscrow = \App\Models\ReturnEscrow::where('type', 'sewa')->whereIn('status', ['pending', 'checking', 'dispute'])->sum('deposit_amount');
+        $danaReturEscrow = \App\Models\ReturnEscrow::whereIn('status', ['pending', 'checking', 'dispute'])->sum('to_buyer');
+        $totalEscrow = $jaminanSewaEscrow + $danaReturEscrow;
+
+        // Resolution Time (Avg days)
+        $avgResolutionTime = \App\Models\ReturnEscrow::where('status', 'completed')
+            ->whereNotNull('actual_date')
+            ->selectRaw('AVG(DATEDIFF(actual_date, created_at)) as avg_days')
+            ->first()->avg_days ?? 0;
+
+        // New Products this week
+        $newProductsThisWeek = Product::where('created_at', '>=', now()->startOfWeek())->count();
+
+        // Overdue & Today Due
+        $overdueQuery = \App\Models\ReturnEscrow::where('type', 'sewa')
+            ->whereNull('actual_date')
+            ->where('expected_date', '<', now());
+        $overdueReturns = $overdueQuery->count();
+        
+        $todayDueRentals = \App\Models\ReturnEscrow::where('type', 'sewa')
+            ->whereNull('actual_date')
+            ->whereDate('expected_date', now()->today())
+            ->count();
+
+        $totalLateFees = \App\Models\ReturnEscrow::sum('late_fee');
+
+        // Combined Issues List (for the tabbed table)
+        $filter = request('filter', 'all');
+        $issuesQuery = \App\Models\ReturnEscrow::with(['order.buyer', 'order.details.product']);
+
+        if ($filter === 'dispute') {
+            $issuesQuery->where('status', 'dispute');
+        } elseif ($filter === 'overdue') {
+            $issuesQuery->where('type', 'sewa')
+                ->whereNull('actual_date')
+                ->where('expected_date', '<', now());
+        } else {
+            $issuesQuery->where(function ($q) {
+                $q->whereIn('status', ['dispute', 'pending', 'checking'])
+                  ->orWhere(function($q2) {
+                      $q2->where('type', 'sewa')->whereNull('actual_date')->where('expected_date', '<', now());
+                  });
+            });
+        }
+        
+        $allIssues = $issuesQuery->latest()->limit(10)->get();
+
+        // Activity Feed (Orders + Returns + Reports)
+        $recentOrders = Order::with('buyer')->latest()->limit(5)->get()->map(function($o) {
+            return ['type' => 'order', 'title' => $o->buyer->name . ' melakukan pemesanan', 'meta' => '#' . $o->id, 'time' => $o->created_at];
+        });
+        $recentReturns = \App\Models\ReturnEscrow::with('order.buyer')->latest()->limit(5)->get()->map(function($r) {
+            return ['type' => 'return', 'title' => ($r->order->buyer->name ?? 'User') . ' mengajukan retur', 'meta' => '#RT-' . $r->id, 'time' => $r->created_at];
+        });
+        $recentReports = \App\Models\Report::with('reporter')->latest()->limit(5)->get()->map(function($r) {
+            $reason = strlen($r->reason) > 25 ? substr($r->reason, 0, 25) . '...' : $r->reason;
+            return ['type' => 'report', 'title' => ($r->reporter->name ?? 'User') . ' melaporkan ' . $r->type, 'meta' => 'Alasan: ' . $reason, 'time' => $r->created_at];
+        });
+        
+        $activityFeed = $recentOrders->concat($recentReturns)->concat($recentReports)->sortByDesc('time')->take(8);
+
         return view('admin.dashboard', [
             'users' => User::count(),
             'buyers' => User::where('role', 'buyer')->count(),
             'sellers' => User::where('role', 'seller')->count(),
-            'regularUsers' => User::where('role', 'buyer')->count(),
             'products' => Product::count(),
+            'newProductsThisWeek' => $newProductsThisWeek,
             'pendingProducts' => Product::whereIn('status', $waitingStatuses)->count(),
             'approvedProducts' => Product::where('status', 'approved')->count(),
             'rejectedProducts' => Product::where('status', 'rejected')->count(),
@@ -89,6 +157,22 @@ class DashboardController extends Controller
             'bannedStores' => Store::where('status', 'banned')->count(),
             'flaggedChats' => Chat::where('is_flagged', true)->count(),
             'pendingKyc' => User::whereNotNull('ktp_image')->whereNull('ktp_verified_at')->count(),
+            
+            // Returns & Escrow
+            'totalReturns' => $totalReturns,
+            'disputeReturns' => $disputeReturns,
+            'pendingReturnsCount' => $pendingReturnsCount,
+            'overdueReturns' => $overdueReturns,
+            'todayDueRentals' => $todayDueRentals,
+            'totalEscrow' => $totalEscrow,
+            'jaminanSewaEscrow' => $jaminanSewaEscrow,
+            'danaReturEscrow' => $danaReturEscrow,
+            'avgResolutionTime' => number_format($avgResolutionTime, 1),
+            'totalLateFees' => $totalLateFees,
+            'allIssues' => $allIssues,
+            'filter' => $filter,
+            'activityFeed' => $activityFeed,
+
             'monthlyTransactionCounts' => array_values($monthlyTransactionCounts),
             'monthlyRevenue' => array_values($monthlyRevenue),
             'monthlyUserActivity' => array_values($monthlyUserActivity),

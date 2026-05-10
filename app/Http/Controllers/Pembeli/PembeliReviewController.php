@@ -27,6 +27,15 @@ class PembeliReviewController extends Controller
             'comment' => $request->comment,
         ]);
 
+        // Perbarui cache rating di tabel products
+        $produk = \App\Models\Pembeli\Product_pembeli::find($request->product_id);
+        if ($produk) {
+            $allRatings = ProductRating_pembeli::where('product_id', $produk->id)->get();
+            $produk->rating = $allRatings->avg('rating');
+            $produk->reviews_count = $allRatings->count();
+            $produk->save();
+        }
+
         return back()->with('success', 'Ulasan berhasil disimpan!');
     }
 

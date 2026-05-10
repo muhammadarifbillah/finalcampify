@@ -200,6 +200,7 @@
                         <div class="bg-white p-4 rounded-xl border border-gray-100 text-center space-y-1 shadow-sm">
                             <div class="text-[8px] font-black text-gray-400 uppercase tracking-widest">Biaya Sewa</div>
                             <div class="text-sm font-black text-gray-900">Rp {{ number_format((int)$return->rental_fee_amount, 0, ',', '.') }}</div>
+                            <div class="text-[9px] font-bold text-gray-400">({{ $return->order->details->first()->duration ?? '-' }} Hari)</div>
                         </div>
                         <div class="bg-white p-4 rounded-xl border border-gray-100 text-center space-y-1 shadow-sm">
                             <div class="text-[8px] font-black text-emerald-600 uppercase tracking-widest">Dana Jaminan (25%)</div>

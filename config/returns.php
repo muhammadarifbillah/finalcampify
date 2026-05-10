@@ -10,6 +10,6 @@ return [
     | Default follows the admin UI prototype: Rp 50.000 / hari.
     |
     */
-    'daily_fine' => (int) env('RETURNS_DAILY_FINE', 50000),
+    'daily_fine' => (int) env('RETURNS_DAILY_FINE', 10000),
 ];
 

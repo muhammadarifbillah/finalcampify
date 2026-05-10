@@ -12,26 +12,17 @@ class CourierController extends Controller
     {
         $selectedService = $request->query('service');
 
-        $defaultServices = collect([
-            'JNE',
-            'Ninja Express',
-            'J&T Express',
-            'SiCepat',
-            'POS Indonesia'
-        ]);
-
-        $serviceList = $defaultServices->merge(Courier::pluck('service'))
-            ->unique()
-            ->values();
+        // Diambil murni dari database (seeder), bukan hardcode
+        $serviceList = Courier::pluck('service')->unique()->values();
 
         $couriers = Courier::when($selectedService, function ($query, $service) {
             return $query->where('service', $service);
         })->get();
 
         return view('admin.couriers', [
-            'couriers' => $couriers,
-            'serviceList' => $serviceList,
-            'selectedService' => $selectedService
+            'couriers'        => $couriers,
+            'serviceList'     => $serviceList,
+            'selectedService' => $selectedService,
         ]);
     }
 

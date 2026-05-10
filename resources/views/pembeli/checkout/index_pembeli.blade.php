@@ -110,26 +110,18 @@
                 <div class="bg-white p-6 rounded-xl shadow-sm border">
                     <h2 class="text-lg font-bold mb-4">Opsi Pengiriman</h2>
                     <div class="space-y-3">
-                        <label class="flex items-center justify-between p-4 border rounded-lg cursor-pointer">
+                        @foreach($couriers as $index => $courier)
+                        <label class="flex items-center justify-between p-4 border rounded-lg cursor-pointer hover:bg-gray-50 transition">
                             <div class="flex items-center">
-                                <input type="radio" name="shipping_method" value="jne" checked class="mr-3 text-green-600">
+                                <input type="radio" name="shipping_method" value="{{ $courier->service }}" data-price="{{ $courier->price }}" {{ $index === 0 ? 'checked' : '' }} class="mr-3 text-green-600">
                                 <div>
-                                    <p class="font-medium">JNE Express</p>
-                                    <p class="text-xs text-gray-500">Estimasi 2-3 hari</p>
+                                    <p class="font-semibold text-base">{{ $courier->service }}</p>
+                                    <p class="text-xs text-gray-500">Estimasi {{ $courier->estimate ?? '-' }} &bull; Kurir: {{ $courier->name }}</p>
                                 </div>
                             </div>
-                            <span class="font-bold">Rp 15,000</span>
+                            <span class="font-bold text-green-700">Rp {{ number_format($courier->price, 0, ',', '.') }}</span>
                         </label>
-                        <label class="flex items-center justify-between p-4 border rounded-lg cursor-pointer">
-                            <div class="flex items-center">
-                                <input type="radio" name="shipping_method" value="gosend" class="mr-3 text-green-600">
-                                <div>
-                                    <p class="font-medium">GoSend</p>
-                                    <p class="text-xs text-gray-500">Tiba hari ini</p>
-                                </div>
-                            </div>
-                            <span class="font-bold">Rp 25,000</span>
-                        </label>
+                        @endforeach
                     </div>
                 </div>
             </div>

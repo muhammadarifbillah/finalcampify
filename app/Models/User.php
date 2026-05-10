@@ -30,6 +30,9 @@ class User extends Authenticatable
         'ktp_image',
         'ktp_verified_at',
         'is_fraud',
+        'bank_name',
+        'bank_account_number',
+        'bank_account_name',
     ];
 
     protected $hidden = [

@@ -186,9 +186,16 @@ class PembeliProductController extends Controller
 
         $wishlistProductIds = $this->getWishlistProductIds();
 
+        $sellerId = $produk->sellerUserId();
+        $storeRatings = \App\Models\Pembeli\StoreRating_pembeli::where('store_id', $sellerId)
+            ->with('user')
+            ->latest()
+            ->get();
+
         return view('pembeli.produk.detail-buy_pembeli', [
             'produk' => $produk,
             'wishlistProductIds' => $wishlistProductIds,
+            'storeRatings' => $storeRatings,
         ]);
     }
 
@@ -204,9 +211,16 @@ class PembeliProductController extends Controller
 
         $wishlistProductIds = $this->getWishlistProductIds();
 
+        $sellerId = $produk->sellerUserId();
+        $storeRatings = \App\Models\Pembeli\StoreRating_pembeli::where('store_id', $sellerId)
+            ->with('user')
+            ->latest()
+            ->get();
+
         return view('pembeli.produk.detail-rent_pembeli', [
             'produk' => $produk,
             'wishlistProductIds' => $wishlistProductIds,
+            'storeRatings' => $storeRatings,
         ]);
     }
 
