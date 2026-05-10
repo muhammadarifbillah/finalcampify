@@ -49,7 +49,7 @@
 
                         <!-- Product Image -->
                         <div class="relative h-28 w-28 md:h-36 md:w-36 flex-shrink-0 overflow-hidden rounded-2xl shadow-sm border border-gray-100">
-                            <img src="https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?q=80&w=600&auto=format&fit=crop" 
+                            <img src="{{ asset($item->product->image) }}" 
                                  alt="{{ $item->product->name }}"
                                  class="h-full w-full object-cover">
                             <div class="absolute bottom-2 left-1/2 -translate-x-1/2 bg-slate-900/90 text-white text-[9px] font-bold px-3 py-1 rounded-full uppercase tracking-tighter shadow-lg">

@@ -18,8 +18,8 @@
     <div class="col-lg-5">
         <div class="card card-modern border-0 overflow-hidden mb-4 shadow-lg">
             <div class="position-relative" style="height: 400px; background: #f8fafc;">
-                @if($product->gambar && file_exists(public_path('storage/'.$product->gambar)))
-                    <img src="https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?q=80&w=1200&auto=format&fit=crop" class="w-100 h-100 object-fit-cover" alt="{{ $product->nama_produk }}">
+                @if($product->gambar && file_exists(public_path($product->gambar)))
+                    <img src="{{ asset($product->gambar) }}" class="w-100 h-100 object-fit-cover" alt="{{ $product->nama_produk }}">
                 @else
                     <div class="w-100 h-100 d-flex flex-column align-items-center justify-content-center text-muted opacity-25">
                         <i class="bi bi-image fs-1"></i>

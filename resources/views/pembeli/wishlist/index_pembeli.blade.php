@@ -17,7 +17,7 @@
             @foreach($wishlists as $wishlist)
                 <div class="bg-white rounded-3xl shadow-sm overflow-hidden">
                     <a href="{{ route('produk.detail', $wishlist->product->id) }}">
-                        <img src="https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?q=80&w=600&auto=format&fit=crop" class="w-full h-56 object-cover">
+                        <img src="{{ asset($wishlist->product->image) }}" class="w-full h-56 object-cover">
                     </a>
                     <div class="p-5">
                         <div class="flex items-center justify-between mb-3">

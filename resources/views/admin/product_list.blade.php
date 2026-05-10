@@ -49,7 +49,7 @@
                 @php
                     $image = $product->image ?: $product->gambar;
                     $imageUrl = $image
-                        ? "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?q=80&w=200&auto=format&fit=crop"
+                        ? asset($image)
                         : null;
                 @endphp
                 <div class="admin-card overflow-hidden">
