@@ -17,7 +17,7 @@
             @foreach($wishlists as $wishlist)
                 <div class="bg-white rounded-3xl shadow-sm overflow-hidden">
                     <a href="{{ route('produk.detail', $wishlist->product->id) }}">
-                        <img src="{{ $wishlist->product->image ? asset('storage/' . $wishlist->product->image) : 'https://via.placeholder.com/400x300' }}" class="w-full h-56 object-cover">
+                        <img src="{{ asset($wishlist->product->image) }}" class="w-full h-56 object-cover">
                     </a>
                     <div class="p-5">
                         <div class="flex items-center justify-between mb-3">

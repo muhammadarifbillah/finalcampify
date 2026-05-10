@@ -17,7 +17,7 @@
 
             <div class="space-y-6">
                 <div class="rounded-[32px] overflow-hidden shadow-lg bg-white">
-                    <img src="{{ $produk->image ? asset('storage/' . $produk->image) : 'https://images.unsplash.com/photo-1535745665858-41619828c30f' }}"
+                    <img src="{{ asset($produk->image) }}"
                          alt="{{ $produk->name }}"
                          class="w-full h-[520px] object-cover object-center">
                 </div>

@@ -8,7 +8,7 @@
         </div>
         <div class="bg-white rounded-3xl shadow-lg p-8">
             <div class="flex items-center gap-4 mb-6 p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                <img src="{{ asset('storage/' . $produk->image) }}" class="w-16 h-16 object-cover rounded-xl shadow-sm">
+                <img src="{{ asset($produk->image) }}" class="w-16 h-16 object-cover rounded-xl shadow-sm">
                 <div>
                     <h2 class="text-xl font-bold text-slate-800">{{ $produk->name }}</h2>
                     <p class="text-xs text-slate-500">Harga: Rp {{ number_format($produk->rent_price) }}/hari</p>
@@ -160,6 +160,14 @@
                                 <input type="file" name="ktp_image" accept="image/*" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-100 file:text-amber-700 hover:file:bg-amber-200 cursor-pointer" required />
                             </div>
                             <p class="mt-2 text-[9px] text-slate-400 italic">*Pastikan foto KTP terlihat jelas dan terbaca.</p>
+                        </div>
+                    @else
+                        <div class="bg-emerald-50 p-4 rounded-2xl border border-emerald-200 flex items-center gap-3">
+                            <span class="text-emerald-600 text-lg">✅</span>
+                            <div>
+                                <p class="text-sm font-bold text-emerald-800">Akun Terverifikasi</p>
+                                <p class="text-[10px] text-emerald-600">Identitas KTP Anda sudah tersimpan di sistem. Anda dapat langsung memproses penyewaan.</p>
+                            </div>
                         </div>
                     @endif
                 </div>

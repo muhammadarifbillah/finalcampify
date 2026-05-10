@@ -49,7 +49,7 @@
                 @php
                     $image = $product->image ?: $product->gambar;
                     $imageUrl = $image
-                        ? (\Illuminate\Support\Str::startsWith($image, ['http://', 'https://']) ? $image : asset('storage/'.$image))
+                        ? asset($image)
                         : null;
                 @endphp
                 <div class="admin-card overflow-hidden">
