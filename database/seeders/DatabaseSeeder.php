@@ -27,13 +27,6 @@ class DatabaseSeeder extends Seeder
 
     public function run(): void
     {
-<<<<<<< HEAD
-        $this->call(AdminUserSeeder::class);
-        $this->call(ProductSeeder::class);
-    }
-}
-
-=======
         $this->call([
             AdminUserSeeder::class,
             CourierSeeder::class,
@@ -45,4 +38,3 @@ class DatabaseSeeder extends Seeder
         ]);
     }
 }
->>>>>>> 4618886ce8ec2779a7c8dff7bb6f1acbff2c0b54
