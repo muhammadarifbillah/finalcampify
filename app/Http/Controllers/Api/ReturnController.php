@@ -96,7 +96,7 @@ class ReturnController extends Controller
 
         $return->fill([
             'resi_return' => $resi,
-            'foto_kondisi' => $fotoKondisiPath,
+            'proof_returned_image' => $fotoKondisiPath,
             'tanggal_pengembalian' => now(),
             'denda' => 0,
             'kondisi_barang' => 'baik',
