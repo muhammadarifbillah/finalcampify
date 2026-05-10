@@ -5,6 +5,7 @@ use App\Http\Controllers\Controller;
 
 use App\Models\Pembeli\ProductRating_pembeli;
 use App\Models\Pembeli\StoreRating_pembeli;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -19,12 +20,28 @@ class PembeliReviewController extends Controller
             'comment' => 'nullable|string',
         ]);
 
+        $existing = ProductRating_pembeli::where('user_id', Auth::id())
+            ->where('order_id', $request->order_id)
+            ->where('product_id', $request->product_id)
+            ->first();
+
+        if ($existing) {
+            return back()->with('error', 'Anda sudah pernah memberikan ulasan untuk produk ini.');
+        }
+
         ProductRating_pembeli::create([
             'user_id' => Auth::id(),
             'order_id' => $request->order_id,
             'product_id' => $request->product_id,
             'rating' => $request->rating,
             'comment' => $request->comment,
+        ]);
+
+        $count = ProductRating_pembeli::where('product_id', $request->product_id)->count();
+        $avg = ProductRating_pembeli::where('product_id', $request->product_id)->avg('rating') ?: 0;
+        Product::whereKey($request->product_id)->update([
+            'rating' => round($avg, 2),
+            'reviews_count' => $count,
         ]);
 
         return back()->with('success', 'Ulasan berhasil disimpan!');

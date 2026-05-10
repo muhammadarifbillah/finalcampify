@@ -65,6 +65,11 @@ class Product extends Model
         return $this->hasMany(ProductImage::class, 'product_id');
     }
 
+    public function productRatings()
+    {
+        return $this->hasMany(\App\Models\Pembeli\ProductRating_pembeli::class, 'product_id');
+    }
+
     public function getNameAttribute()
     {
         return $this->attributes['name'] ?? $this->attributes['nama_produk'] ?? null;
@@ -161,10 +166,6 @@ class Product extends Model
         return $reasons;
     }
 
-    /**
-     * Get the image URL for the product
-     * Handles both old paths (with 'products/', 'storage/', 'ktp_uploads/', etc.) and new filename-only format
-     */
     public function getImageUrlAttribute()
     {
         $imageField = $this->image ?: $this->gambar;
@@ -173,18 +174,22 @@ class Product extends Model
             return null;
         }
 
-        // If it's already a full URL, return as-is
         if (filter_var($imageField, FILTER_VALIDATE_URL)) {
             return $imageField;
         }
 
-        // If it contains '/', it's the old format - extract filename
-        if (strpos($imageField, '/') !== false) {
-            $filename = basename($imageField);
-            return asset('assets/images/' . $filename);
+        $filename = basename($imageField);
+
+        // Check if it exists in storage
+        if (\Illuminate\Support\Facades\Storage::disk('public')->exists('products/' . $filename)) {
+            return asset('storage/products/' . $filename);
         }
 
-        // If it's just a filename (new format), serve from assets/images
-        return asset('assets/images/' . $imageField);
+        if (strpos($imageField, 'products/') !== false || strpos($imageField, 'storage/') !== false) {
+             return asset('storage/' . str_replace('public/', '', $imageField));
+        }
+
+        // Default to assets/images
+        return asset('assets/images/' . $filename);
     }
 }
