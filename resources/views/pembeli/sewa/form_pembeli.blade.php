@@ -7,6 +7,13 @@
             <a href="{{ route('produk.detail.rent', $produk->id) }}" class="text-sm text-green-600 hover:text-green-800 font-semibold">← Kembali ke Detail Produk</a>
         </div>
         <div class="bg-white rounded-3xl shadow-lg p-8">
+            <div class="flex items-center gap-4 mb-6 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                <img src="{{ asset('storage/' . $produk->image) }}" class="w-16 h-16 object-cover rounded-xl shadow-sm">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-800">{{ $produk->name }}</h2>
+                    <p class="text-xs text-slate-500">Harga: Rp {{ number_format($produk->rent_price) }}/hari</p>
+                </div>
+            </div>
             <h2 class="text-2xl font-bold mb-6">Formulir Penyewaan</h2>
             <form action="{{ route('sewa.process') }}" method="POST" enctype="multipart/form-data" class="space-y-5">
                 @csrf
@@ -75,12 +82,8 @@
                     <h3 class="font-bold text-lg mb-3 uppercase tracking-wider text-slate-800">Metode Pembayaran</h3>
                     <div class="space-y-3">
                         <label class="flex items-center rounded-xl border border-slate-200 p-4 cursor-pointer hover:border-green-500 transition-colors">
-                            <input type="radio" name="metode_pembayaran" value="qris" checked class="w-4 h-4 text-green-600 focus:ring-green-500 mr-3">
-                            <span class="font-medium">QRIS / E-Wallet</span>
-                        </label>
-                        <label class="flex items-center rounded-xl border border-slate-200 p-4 cursor-pointer hover:border-green-500 transition-colors">
-                            <input type="radio" name="metode_pembayaran" value="va" class="w-4 h-4 text-green-600 focus:ring-green-500 mr-3">
-                            <span class="font-medium">Virtual Account</span>
+                            <input type="radio" name="metode_pembayaran" value="transfer" checked class="w-4 h-4 text-green-600 focus:ring-green-500 mr-3">
+                            <span class="font-medium">Transfer Bank</span>
                         </label>
                         <label class="flex items-center rounded-xl border border-slate-200 p-4 cursor-pointer hover:border-green-500 transition-colors">
                             <input type="radio" name="metode_pembayaran" value="cod" class="w-4 h-4 text-green-600 focus:ring-green-500 mr-3">
@@ -94,14 +97,9 @@
                     <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-5">
                         <p class="text-xs font-bold text-emerald-600 uppercase tracking-widest mb-3">Tujuan Pembayaran</p>
                         
-                        <div id="info_qris" class="hidden space-y-3 text-center">
-                            <div class="bg-white p-4 rounded-xl inline-block border-2 border-emerald-200">
-                                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=CAMPIFY_PAYMENT" alt="QRIS" class="mx-auto">
-                            </div>
-                            <p class="text-sm font-bold text-slate-700">Scan QRIS a/n Campify Indonesia</p>
-                        </div>
 
-                        <div id="info_va" class="hidden space-y-2">
+
+                        <div id="info_transfer" class="hidden space-y-2">
                             @if($produk->store && $produk->store->bank_account_number)
                             <div class="flex items-center justify-between p-3 bg-white rounded-xl border border-emerald-100">
                                 <div>
@@ -252,19 +250,16 @@ document.addEventListener('DOMContentLoaded', function() {
     // Payment Info Toggle
     const paymentRadios = document.querySelectorAll('input[name="metode_pembayaran"]');
     const infoBox = document.getElementById('payment_info_box');
-    const infoQris = document.getElementById('info_qris');
-    const infoVa = document.getElementById('info_va');
+    const infoTransfer = document.getElementById('info_transfer');
     const infoCod = document.getElementById('info_cod');
 
     function updatePaymentInfo() {
         const selected = document.querySelector('input[name="metode_pembayaran"]:checked').value;
         infoBox.classList.remove('hidden');
-        infoQris.classList.add('hidden');
-        infoVa.classList.add('hidden');
+        infoTransfer.classList.add('hidden');
         infoCod.classList.add('hidden');
 
-        if(selected === 'qris') infoQris.classList.remove('hidden');
-        if(selected === 'va') infoVa.classList.remove('hidden');
+        if(selected === 'transfer') infoTransfer.classList.remove('hidden');
         if(selected === 'cod') infoCod.classList.remove('hidden');
     }
 

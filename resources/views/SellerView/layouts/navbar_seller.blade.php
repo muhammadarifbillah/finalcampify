@@ -12,6 +12,7 @@
                 @auth
                     <li class="nav-item"><a class="nav-link" href="/seller/products">Kelola Produk</a></li>
                     <li class="nav-item"><a class="nav-link" href="/seller/orders">Kelola Pesanan</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ route('seller.reports.index') }}">Laporan Bisnis</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ route('seller.ratings.index') }}">Kelola Rating</a></li>
                 @endauth
             </ul>

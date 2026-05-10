@@ -15,24 +15,79 @@ class DashboardController_seller extends Controller
     {
         $userId = Auth::id();
 
+        // 1. Ambil Produk Seller
         $products = Product_seller::where('user_id', $userId)->get();
         $productIds = $products->pluck('id');
 
-        $rental = Rental_seller::whereIn('product_id', $productIds)->get();
+        // 2. Ambil Data Penyewaan (Rentals)
+        $rentals = Rental_seller::whereIn('product_id', $productIds)->get();
 
-        $orders = Order_seller::with(['details.product'])
-            ->whereHas('details', fn ($query) => $query->whereIn('product_id', $productIds))
+        // 3. Ambil Data Pesanan (Orders)
+        $orders = Order_seller::with(['details' => function($q) use ($productIds) {
+                $q->whereIn('product_id', $productIds)->with('product');
+            }])
+            ->whereHas('details', fn ($q) => $q->whereIn('product_id', $productIds))
             ->get();
 
+        // 4. Hitung Statistik Dasar
+        $ordersDone = $orders->where('status', 'selesai');
+        
+        // Revenue murni (Hanya produk milik seller ini)
+        $totalRevenue = $ordersDone->sum(function($o) use ($productIds) {
+            return $o->details->whereIn('product_id', $productIds)->sum('harga');
+        });
+
+        $pendingOrdersCount = $orders->whereIn('status', ['menunggu', 'diproses'])->count();
+        
+        // Barang rental yang status nya rental aktif
+        $rentedGearCount = $rentals->where('status', 'active')->count();
+
+        // Permintaan Sewa = Hanya yang perlu konfirmasi (pending)
+        $totalRentalRequestsCount = $rentals->where('status', 'pending')->count();
+
+        // 5. Rating Toko/Produk
         $avgStoreRating = StoreRating_seller::getAverageRating($userId);
         $storeRatingCount = StoreRating_seller::getRatingCount($userId);
+        $productRatings = \App\Models\SellerModels\ProductRating_seller::whereIn('product_id', $productIds)->get();
+        $avgProductRating = $productRatings->avg('rating') ?? 0;
+        $qualityScore = round(($avgProductRating / 5) * 100);
+
+        // 6. Sales Chart Data (7 Hari Terakhir)
+        $labels = [];
+        $dataSales = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = \Carbon\Carbon::now()->subDays($i)->format('Y-m-d');
+            $labels[] = \Carbon\Carbon::now()->subDays($i)->format('d M');
+            $dataSales[] = $ordersDone->filter(function($o) use ($date) {
+                return \Carbon\Carbon::parse($o->created_at)->format('Y-m-d') == $date;
+            })->sum(function($o) use ($productIds) {
+                return $o->details->whereIn('product_id', $productIds)->sum('harga');
+            });
+        }
+        $trendUp = count($dataSales) >= 2 ? end($dataSales) >= $dataSales[0] : true;
+
+        // 7. Stock & Chat Score
+        $totalStock = $products->sum('stok');
+        $stockScore = $totalStock > 0 ? 100 : 0;
+        $chatScore = 90; // Placeholder
 
         return view('SellerView.seller.dashboard_seller', compact(
             'products',
             'orders',
-            'rental',
+            'pendingOrdersCount',
+            'totalRevenue',
             'avgStoreRating',
-            'storeRatingCount'
+            'storeRatingCount',
+            'avgProductRating',
+            'rentals',
+            'rentedGearCount',
+            'totalRentalRequestsCount',
+            'labels',
+            'dataSales',
+            'qualityScore',
+            'stockScore',
+            'chatScore',
+            'trendUp'
         ));
     }
 }

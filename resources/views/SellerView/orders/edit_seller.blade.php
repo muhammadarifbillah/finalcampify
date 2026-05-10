@@ -1,123 +1,72 @@
 @extends('SellerView.layouts.app_seller')
 
 @section('content')
-<div class="d-flex" style="min-height:100vh; background:#f9fafb;">
-
-    {{-- SIDEBAR --}}
-    <div style="width:260px; background:white; border-right:1px solid #eee; display:flex; flex-direction:column; justify-content:space-between;">
-        
-        {{-- TOP --}}
-        <div>
-            <div class="p-4">
-                <h4 style="color:#10B981; font-weight:800;">CAMPIFY.</h4>
-                <small class="text-muted">SELLER HUB</small>
-            </div>
-
-            <ul class="nav flex-column px-3">
-
-                <li class="nav-item mb-2">
-                    <a class="nav-link {{ request()->routeIs('seller.dashboard') ? 'bg-success text-white rounded px-3 py-2' : 'text-dark' }}"
-                    href="{{ route('seller.dashboard') }}">
-                    Dashboard
-                    </a>
-                </li>
-
-                <li class="nav-item mb-2">
-                    <a class="nav-link {{ request()->routeIs('products*') ? 'bg-success text-white rounded px-3 py-2' : 'text-dark' }}"
-                    href="{{ route('seller.products.index') }}">
-                    Kelola Produk
-                    </a>
-                </li>
-
-                    <li class="nav-item mb-2">
-                        <a class="nav-link {{ request()->routeIs('seller.ratings.index') ? 'bg-success text-white rounded px-3 py-2' : 'text-dark' }}"
-                        href="/seller/ratings">
-                        Kelola Rating
-                        </a>
-                    </li>
-
-                <li class="nav-item mb-2">
-                    <a class="nav-link {{ request()->routeIs('orders*') ? 'bg-success text-white rounded px-3 py-2' : 'text-dark' }}"
-                    href="/seller/orders">
-                    Pesanan Baru
-                    </a>
-                </li>
-
-                <li class="nav-item mb-2">
-                    <a class="nav-link {{ request()->routeIs('rentals.index') ? 'bg-success text-white rounded px-3 py-2' : 'text-dark' }}"
-                    href="/seller/rentals">
-                    Penyewaan Alat
-                    </a>
-                </li>
-
-                {{-- CHAT TETAP DI ATAS --}}
-                <li class="nav-item mb-2">
-                    <a class="nav-link {{ request()->routeIs('chat.index') ? 'bg-success text-white rounded px-3 py-2' : 'text-dark' }}"
-                    href="/seller/chat">
-                    Chat Pembeli
-                    </a>
-                </li>
-
-            </ul>
+<div class="dashboard-header mb-5">
+    <div class="row align-items-center">
+        <div class="col-md-8">
+            <h2 class="fw-bold m-0 text-dark">Ubah Status & Resi</h2>
+            <p class="text-muted">Perbarui progres pengiriman pesanan pelanggan Anda.</p>
         </div>
-
-        {{-- BOTTOM --}}
-        <div class="px-3 pb-4">
-            <hr>
-
-            <ul class="nav flex-column">
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('store-profile*') ? 'bg-success text-white rounded px-3 py-2' : 'text-dark' }}"
-                    href="/seller/store-profile">
-                        Profil Toko
-                    </a>
-                </li>
-            </ul>
+        <div class="col-md-4 text-md-end">
+            <a href="{{ route('seller.orders.index') }}" class="btn btn-light rounded-pill px-4 border shadow-sm">
+                <i class="bi bi-arrow-left me-2"></i>Kembali
+            </a>
         </div>
-
     </div>
+</div>
 
-    {{-- CONTENT --}}
-    <div class="flex-grow-1 p-4">
-
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h4 class="fw-bold">UBAH STATUS & RESI</h4>
-            <a href="/seller/orders" class="btn btn-light rounded-pill px-3">← Kembali</a>
-        </div>
-
-        <div class="card border-0 shadow-sm p-4" style="border-radius:16px;">
-
-            <h5 class="fw-bold mb-1">{{ $order->buyer_name }}</h5>
-            <p class="text-muted small mb-3">Produk: <strong>{{ optional($order->product)->nama_produk ?? '-' }}</strong></p>
+<div class="row">
+    <div class="col-md-8">
+        <div class="card card-modern border-0 shadow-sm p-4" style="border-radius:16px;">
+            <div class="mb-4 pb-3 border-bottom">
+                <h5 class="fw-bold mb-1 text-dark">{{ $order->buyer_name }}</h5>
+                <p class="text-muted small mb-0">Produk: <strong class="text-emerald">{{ optional($order->product)->nama_produk ?? '-' }}</strong></p>
+            </div>
 
             <form method="POST" action="/seller/orders/{{ $order->id }}">
                 @csrf
                 @method('PUT')
 
-                <label class="form-label fw-bold">Status Pesanan</label>
-                <select name="status" class="form-control mb-3">
-                    <option value="pending" {{ $order->status == 'pending' ? 'selected' : '' }}>Menunggu</option>
-                    <option value="processing" {{ $order->status == 'processing' ? 'selected' : '' }}>Diproses</option>
-                    <option value="shipped" {{ $order->status == 'shipped' ? 'selected' : '' }}>Dikirim</option>
-                    <option value="completed" {{ $order->status == 'completed' ? 'selected' : '' }}>Selesai</option>
-                </select>
+                <div class="mb-4">
+                    <label class="form-label fw-bold text-muted small text-uppercase ls-1">Status Pesanan</label>
+                    <select name="status" class="form-select border-0 bg-light rounded-3 px-3 py-2 shadow-sm">
+                        <option value="menunggu" {{ $order->status == 'menunggu' ? 'selected' : '' }}>Menunggu</option>
+                        <option value="diproses" {{ $order->status == 'diproses' ? 'selected' : '' }}>Diproses</option>
+                        <option value="dikirim" {{ $order->status == 'dikirim' ? 'selected' : '' }}>Dikirim</option>
+                        <option value="selesai" {{ $order->status == 'selesai' ? 'selected' : '' }}>Selesai</option>
+                        <option value="dibatalkan" {{ $order->status == 'dibatalkan' ? 'selected' : '' }}>Dibatalkan</option>
+                    </select>
+                </div>
 
-                <label class="form-label fw-bold">Nomor Resi</label>
-                <input type="text" name="resi" class="form-control mb-3" 
-                       value="{{ $order->resi ?? '' }}" 
-                       placeholder="Masukkan nomor resi pengiriman">
+                <div class="mb-4">
+                    <label class="form-label fw-bold text-muted small text-uppercase ls-1">Nomor Resi Pengiriman</label>
+                    <input type="text" name="resi" class="form-control border-0 bg-light rounded-3 px-3 py-2 shadow-sm" 
+                           value="{{ $order->resi ?? '' }}" 
+                           placeholder="Masukkan nomor resi pengiriman">
+                </div>
 
-                <button class="btn text-white rounded-pill px-4" 
-                        style="background:#10B981;">
-                    Simpan Perubahan
-                </button>
+                <div class="mt-4">
+                    <button class="btn btn-emerald text-white rounded-pill px-5 py-2 fw-bold shadow-sm">
+                        Simpan Perubahan
+                    </button>
+                </div>
             </form>
-
         </div>
-
     </div>
 
+    <div class="col-md-4">
+        <div class="card card-modern border-0 p-4 bg-emerald text-white shadow-sm">
+            <h6 class="fw-bold mb-3"><i class="bi bi-info-circle me-2"></i>Panduan Update</h6>
+            <p class="small mb-2 opacity-75">1. Pastikan barang sudah siap sebelum mengubah ke status <strong>Diproses</strong>.</p>
+            <p class="small mb-2 opacity-75">2. Masukkan nomor resi yang valid saat status diubah ke <strong>Dikirim</strong>.</p>
+            <p class="small mb-0 opacity-75">3. Gunakan fitur chat untuk memberi tahu pembeli jika ada kendala.</p>
+        </div>
+    </div>
 </div>
+
+<style>
+    .ls-1 { letter-spacing: 1px; }
+    .text-emerald { color: #10B981 !important; }
+    .bg-emerald { background-color: #10B981 !important; }
+</style>
 @endsection
-
-

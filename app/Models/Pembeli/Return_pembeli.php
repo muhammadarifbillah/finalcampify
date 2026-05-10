@@ -13,6 +13,7 @@ class Return_pembeli extends Model
 
     protected $fillable = [
         'order_id',
+        'rental_id',
         'type',
         'status',
         'escrow_total',
@@ -24,6 +25,12 @@ class Return_pembeli extends Model
         'to_buyer',
         'deposit_amount',
         'rental_fee_amount',
+        'resi_return',
+        'foto_kondisi',
+        'bukti_denda',
+        'kondisi_barang',
+        'denda',
+        'tanggal_pengembalian',
     ];
 
     protected $casts = [
@@ -36,5 +43,6 @@ class Return_pembeli extends Model
         'rental_fee_amount' => 'decimal:2',
         'expected_date' => 'datetime',
         'actual_date' => 'datetime',
+        'tanggal_pengembalian' => 'datetime',
     ];
 }

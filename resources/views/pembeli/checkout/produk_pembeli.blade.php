@@ -18,7 +18,7 @@
                 <div class="md:col-span-1">
                     <div class="bg-slate-100 rounded-xl overflow-hidden aspect-square">
                         <img 
-                            src="{{ $produk->image ?: 'https://via.placeholder.com/400x400' }}"
+                            src="{{ $produk->image ? asset('storage/' . $produk->image) : 'https://via.placeholder.com/400x400' }}"
                             alt="{{ $produk->name }}"
                             class="w-full h-full object-cover"
                         >

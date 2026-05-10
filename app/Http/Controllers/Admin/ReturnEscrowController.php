@@ -130,6 +130,33 @@ class ReturnEscrowController extends Controller
             ]);
         }
 
+        if ($returnEscrow->type === 'jual_beli') {
+            // Fetch live conversation if it exists
+            $conversation = null;
+            $order = $returnEscrow->order;
+            $product = $order->details->first()->product ?? null;
+            
+            if ($product) {
+                $conversation = \App\Models\Conversation::where('buyer_id', $order->user_id)
+                    ->where('seller_id', $product->store->user_id)
+                    ->where('product_id', $product->id)
+                    ->with(['messages.sender'])
+                    ->first();
+            }
+
+            if ($returnEscrow->status === 'dispute') {
+                return view('admin.returns.show_jual_beli_dispute', [
+                    'return' => $returnEscrow,
+                    'statuses' => ReturnEscrow::STATUSES,
+                    'conversation' => $conversation,
+                ]);
+            }
+            return view('admin.returns.show_jual_beli_normal', [
+                'return' => $returnEscrow,
+                'statuses' => ReturnEscrow::STATUSES,
+            ]);
+        }
+
         return view('admin.returns.show', [
             'return' => $returnEscrow,
             'types' => ReturnEscrow::TYPES,

@@ -1,327 +1,190 @@
 @extends('SellerView.layouts.app_seller')
 
 @section('content')
-<div class="d-flex" style="min-height:100vh; background:#f9fafb;">
-
-    {{-- SIDEBAR --}}
-    <div style="width:260px; background:#ffffff; border-right:1px solid #e5e7eb; display:flex; flex-direction:column; justify-content:space-between;">
-
-        {{-- TOP --}}
+<div class="dashboard-header mb-5">
+    <div class="d-flex align-items-center">
+        <a href="{{ route('seller.products.index') }}" class="btn btn-light rounded-circle p-3 me-4 shadow-sm border-0 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+            <i class="bi bi-arrow-left fs-4"></i>
+        </a>
         <div>
-
-            {{-- BRAND --}}
-            <div class="p-4 border-bottom">
-                <h4 style="color:#10B981; font-weight:800; letter-spacing:1px;">CAMPIFY.</h4>
-                <small class="text-muted">SELLER HUB</small>
-            </div>
-
-            {{-- MENU --}}
-            <ul class="nav flex-column px-3 mt-3">
-
-                {{-- DASHBOARD --}}
-                <li class="nav-item mb-1">
-                    <a class="nav-link sidebar-link {{ request()->routeIs('seller.dashboard') ? 'active' : '' }}"
-                    href="{{ route('seller.dashboard') }}">
-                        📊 Dashboard
-                    </a>
-                </li>
-
-                {{-- PRODUK --}}
-                <li class="nav-item mb-1">
-                    <a class="nav-link sidebar-link {{ request()->routeIs('products*') ? 'active' : '' }}"
-                    href="{{ route('seller.products.index') }}">
-                        📦 Kelola Produk
-                    </a>
-                </li>
-
-                {{-- RATING --}}
-                <li class="nav-item mb-1">
-                    <a class="nav-link sidebar-link {{ request()->routeIs('seller.ratings.index') ? 'active' : '' }}"
-                    href="/seller/ratings">
-                        ⭐ Kelola Rating
-                    </a>
-                </li>
-
-                {{-- TRANSAKSI (DROPDOWN) --}}
-                <li class="nav-item mb-1">
-
-                    <a class="nav-link sidebar-link d-flex justify-content-between align-items-center"
-                    data-bs-toggle="collapse"
-                    href="#transaksiMenu"
-                    role="button"
-                    aria-expanded="false"
-                    aria-controls="transaksiMenu">
-
-                        💰 Transaksi
-                        <span class="text-muted">▾</span>
-
-                    </a>
-
-                    <div class="collapse {{ request()->is('seller/orders*') || request()->is('seller/rentals*') ? 'show' : '' }}"
-                        id="transaksiMenu">
-
-                        <ul class="nav flex-column ms-3 mt-1">
-
-                            <li class="nav-item">
-                                <a class="nav-link sidebar-sub {{ request()->is('seller/orders*') ? 'active' : '' }}"
-                                href="/seller/orders">
-                                    🧾 Pesanan Baru
-                                </a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a class="nav-link sidebar-sub {{ request()->is('seller/rentals*') ? 'active' : '' }}"
-                                href="/seller/rentals">
-                                    🏕️ Penyewaan Alat
-                                </a>
-                            </li>
-
-                        </ul>
-
-                    </div>
-                </li>
-
-                {{-- CHAT --}}
-                <li class="nav-item mb-1">
-                    <a class="nav-link sidebar-link {{ request()->routeIs('chat.index') ? 'active' : '' }}"
-                    href="/seller/chat">
-                        💬 Chat Pembeli
-                    </a>
-                </li>
-
-            </ul>
+            <h2 class="fw-bold m-0 text-dark">Detail Produk</h2>
+            <p class="text-muted">Kelola dan lihat informasi lengkap unit barang Anda.</p>
         </div>
-
-        {{-- BOTTOM --}}
-        <div class="px-3 pb-4">
-            <hr>
-            <a class="nav-link sidebar-link {{ request()->routeIs('seller.store-profile*') ? 'bg-success text-white rounded px-3 py-2' : 'text-dark' }}" href="{{ route('seller.store-profile.index') }}"">
-                👤 Profil Toko
-            </a>
-        </div>
-    </div>
-
-    {{-- CONTENT --}}
-    <div class="flex-grow-1 p-4">
-
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h4 class="fw-bold">DETAIL PRODUK</h4>
-            <a href="/products" class="btn btn-outline-secondary rounded-pill">Kembali</a>
-        </div>
-
-        <div class="row g-4">
-            {{-- GAMBAR PRODUK --}}
-            <div class="col-md-5">
-                <div class="card border-0 shadow-sm" style="border-radius:16px; overflow:hidden;">
-                    <div style="height:350px; background:#f3f4f6; display:flex; align-items:center; justify-content:center;">
-                        @if($product->gambar && file_exists(public_path('storage/'.$product->gambar)))
-                            <img src="{{ asset('storage/'.$product->gambar) }}" 
-                                 alt="{{ $product->nama_produk }}" 
-                                 style="width:100%; height:100%; object-fit:cover;">
-                        @else
-                            <div class="text-center">
-                                <span style="font-size:80px;">🏕️</span>
-                            </div>
-                        @endif
-                    </div>
-                </div>
-            </div>
-
-            {{-- INFO PRODUK --}}
-            <div class="col-md-7">
-                <div class="card border-0 shadow-sm p-4" style="border-radius:16px;">
-                    
-                    @if($product->jenis_produk == 'sewa')
-                        <span class="badge bg-primary mb-2">SEWA</span>
-                    @else
-                        <span class="badge bg-success mb-2">JUAL</span>
-                    @endif
-
-                    <span class="badge bg-secondary mb-2">{{ ucfirst($product->kategori) }}</span>
-
-                    <h3 class="fw-bold mt-2">{{ $product->nama_produk }}</h3>
-
-                    {{-- RATING PRODUK --}}
-                    <div class="d-flex align-items-center mb-3">
-                        @for($i = 1; $i <= 5; $i++)
-                            @if($i <= round($avgProductRating))
-                                <span style="color:#F59E0B; font-size:20px;">★</span>
-                            @else
-                                <span style="color:#D1D5DB; font-size:20px;">★</span>
-                            @endif
-                        @endfor
-                        <span class="ms-2 text-muted">{{ number_format($avgProductRating, 1) }} ({{ $productRatingCount }} ulasan)</span>
-                    </div>
-
-                    <h4 class="fw-bold text-success mb-3">
-                        Rp {{ number_format($product->harga,0,',','.') }}
-                        @if($product->jenis_produk == 'sewa')
-                            <small class="text-muted">/hari</small>
-                        @endif
-                    </h4>
-
-                    <p class="text-muted">{{ $product->deskripsi }}</p>
-
-                    <div class="d-flex gap-3 mt-4">
-                        <div class="p-3 bg-light rounded-3">
-                            <small class="text-muted d-block">STOK</small>
-                            <strong>{{ $product->stok }}</strong>
-                        </div>
-                        <div class="p-3 bg-light rounded-3">
-                            <small class="text-muted d-block">TERJUAL</small>
-                            <strong>{{ $product->orders->count() ?? 0 }}</strong>
-                        </div>
-                    </div>
-
-                    {{-- TOMBOL --}}
-                    <div class="mt-4">
-                        @auth
-                            @if($product->jenis_produk == 'jual')
-                                <button class="btn btn-success rounded-pill px-4">Beli Sekarang</button>
-                            @else
-                                <button class="btn btn-primary rounded-pill px-4">Sewa Sekarang</button>
-                            @endif
-                        @else
-                            <a href="{{ route('login') }}" class="btn btn-success rounded-pill px-4">Login untuk Beli/Sewa</a>
-                        @endauth
-                    </div>
-
-                </div>
-            </div>
-        </div>
-
-        {{-- RATING & ULASAN PRODUK --}}
-        <div class="card border-0 shadow-sm p-4 mt-4" style="border-radius:16px;">
-            <h6 class="fw-bold mb-3">ULASAN PRODUK</h6>
-            
-            @forelse($productRatings as $pr)
-            <div class="border-bottom py-3">
-                <div class="d-flex justify-content-between">
-                    <strong>{{ $pr->user->name ?? 'User' }}</strong>
-                    <small class="text-muted">{{ $pr->created_at->diffForHumans() }}</small>
-                </div>
-                <div class="mb-1">
-                    @for($i = 1; $i <= 5; $i++)
-                        @if($i <= $pr->rating)
-                            <span style="color:#F59E0B;">★</span>
-                        @else
-                            <span style="color:#D1D5DB;">★</span>
-                        @endif
-                    @endfor
-                </div>
-                <p class="mb-0 text-muted">{{ $pr->ulasan ?? '-' }}</p>
-            </div>
-            @empty
-            <p class="text-muted">Belum ada ulasan untuk produk ini.</p>
-            @endforelse
-        </div>
-
-        {{-- RATING TOKO --}}
-        <div class="card border-0 shadow-sm p-4 mt-4" style="border-radius:16px;">
-            <h6 class="fw-bold mb-3">RATING TOKO</h6>
-            
-            <div class="d-flex align-items-center mb-3">
-                <h3 class="fw-bold me-2">{{ number_format($avgStoreRating, 1) }}</h3>
-                <div>
-                    <div>
-                        @for($i = 1; $i <= 5; $i++)
-                            @if($i <= round($avgStoreRating))
-                                <span style="color:#F59E0B; font-size:20px;">★</span>
-                            @else
-                                <span style="color:#D1D5DB; font-size:20px;">★</span>
-                            @endif
-                        @endfor
-                    </div>
-                    <small class="text-muted">{{ $storeRatingCount }} ulasan</small>
-                </div>
-            </div>
-
-            @forelse($storeRatings as $sr)
-            <div class="border-bottom py-3">
-                <div class="d-flex justify-content-between">
-                    <strong>{{ $sr->user->name ?? 'User' }}</strong>
-                    <small class="text-muted">{{ $sr->created_at->diffForHumans() }}</small>
-                </div>
-                <div class="mb-1">
-                    @for($i = 1; $i <= 5; $i++)
-                        @if($i <= $sr->rating)
-                            <span style="color:#F59E0B;">★</span>
-                        @else
-                            <span style="color:#D1D5DB;">★</span>
-                        @endif
-                    @endfor
-                </div>
-                <p class="mb-0 text-muted">{{ $sr->ulasan ?? '-' }}</p>
-            </div>
-            @empty
-            <p class="text-muted">Belum ada rating untuk toko ini.</p>
-            @endforelse
-        </div>
-
-        {{-- FORM BERI RATING --}}
-        @if(Auth::check() && Auth::id() !== $product->user_id)
-        <div class="card border-0 shadow-sm p-4 mt-4" style="border-radius:16px;">
-            <h6 class="fw-bold mb-3">BERI RATING</h6>
-            
-            @if(session('success'))
-                <div class="alert alert-success">{{ session('success') }}</div>
-            @endif
-            
-            <form method="POST" action="{{ route('seller.ratings.product') }}">
-                @csrf
-                <input type="hidden" name="product_id" value="{{ $product->id }}">
-                
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Rating Produk</label>
-                    <div class="d-flex gap-2">
-                        @for($i = 1; $i <= 5; $i++)
-                            <input type="radio" class="btn-check" name="rating" id="product_rating_{{ $i }}" value="{{ $i }}" 
-                                {{ old('rating') == $i ? 'checked' : '' }}>
-                            <label class="btn btn-outline-warning" for="product_rating_{{ $i }}">{{ $i }} ★</label>
-                        @endfor
-                    </div>
-                </div>
-                
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Ulasan</label>
-                    <textarea name="ulasan" class="form-control" rows="2" placeholder="Tulis ulasan Anda...">{{ old('ulasan') }}</textarea>
-                </div>
-                
-                <button type="submit" class="btn btn-success rounded-pill px-4">Kirim Rating</button>
-            </form>
-            
-            <hr class="my-4">
-            
-            <form method="POST" action="{{ route('seller.ratings.store') }}">
-                @csrf
-                <input type="hidden" name="store_id" value="{{ $product->user_id }}">
-                
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Rating Toko</label>
-                    <div class="d-flex gap-2">
-                        @for($i = 1; $i <= 5; $i++)
-                            <input type="radio" class="btn-check" name="rating" id="store_rating_{{ $i }}" value="{{ $i }}" 
-                                {{ old('rating') == $i ? 'checked' : '' }}>
-                            <label class="btn btn-outline-warning" for="store_rating_{{ $i }}">{{ $i }} ★</label>
-                        @endfor
-                    </div>
-                </div>
-                
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Ulasan Toko</label>
-                    <textarea name="ulasan" class="form-control" rows="2" placeholder="Tulis ulasan untuk toko...">{{ old('ulasan') }}</textarea>
-                </div>
-                
-                <button type="submit" class="btn btn-primary rounded-pill px-4">Kirim Rating Toko</button>
-            </form>
-        </div>
-        @elseif(!Auth::check())
-        <div class="card border-0 shadow-sm p-4 mt-4 text-center" style="border-radius:16px;">
-            <p class="text-muted mb-0">Silakan <a href="{{ route('login') }}">login</a> untuk memberikan rating.</p>
-        </div>
-        @endif
-
     </div>
 </div>
-@endsection
 
+<div class="row g-4">
+    {{-- LEFT: PRODUCT IMAGE & QUICK STATS --}}
+    <div class="col-lg-5">
+        <div class="card card-modern border-0 overflow-hidden mb-4 shadow-lg">
+            <div class="position-relative" style="height: 400px; background: #f8fafc;">
+                @if($product->gambar && file_exists(public_path('storage/'.$product->gambar)))
+                    <img src="{{ asset('storage/'.$product->gambar) }}" class="w-100 h-100 object-fit-cover" alt="{{ $product->nama_produk }}">
+                @else
+                    <div class="w-100 h-100 d-flex flex-column align-items-center justify-content-center text-muted opacity-25">
+                        <i class="bi bi-image fs-1"></i>
+                        <span class="mt-2">No Image Available</span>
+                    </div>
+                @endif
+
+                <div class="position-absolute top-0 start-0 p-3">
+                    @if($product->jenis_produk == 'sewa')
+                        <span class="badge bg-primary rounded-pill px-3 py-2 shadow">SEWA ALAT</span>
+                    @else
+                        <span class="badge bg-success rounded-pill px-3 py-2 shadow">JUAL BARANG</span>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-6">
+                <div class="card card-modern border-0 p-4 text-center">
+                    <small class="text-muted text-uppercase fw-bold ls-1 d-block mb-1" style="font-size: 0.7rem;">Stok Tersedia</small>
+                    <h3 class="fw-bold m-0 {{ $product->stok > 0 ? 'text-dark' : 'text-danger' }}">{{ $product->stok }}</h3>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="card card-modern border-0 p-4 text-center">
+                    <small class="text-muted text-uppercase fw-bold ls-1 d-block mb-1" style="font-size: 0.7rem;">Total Terjual</small>
+                    <h3 class="fw-bold m-0 text-emerald">{{ $product->orders->count() ?? 0 }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- RIGHT: PRODUCT INFO & ACTIONS --}}
+    <div class="col-lg-7">
+        <div class="card card-modern border-0 p-5 mb-4 h-100">
+            <div class="mb-4">
+                <span class="badge bg-emerald-soft text-emerald rounded-pill px-3 py-2 fw-bold text-uppercase ls-1 mb-2">
+                    {{ ucfirst($product->kategori) }}
+                </span>
+                <h1 class="fw-bold text-dark mt-2 mb-3">{{ $product->nama_produk }}</h1>
+                
+                <div class="d-flex align-items-center gap-2 mb-4">
+                    <div class="text-warning fs-5">
+                        @for($i = 1; $i <= 5; $i++)
+                            <i class="bi bi-star{{ $i <= round($avgProductRating) ? '-fill' : '' }}"></i>
+                        @endfor
+                    </div>
+                    <span class="fw-bold text-dark">{{ number_format($avgProductRating, 1) }}</span>
+                    <span class="text-muted small">({{ $productRatingCount }} Ulasan Pelanggan)</span>
+                </div>
+
+                <h2 class="fw-bold text-emerald mb-4">
+                    Rp {{ number_format($product->harga, 0, ',', '.') }}
+                    @if($product->jenis_produk == 'sewa')
+                        <span class="fs-5 text-muted fw-normal">/hari</span>
+                    @endif
+                </h2>
+
+                <div class="p-4 bg-light rounded-4 mb-4">
+                    <h6 class="fw-bold text-muted small text-uppercase ls-1 mb-3">Deskripsi Produk</h6>
+                    <p class="text-dark m-0 leading-relaxed">{{ $product->deskripsi }}</p>
+                </div>
+            </div>
+
+            <div class="mt-auto pt-4 border-top">
+                <div class="d-flex gap-3">
+                    <a href="/seller/products/{{ $product->id }}/edit" class="btn btn-emerald flex-grow-1 py-3 rounded-4 fw-bold shadow-sm">
+                        <i class="bi bi-pencil-square me-2"></i>Edit Informasi Produk
+                    </a>
+                    <form action="{{ route('seller.products.destroy', $product->id) }}" method="POST" class="flex-grow-1">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-outline-danger w-100 py-3 rounded-4 fw-bold" onclick="return confirm('Yakin ingin menghapus produk ini?')">
+                            <i class="bi bi-trash me-2"></i>Hapus Produk
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- REVIEWS SECTION --}}
+<div class="row g-4 mt-2">
+    <div class="col-md-6">
+        <div class="card card-modern border-0 p-5">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="fw-bold m-0">Ulasan Produk</h5>
+                <span class="badge bg-light text-muted rounded-pill">{{ $productRatings->count() }} Ulasan</span>
+            </div>
+            
+            <div class="review-scroll" style="max-height: 400px; overflow-y: auto;">
+                @forelse($productRatings as $pr)
+                <div class="mb-4 pb-4 border-bottom last-border-0">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="avatar-sm bg-emerald text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 35px; height: 35px; font-size: 0.8rem;">
+                                {{ strtoupper(substr($pr->user->name ?? 'U', 0, 1)) }}
+                            </div>
+                            <span class="fw-bold text-dark">{{ $pr->user->name ?? 'User' }}</span>
+                        </div>
+                        <small class="text-muted">{{ $pr->created_at->diffForHumans() }}</small>
+                    </div>
+                    <div class="text-warning mb-2" style="font-size: 0.8rem;">
+                        @for($i = 1; $i <= 5; $i++)
+                            <i class="bi bi-star{{ $i <= $pr->rating ? '-fill' : '' }}"></i>
+                        @endfor
+                    </div>
+                    <p class="text-muted small m-0 fst-italic">"{{ $pr->ulasan ?? 'Tanpa ulasan teks' }}"</p>
+                </div>
+                @empty
+                <div class="text-center py-5 opacity-25">
+                    <i class="bi bi-chat-left-dots fs-1 d-block mb-3"></i>
+                    <p>Belum ada ulasan produk.</p>
+                </div>
+                @endforelse
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card card-modern border-0 p-5">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="fw-bold m-0">Rating Toko</h5>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="fw-bold text-warning">{{ number_format($avgStoreRating, 1) }}</span>
+                    <div class="text-warning" style="font-size: 0.8rem;">
+                        <i class="bi bi-star-fill"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="review-scroll" style="max-height: 400px; overflow-y: auto;">
+                @forelse($storeRatings as $sr)
+                <div class="mb-4 pb-4 border-bottom last-border-0">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="fw-bold text-dark">{{ $sr->user->name ?? 'User' }}</span>
+                        <small class="text-muted">{{ $sr->created_at->diffForHumans() }}</small>
+                    </div>
+                    <div class="text-warning mb-2" style="font-size: 0.8rem;">
+                        @for($i = 1; $i <= 5; $i++)
+                            <i class="bi bi-star{{ $i <= $sr->rating ? '-fill' : '' }}"></i>
+                        @endfor
+                    </div>
+                    <p class="text-muted small m-0 fst-italic">"{{ $sr->ulasan ?? 'Tanpa ulasan teks' }}"</p>
+                </div>
+                @empty
+                <div class="text-center py-5 opacity-25">
+                    <i class="bi bi-shop fs-1 d-block mb-3"></i>
+                    <p>Belum ada rating toko.</p>
+                </div>
+                @endforelse
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .ls-1 { letter-spacing: 1px; }
+    .bg-emerald-soft { background-color: #ecfdf5; }
+    .object-fit-cover { object-fit: cover; }
+    .leading-relaxed { line-height: 1.6; }
+    .last-border-0:last-child { border-bottom: none !important; margin-bottom: 0 !important; padding-bottom: 0 !important; }
+    .review-scroll::-webkit-scrollbar { width: 5px; }
+    .review-scroll::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+</style>
+@endsection

@@ -12,6 +12,55 @@ use Carbon\Carbon;
 
 class ReportController_seller extends Controller
 {
+    /**
+     * Halaman Utama Laporan (Card View)
+     */
+    public function index()
+    {
+        $sellerId = Auth::id();
+        
+        // Ringkasan Cepat
+        $totalSales = Order_seller::where('status', 'selesai')
+            ->whereHas('details.product', fn($q) => $q->where('user_id', $sellerId))
+            ->whereDoesntHave('details', fn($q) => $q->where('type', 'rent'))
+            ->sum('total');
+
+        $totalRentals = Rental_seller::where('status', 'completed')
+            ->whereHas('product', fn($q) => $q->where('user_id', $sellerId))
+            ->get()
+            ->sum(fn($r) => $r->price * $r->duration);
+
+        return view('SellerView.reports.index_seller', compact('totalSales', 'totalRentals'));
+    }
+
+    /**
+     * Export Laporan ke PDF (Simulasi menggunakan view khusus print)
+     */
+    public function exportPdf(Request $request, $type)
+    {
+        $sellerId = Auth::id();
+        $startDate = $request->get('start_date', Carbon::now()->startOfMonth()->format('Y-m-d'));
+        $endDate = $request->get('end_date', Carbon::now()->endOfMonth()->format('Y-m-d'));
+
+        if ($type === 'sales') {
+            $data = Order_seller::where('status', 'selesai')
+                ->whereHas('details.product', fn($q) => $q->where('user_id', $sellerId))
+                ->whereDoesntHave('details', fn($q) => $q->where('type', 'rent'))
+                ->with(['buyer', 'details.product'])
+                ->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+                ->get();
+            $title = "Laporan Penjualan Produk";
+        } else {
+            $data = Rental_seller::where('status', 'completed')
+                ->whereHas('product', fn($q) => $q->where('user_id', $sellerId))
+                ->with(['user', 'product'])
+                ->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+                ->get();
+            $title = "Laporan Penyewaan Alat";
+        }
+
+        return view('SellerView.reports.export_pdf', compact('data', 'type', 'title', 'startDate', 'endDate'));
+    }
     /*
     |--------------------------------------------------------------------------
     | HALAMAN LAPORAN PENJUALAN (PEMBELIAN)
@@ -25,10 +74,13 @@ class ReportController_seller extends Controller
         $startDate = $request->get('start_date', Carbon::now()->startOfMonth()->format('Y-m-d'));
         $endDate = $request->get('end_date', Carbon::now()->endOfMonth()->format('Y-m-d'));
 
-        // Ambil orders yang sudah selesai
+        // Ambil orders yang sudah selesai dan tipe itemnya 'sell'
         $orders = Order_seller::where('status', 'selesai')
             ->whereHas('details.product', function($query) use ($sellerId) {
                 $query->where('user_id', $sellerId);
+            })
+            ->whereDoesntHave('details', function($query) {
+                $query->where('type', 'rent');
             })
             ->with(['buyer', 'details.product'])
             ->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
@@ -36,7 +88,7 @@ class ReportController_seller extends Controller
             ->get();
 
         // Hitung total penjualan
-        $totalSales = $orders->sum('total_harga');
+        $totalSales = $orders->sum('total');
         $totalOrders = $orders->count();
 
         // Produk terlaris
@@ -86,7 +138,7 @@ class ReportController_seller extends Controller
         $endDate = $request->get('end_date', Carbon::now()->endOfMonth()->format('Y-m-d'));
 
         // Ambil rentals yang sudah selesai
-        $rentals = Rental_seller::where('status', 'selesai')
+        $rentals = Rental_seller::where('status', 'completed')
             ->whereHas('product', function($query) use ($sellerId) {
                 $query->where('user_id', $sellerId);
             })
@@ -96,7 +148,7 @@ class ReportController_seller extends Controller
             ->get();
 
         // Hitung total pendapatan sewa
-        $totalRentalIncome = $rentals->sum('price');
+        $totalRentalIncome = $rentals->sum(fn($r) => $r->price * $r->duration);
         $totalRentals = $rentals->count();
 
         // Produk tersewa terbanyak
@@ -107,13 +159,13 @@ class ReportController_seller extends Controller
                 $existing = $topRentedProducts->firstWhere('id', $product->id);
                 if ($existing) {
                     $existing['count'] += 1;
-                    $existing['total'] += $rental->price;
+                    $existing['total'] += ($rental->price * $rental->duration);
                 } else {
                     $topRentedProducts->push([
                         'id' => $product->id,
                         'nama_produk' => $product->nama_produk,
                         'count' => 1,
-                        'total' => $rental->price,
+                        'total' => ($rental->price * $rental->duration),
                     ]);
                 }
             }

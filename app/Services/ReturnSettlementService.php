@@ -143,6 +143,13 @@ class ReturnSettlementService
                 $expected = $this->calculateExpectedDateForOrder($order);
                 if ($expected) $return->expected_date = $expected;
             }
+        } elseif ($return->type === ReturnEscrow::TYPE_JUAL_BELI) {
+            // Pada Jual Beli, Escrow Total biasanya 100% harga produk
+            // Denda/Potongan (damage_fee) mengurangi refund pembeli
+            $return->total_fines = (string) $damageFee;
+            $return->to_seller = (string) $damageFee;
+            $return->to_buyer = (string) max(0, $return->escrow_total - $damageFee);
+            $return->deficit = '0'; // Jual beli biasanya tidak ada defisit karena potong dari escrow 100%
         }
 
         return $return;

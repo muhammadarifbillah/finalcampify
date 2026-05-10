@@ -190,6 +190,7 @@ Route::middleware(['auth', 'role:buyer'])->group(function () {
 
     Route::get('/orders/return/{detail_id}', [PembeliOrderController::class, 'returnForm'])->name('orders.return');
     Route::post('/orders/return/{detail_id}', [PembeliOrderController::class, 'returnStore'])->name('orders.return.store');
+    Route::post('/orders/return-upload-bukti/{return_id}', [PembeliOrderController::class, 'uploadBuktiDenda'])->name('orders.return.upload-bukti');
     Route::get('/orders', [PembeliOrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{id}', [PembeliOrderController::class, 'detail'])->name('orders.detail');
     Route::post('/orders/{id}/cancel', [PembeliOrderController::class, 'cancel'])->name('orders.cancel');
@@ -243,11 +244,13 @@ Route::middleware(['auth', 'role:seller'])->prefix('seller')->name('seller.')->g
     Route::get('/ratings/store/{storeId}', [RatingController_seller::class, 'getStoreRatings'])->name('ratings.store.show');
 
     // Reports
+    Route::get('/reports', [ReportController_seller::class, 'index'])->name('reports.index');
     Route::get('/reports/sales', [ReportController_seller::class, 'salesReport'])->name('reports.sales');
     Route::get('/reports/rentals', [ReportController_seller::class, 'rentalReport'])->name('reports.rentals');
 
     // User Verification by Seller
     Route::post('/users/{id}/verify-ktp', [RentalController_seller::class, 'verifyUserKtp'])->name('user.verify');
+    Route::get('/reports/export-pdf/{type}', [ReportController_seller::class, 'exportPdf'])->name('reports.exportPdf');
 });
 
 /*

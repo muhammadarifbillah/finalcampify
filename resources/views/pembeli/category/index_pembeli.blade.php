@@ -39,7 +39,7 @@
             @foreach($products as $product)
                 <div class="bg-white rounded-2xl shadow p-4">
 
-                    <img src="{{ $product->image }}" class="w-full h-48 object-cover rounded-xl mb-4">
+                    <img src="{{ asset('storage/' . $product->image) }}" class="w-full h-48 object-cover rounded-xl mb-4">
 
                     <span class="text-xs text-green-600 font-bold uppercase">
                         {{ $product->category }}

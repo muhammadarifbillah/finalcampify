@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Pembeli;
 
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 
 use Illuminate\Http\Request;
@@ -114,6 +115,11 @@ class PembeliProductController extends Controller
             'price' => $rentalFee, // Hanya biaya sewa
             'status' => 'pending' // Status awal di tabel rentals
         ]);
+
+        // 4. Hapus dari keranjang jika ada
+        \App\Models\Pembeli\Keranjang_pembeli::where('user_id', $user->id)
+            ->where('product_id', $produk->id)
+            ->delete();
 
         return redirect()->route('orders.detail', $pesanan->id)->with('success', 'Pengajuan sewa berhasil dibuat!');
     }

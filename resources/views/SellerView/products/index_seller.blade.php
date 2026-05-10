@@ -1,289 +1,137 @@
 @extends('SellerView.layouts.app_seller')
 
 @section('content')
-
-<div class="d-flex" style="min-height: 100vh; background:#f9fafb;">
-
-    {{-- SIDEBAR --}}
-    <div style="width:260px; background:#ffffff; border-right:1px solid #e5e7eb; display:flex; flex-direction:column; justify-content:space-between;">
-
-        {{-- TOP --}}
-        <div>
-
-            {{-- BRAND --}}
-            <div class="p-4 border-bottom">
-                <h4 style="color:#10B981; font-weight:800; letter-spacing:1px;">CAMPIFY.</h4>
-                <small class="text-muted">SELLER HUB</small>
-            </div>
-
-            {{-- MENU --}}
-            <ul class="nav flex-column px-3 mt-3">
-
-                {{-- DASHBOARD --}}
-                <li class="nav-item mb-1">
-                    <a class="nav-link sidebar-link {{ request()->routeIs('seller.dashboard') ? 'active' : '' }}"
-                    href="{{ route('seller.dashboard') }}">
-                        📊 Dashboard
-                    </a>
-                </li>
-
-                {{-- PRODUK --}}
-                <li class="nav-item mb-1">
-                    <a class="nav-link sidebar-link {{ request()->routeIs('products*') ? 'active' : '' }}"
-                    href="{{ route('seller.products.index') }}">
-                        📦 Kelola Produk
-                    </a>
-                </li>
-
-                {{-- RATING --}}
-                <li class="nav-item mb-1">
-                    <a class="nav-link sidebar-link {{ request()->routeIs('seller.ratings.index') ? 'active' : '' }}"
-                    href="/seller/ratings">
-                        ⭐ Kelola Rating
-                    </a>
-                </li>
-
-                {{-- TRANSAKSI (DROPDOWN) --}}
-                <li class="nav-item mb-1">
-
-                    <a class="nav-link sidebar-link d-flex justify-content-between align-items-center"
-                    data-bs-toggle="collapse"
-                    href="#transaksiMenu"
-                    role="button"
-                    aria-expanded="false"
-                    aria-controls="transaksiMenu">
-
-                        💰 Transaksi
-                        <span class="text-muted">▾</span>
-
-                    </a>
-
-                    <div class="collapse {{ request()->is('seller/orders*') || request()->is('seller/rentals*') ? 'show' : '' }}"
-                        id="transaksiMenu">
-
-                        <ul class="nav flex-column ms-3 mt-1">
-
-                            <li class="nav-item">
-                                <a class="nav-link sidebar-sub {{ request()->is('seller/orders*') ? 'active' : '' }}"
-                                href="/seller/orders">
-                                    🧾 Pesanan Baru
-                                </a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a class="nav-link sidebar-sub {{ request()->is('seller/rentals*') ? 'active' : '' }}"
-                                href="/seller/rentals">
-                                    🏕️ Penyewaan Alat
-                                </a>
-                            </li>
-
-                        </ul>
-
-                    </div>
-                </li>
-
-                {{-- CHAT --}}
-                <li class="nav-item mb-1">
-                    <a class="nav-link sidebar-link {{ request()->routeIs('chat.index') ? 'active' : '' }}"
-                    href="/seller/chat">
-                        💬 Chat Pembeli
-                    </a>
-                </li>
-
-            </ul>
+<div class="dashboard-header mb-5">
+    <div class="row align-items-center">
+        <div class="col-md-8">
+            <h2 class="fw-bold m-0 text-dark">Katalog Produk</h2>
+            <p class="text-muted">Kelola inventaris barang jual dan sewa Anda di sini.</p>
         </div>
-
-        {{-- BOTTOM --}}
-        <div class="px-3 pb-4">
-            <hr>
-            <a class="nav-link sidebar-link {{ request()->routeIs('seller.store-profile*') ? 'bg-success text-white rounded px-3 py-2' : 'text-dark' }}" href="{{ route('seller.store-profile.index') }}"">
-                👤 Profil Toko
+        <div class="col-md-4 text-md-end">
+            <a href="{{ route('seller.products.create') }}" class="btn btn-emerald px-4 shadow-sm">
+                <i class="bi bi-plus-circle me-2"></i>Tambah Produk Baru
             </a>
         </div>
     </div>
+</div>
 
-    {{-- CONTENT --}}
-    <div class="flex-grow-1 p-4">
+{{-- FILTER BUTTONS --}}
+<div class="card card-modern p-3 mb-5 border-0">
+    <div class="d-flex gap-2 flex-wrap">
+        <a href="{{ route('seller.products.index') }}" 
+           class="btn rounded-pill px-4 py-2 fw-semibold {{ request('jenis') == null ? 'btn-emerald' : 'btn-light text-muted' }}">
+           Semua Produk
+        </a>
+        <a href="{{ route('seller.products.index', ['jenis' => 'sewa']) }}" 
+           class="btn rounded-pill px-4 py-2 fw-semibold {{ request('jenis') == 'sewa' ? 'btn-emerald' : 'btn-light text-muted' }}">
+           Penyewaan Alat
+        </a>
+        <a href="{{ route('seller.products.index', ['jenis' => 'jual']) }}" 
+           class="btn rounded-pill px-4 py-2 fw-semibold {{ request('jenis') == 'jual' ? 'btn-emerald' : 'btn-light text-muted' }}">
+           Penjualan Barang
+        </a>
+    </div>
+</div>
 
-        {{-- HEADER --}}
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h4 class="fw-bold">PRODUCTS</h4>
-            <div>
-                <a href="{{ route('seller.products.create') }}" class="btn btn-success rounded-pill px-4">
-                    + Tambah Produk
+{{-- PRODUK GRID --}}
+<div class="row g-4">
+    @forelse ($products as $product)
+    <div class="col-xl-4 col-md-6">
+        <div class="card card-modern h-100 border-0 overflow-hidden">
+            
+            {{-- IMAGE SECTION --}}
+            <div class="position-relative" style="height: 240px;">
+                @if($product->gambar && file_exists(public_path('storage/'.$product->gambar)))
+                    <img src="{{ asset('storage/'.$product->gambar) }}" class="w-100 h-100 object-fit-cover" alt="{{ $product->nama_produk }}">
+                @else
+                    <div class="w-100 h-100 bg-light d-flex flex-column align-items-center justify-content-center">
+                        <span class="fs-1 opacity-25">🏕️</span>
+                        <small class="text-muted mt-2">No Image Preview</small>
+                    </div>
+                @endif
+
+                {{-- BADGES OVERLAY --}}
+                <div class="position-absolute top-0 start-0 p-3 d-flex flex-column gap-2">
+                    @if($product->jenis_produk == 'sewa')
+                        <span class="badge bg-primary rounded-pill px-3 py-2 shadow-sm border border-white border-2">SEWA ALAT</span>
+                    @else
+                        <span class="badge bg-success rounded-pill px-3 py-2 shadow-sm border border-white border-2">JUAL BARANG</span>
+                    @endif
+                </div>
+
+                <div class="position-absolute bottom-0 end-0 p-3">
+                    @if($product->status === 'approved')
+                        <span class="badge bg-emerald text-white rounded-pill px-3 py-2 shadow-sm" style="background: var(--primary-emerald);">Aktif</span>
+                    @elseif($product->status === 'rejected')
+                        <span class="badge bg-danger rounded-pill px-3 py-2 shadow-sm">Ditolak</span>
+                    @else
+                        <span class="badge bg-warning text-dark rounded-pill px-3 py-2 shadow-sm">Menunggu Review</span>
+                    @endif
+                </div>
+            </div>
+
+            <div class="card-body p-4 d-flex flex-column">
+                <div class="mb-3">
+                    <small class="text-emerald fw-bold text-uppercase ls-1" style="font-size: 0.75rem;">
+                        {{ ucfirst(str_replace('_',' ',$product->kategori ?? 'Umum')) }}
+                    </small>
+                    <h5 class="fw-bold mt-1 mb-2">{{ $product->nama_produk }}</h5>
+                    <p class="text-muted small mb-0">{{ Str::limit($product->deskripsi, 80) }}</p>
+                </div>
+
+                <div class="mt-auto pt-3 border-top">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h4 class="fw-bold text-emerald m-0">
+                                Rp {{ number_format($product->harga, 0, ',', '.') }}
+                                @if($product->jenis_produk == 'sewa')
+                                    <span class="fs-6 text-muted fw-normal">/hari</span>
+                                @endif
+                            </h4>
+                        </div>
+                        <div class="text-end">
+                            <small class="text-muted d-block">Stok</small>
+                            <span class="fw-bold {{ $product->stok > 0 ? 'text-dark' : 'text-danger' }}">
+                                {{ $product->stok ?? 0 }} Unit
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <a href="/seller/products/{{ $product->id }}/edit" class="btn btn-light rounded-3 flex-grow-1 fw-bold text-muted border">
+                            <i class="bi bi-pencil-square me-2"></i>Edit
+                        </a>
+                        <form action="{{ route('seller.products.destroy', $product->id) }}" method="POST" class="flex-grow-1">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-outline-danger rounded-3 w-100 fw-bold" onclick="return confirm('Yakin ingin menghapus produk ini?')">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @empty
+    <div class="col-12">
+        <div class="card card-modern p-5 text-center border-0 bg-white">
+            <div class="mb-4 fs-1 opacity-25">📦</div>
+            <h4 class="fw-bold">Belum Ada Produk Terdaftar</h4>
+            <p class="text-muted">Mulailah berjualan dengan menambahkan produk pertama Anda ke katalog.</p>
+            <div class="mt-4">
+                <a href="{{ route('seller.products.create') }}" class="btn btn-emerald px-5 py-3">
+                    Tambah Produk Sekarang
                 </a>
             </div>
         </div>
-
-        {{-- FILTER --}}
-        <div class="mb-4">
-            <a href="{{ route('seller.products.index') }}" 
-            class="btn btn-sm {{ request('jenis') == null ? 'btn-success' : 'btn-outline-secondary' }}">
-                SEMUA
-            </a>
-
-            <a href="{{ route('seller.products.index', ['jenis' => 'sewa']) }}" 
-            class="btn btn-sm {{ request('jenis') == 'sewa' ? 'btn-success' : 'btn-outline-secondary' }}">
-                SEWA
-            </a>
-
-            <a href="{{ route('seller.products.index', ['jenis' => 'jual']) }}" 
-            class="btn btn-sm {{ request('jenis') == 'jual' ? 'btn-success' : 'btn-outline-secondary' }}">
-                JUAL
-            </a>
-        </div>
-
-        {{-- ALERT --}}
-        @if(session('success'))
-            <div class="alert alert-success rounded-3">
-                {{ session('success') }}
-            </div>
-        @endif
-
-        {{-- PRODUK GRID --}}
-        <div class="row g-4">
-
-            @forelse ($products as $product)
-            <div class="col-md-4">
-                <div class="card border-0 shadow-sm h-100" style="border-radius:16px; overflow:hidden;">
-
-                    {{-- IMAGE --}}
-                    <div style="height:220px; background:#f3f4f6; display:flex; align-items:center; justify-content:center;">
-
-                        @if($product->gambar && file_exists(public_path('storage/'.$product->gambar)))
-                            <img src="{{ asset('storage/'.$product->gambar) }}"
-                                 alt="{{ $product->nama_produk }}"
-                                 style="width:100%; height:100%; object-fit:cover;">
-                        @elseif($product->gambar)
-                            <img src="{{ asset('storage/'.$product->gambar) }}"
-                                 alt="{{ $product->nama_produk }}"
-                                 style="width:100%; height:100%; object-fit:cover;">
-                        @else
-                            <div class="text-center">
-                                <span style="font-size:40px;">🏕️</span>
-                                <p class="text-muted mt-2 mb-0">No Image</p>
-                            </div>
-                        @endif
-
-                    </div>
-
-                    <div class="card-body d-flex flex-column">
-
-                        {{-- BADGE JENIS PRODUK --}}
-                        <div class="d-flex gap-2 flex-wrap mb-2">
-                            @if($product->jenis_produk == 'sewa')
-                                <span class="badge bg-primary">SEWA</span>
-                            @else
-                                <span class="badge bg-success">JUAL</span>
-                            @endif
-                            @if($product->status === 'approved')
-                                <span class="badge bg-success">APPROVED</span>
-                            @elseif($product->status === 'rejected')
-                                <span class="badge bg-danger">REJECTED</span>
-                            @else
-                                <span class="badge bg-warning text-dark">WAITING REVIEW</span>
-                            @endif
-                        </div>
-
-                        {{-- KATEGORI --}}
-                        <p class="small mb-1 fw-semibold" style="color:#10B981;">
-                            {{ ucfirst(str_replace('_',' ',$product->kategori ?? 'Tanpa Kategori')) }}
-                        </p>
-
-                        {{-- NAMA --}}
-                        <h6 class="fw-bold mb-2">
-                            {{ $product->nama_produk }}
-                        </h6>
-
-                        {{-- DESKRIPSI --}}
-                        <p class="text-muted small mb-3">
-                            {{ Str::limit($product->deskripsi, 55) }}
-                        </p>
-
-                        {{-- HARGA --}}
-                        <h5 class="fw-bold mb-2">
-                            Rp {{ number_format($product->harga,0,',','.') }}
-
-                            @if($product->jenis_produk == 'sewa')
-                                <small class="text-muted fs-6">/hari</small>
-                            @endif
-                        </h5>
-
-                        {{-- RATING --}}
-                        @php
-                            $avgRating = $product->averageRating();
-                            $ratingCount = $product->ratingCount();
-                        @endphp
-                        <div class="mb-3">
-                            <div class="d-flex align-items-center">
-                                @for($i = 1; $i <= 5; $i++)
-                                    @if($i <= round($avgRating))
-                                        <span style="color:#F59E0B;">★</span>
-                                    @else
-                                        <span style="color:#D1D5DB;">★</span>
-                                    @endif
-                                @endfor
-                                <span class="small text-muted ms-2">
-                                    {{ number_format($avgRating, 1) }} ({{ $ratingCount }} ulasan)
-                                </span>
-                            </div>
-                        </div>
-
-                        {{-- FOOTER --}}
-                        <div class="d-flex justify-content-between mt-auto small text-muted border-top pt-3">
-                            <span>
-                                STOK:
-                                <strong class="{{ $product->stok > 0 ? 'text-success' : 'text-danger' }}">
-                                    {{ $product->stok ?? 0 }}
-                                </strong>
-                            </span>
-
-                            <span>ID #{{ $product->id }}</span>
-                        </div>
-
-                        {{-- ACTION --}}
-                        <div class="mt-3 d-flex gap-2">
-                            <a href="/seller/products/{{ $product->id }}/edit"
-                               class="btn btn-warning btn-sm w-50">
-                               Edit
-                            </a>
-
-                            <form action="{{ route('seller.products.destroy', $product->id) }}" method="POST">
-                                @csrf
-                                @method('DELETE')
-
-                                <button type="submit"
-                                        class="btn btn-danger btn-sm"
-                                        onclick="return confirm('Yakin ingin menghapus produk ini?')">
-                                    Hapus
-                                </button>
-                            </form>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-
-            @empty
-            <div class="col-12">
-                <div class="card border-0 shadow-sm p-5 text-center" style="border-radius:16px;">
-                    <div style="font-size:60px;">📦</div>
-                    <h5 class="fw-bold mt-3">Belum Ada Produk</h5>
-                    <p class="text-muted">Tambahkan produk jual atau sewa pertama kamu sekarang.</p>
-
-                    <div class="mt-3">
-                        <a href="{{ route('seller.products.create') }}" class="btn btn-success rounded-pill px-4">
-                            + Tambah Produk
-                        </a>
-                    </div>
-                </div>
-            </div>
-            @endforelse
-
-        </div>
-
     </div>
-
+    @endforelse
 </div>
 
+<style>
+    .ls-1 { letter-spacing: 1px; }
+    .text-emerald { color: var(--primary-emerald); }
+    .object-fit-cover { object-fit: cover; }
+</style>
 @endsection

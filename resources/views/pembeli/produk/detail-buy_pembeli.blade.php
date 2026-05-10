@@ -17,7 +17,7 @@
 
             <div class="space-y-6">
                 <div class="rounded-[32px] overflow-hidden shadow-lg bg-white">
-                    <img src="{{ asset($produk->image) }}"
+                    <img src="{{ asset('storage/' . $produk->image) }}"
                          alt="{{ $produk->name }}"
                          class="w-full h-[520px] object-cover object-center">
                 </div>
@@ -80,37 +80,7 @@
                         </a>
                     </div>
 
-                    @auth
-                        @if(auth()->user()->role === 'buyer')
-                            <form method="POST" action="{{ route('products.report', $produk->id) }}" class="mb-6 grid gap-2 sm:grid-cols-[160px_1fr_auto]">
-                                @csrf
-                                <select name="reason" class="rounded-2xl border border-slate-200 px-3 py-2 text-sm">
-                                    <option value="Produk mencurigakan">Produk mencurigakan</option>
-                                    <option value="Harga tidak wajar">Harga tidak wajar</option>
-                                    <option value="Deskripsi menyesatkan">Deskripsi menyesatkan</option>
-                                </select>
-                                <input name="description" class="rounded-2xl border border-slate-200 px-3 py-2 text-sm" placeholder="Detail laporan (opsional)">
-                                <button class="rounded-2xl border border-red-200 px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-50">Laporkan</button>
-                            </form>
-                        @endif
-                    @endauth
 
-                    @if($produk->store_id)
-                        @auth
-                            @if(auth()->user()->role === 'buyer')
-                                <form method="POST" action="{{ route('stores.report', $produk->store_id) }}" class="mb-6 grid gap-2 sm:grid-cols-[160px_1fr_auto]">
-                                    @csrf
-                                    <select name="reason" class="rounded-2xl border border-slate-200 px-3 py-2 text-sm">
-                                        <option value="Toko mencurigakan">Toko mencurigakan</option>
-                                        <option value="Pelayanan buruk">Pelayanan buruk</option>
-                                        <option value="Informasi toko tidak valid">Informasi toko tidak valid</option>
-                                    </select>
-                                    <input name="description" class="rounded-2xl border border-slate-200 px-3 py-2 text-sm" placeholder="Detail laporan toko (opsional)">
-                                    <button class="rounded-2xl border border-orange-200 px-4 py-2 text-sm font-semibold text-orange-600 hover:bg-orange-50">Laporkan Toko</button>
-                                </form>
-                            @endif
-                        @endauth
-                    @endif
 
                     <div class="grid gap-4 mb-6">
                         <div class="rounded-3xl bg-slate-50 p-4">
@@ -132,12 +102,50 @@
                                     <input type="number" name="quantity" min="1" max="{{ max(1, $produk->stock) }}" value="1" class="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3 focus:ring-2 focus:ring-emerald-500" />
                                 </div>
 
-                                <div class="grid gap-3 sm:grid-cols-[1fr_auto]">
-                                    <button type="submit" class="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-5 py-4 text-sm font-bold text-white hover:bg-slate-800 w-full transition-all">Tambah Keranjang</button>
-                                    <a href="{{ route('checkout.now', $produk->id) }}" class="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-5 py-4 text-sm font-bold text-white hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-100">Beli Sekarang</a>
+                                <div class="grid gap-3 sm:grid-cols-2">
+                                    <button type="submit" name="redirect" value="cart" class="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-5 py-4 text-sm font-bold text-white hover:bg-slate-800 transition-all">
+                                        Tambah Keranjang
+                                    </button>
+                                    <button type="submit" name="redirect" value="checkout" class="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-5 py-4 text-sm font-bold text-white hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-100">
+                                        Beli Sekarang
+                                    </button>
                                 </div>
                             </form>
                         </div>
+                    </div>
+
+                    <div class="mt-8 pt-8 border-t border-slate-100">
+                        @auth
+                            @if(auth()->user()->role === 'buyer')
+                                <form method="POST" action="{{ route('products.report', $produk->id) }}" class="mb-4 grid gap-2 sm:grid-cols-[160px_1fr_auto]">
+                                    @csrf
+                                    <select name="reason" class="rounded-2xl border border-slate-200 px-3 py-2 text-sm">
+                                        <option value="Produk mencurigakan">Produk mencurigakan</option>
+                                        <option value="Harga tidak wajar">Harga tidak wajar</option>
+                                        <option value="Deskripsi menyesatkan">Deskripsi menyesatkan</option>
+                                    </select>
+                                    <input name="description" class="rounded-2xl border border-slate-200 px-3 py-2 text-sm" placeholder="Detail laporan (opsional)">
+                                    <button class="rounded-2xl border border-red-200 px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-50">Laporkan</button>
+                                </form>
+                            @endif
+                        @endauth
+
+                        @if($produk->store_id)
+                            @auth
+                                @if(auth()->user()->role === 'buyer')
+                                    <form method="POST" action="{{ route('stores.report', $produk->store_id) }}" class="grid gap-2 sm:grid-cols-[160px_1fr_auto]">
+                                        @csrf
+                                        <select name="reason" class="rounded-2xl border border-slate-200 px-3 py-2 text-sm">
+                                            <option value="Toko mencurigakan">Toko mencurigakan</option>
+                                            <option value="Pelayanan buruk">Pelayanan buruk</option>
+                                            <option value="Informasi toko tidak valid">Informasi toko tidak valid</option>
+                                        </select>
+                                        <input name="description" class="rounded-2xl border border-slate-200 px-3 py-2 text-sm" placeholder="Detail laporan toko (opsional)">
+                                        <button class="rounded-2xl border border-orange-200 px-4 py-2 text-sm font-semibold text-orange-600 hover:bg-orange-50">Laporkan Toko</button>
+                                    </form>
+                                @endif
+                            @endauth
+                        @endif
                     </div>
                 </div>
             </aside>

@@ -53,9 +53,9 @@ class PembeliCartController extends Controller
             'start_date' => $request->start_date ?? null,
         ]);
 
-        // Jika dari halaman checkout, redirect ke cart
+        // Jika dari halaman checkout, redirect ke checkout
         if ($request->has('redirect') && $request->redirect === 'checkout') {
-            return redirect()->route('cart.index')->with('success', 'Produk ditambahkan ke keranjang. Silakan lanjutkan checkout');
+            return redirect()->route('checkout.index')->with('success', 'Produk ditambahkan. Silakan lengkapi data checkout.');
         }
 
         return back()->with('success', 'Produk ditambahkan ke keranjang');

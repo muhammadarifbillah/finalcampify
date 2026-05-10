@@ -55,9 +55,9 @@ class PembeliCheckoutController extends Controller
             'kecamatan' => 'required|string|max:255',
             'kode_pos' => 'required|string|max:20',
             'telepon' => 'required|string|max:25',
-            'metode_pembayaran' => 'required|string|in:transfer,cod,ewallet',
+            'metode_pembayaran' => 'required|string|in:transfer,cod',
             'shipping_method' => 'required|string|in:jne,gosend',
-            'bukti_pembayaran' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'bukti_pembayaran' => 'required_if:metode_pembayaran,transfer|nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
 
         $user->update([
@@ -92,7 +92,7 @@ class PembeliCheckoutController extends Controller
             $buktiPath = 'uploads/pembayaran/' . $filename;
         }
 
-        $pesanan = Order_pembeli::create([
+        $pesananData = [
             'user_id' => Auth::id(),
             'receiver_name' => $user->name,
             'total' => $total,
@@ -105,7 +105,29 @@ class PembeliCheckoutController extends Controller
             'kurir' => $requestData['shipping_method'],
             'status' => 'diproses',
             'bukti_pembayaran' => $buktiPath,
-        ]);
+        ];
+
+        // Otomatis Geocoding Alamat Pengiriman
+        try {
+            $fullAddress = $user->address . ', ' . $user->district . ', ' . $user->city;
+            $response = \Illuminate\Support\Facades\Http::withoutVerifying()->withHeaders([
+                'User-Agent' => 'CampifyApp/1.0'
+            ])->get('https://nominatim.openstreetmap.org/search', [
+                'q' => $fullAddress,
+                'format' => 'json',
+                'limit' => 1
+            ]);
+
+            if ($response->successful() && isset($response->json()[0])) {
+                $geo = $response->json()[0];
+                $pesananData['latitude'] = $geo['lat'];
+                $pesananData['longitude'] = $geo['lon'];
+            }
+        } catch (\Exception $e) {
+            // fail silently
+        }
+
+        $pesanan = Order_pembeli::create($pesananData);
 
         foreach ($cart as $item) {
             $price = $item->type === 'buy' 

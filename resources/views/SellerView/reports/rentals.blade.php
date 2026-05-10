@@ -1,725 +1,203 @@
 @extends('SellerView.layouts.app_seller')
 
 @section('content')
-<div class="d-flex" style="min-height:100vh; background:#f9fafb;">
-    {{-- SIDEBAR --}}
-    <div style="width:260px; background:#ffffff; border-right:1px solid #e5e7eb; display:flex; flex-direction:column; justify-content:space-between;">
-
-        {{-- TOP --}}
+<div class="dashboard-header mb-5">
+    <div class="d-flex justify-content-between align-items-start">
         <div>
-
-            {{-- BRAND --}}
-            <div class="p-4 border-bottom">
-                <h4 style="color:#10B981; font-weight:800; letter-spacing:1px;">CAMPIFY.</h4>
-                <small class="text-muted">SELLER HUB</small>
-            </div>
-
-            {{-- MENU --}}
-            <ul class="nav flex-column px-3 mt-3">
-
-                {{-- DASHBOARD --}}
-                <li class="nav-item mb-1">
-                    <a class="nav-link sidebar-link {{ request()->routeIs('seller.dashboard') ? 'active' : '' }}"
-                    href="{{ route('seller.dashboard') }}">
-                        📊 Dashboard
-                    </a>
-                </li>
-
-                {{-- PRODUK --}}
-                <li class="nav-item mb-1">
-                    <a class="nav-link sidebar-link {{ request()->routeIs('products*') ? 'active' : '' }}"
-                    href="{{ route('seller.products.index') }}">
-                        📦 Kelola Produk
-                    </a>
-                </li>
-
-                {{-- RATING --}}
-                <li class="nav-item mb-1">
-                    <a class="nav-link sidebar-link {{ request()->routeIs('seller.ratings.index') ? 'active' : '' }}"
-                    href="/seller/ratings">
-                        ⭐ Kelola Rating
-                    </a>
-                </li>
-
-                {{-- TRANSAKSI (DROPDOWN) --}}
-                <li class="nav-item mb-1">
-
-                    <a class="nav-link sidebar-link d-flex justify-content-between align-items-center"
-                    data-bs-toggle="collapse"
-                    href="#transaksiMenu"
-                    role="button"
-                    aria-expanded="false"
-                    aria-controls="transaksiMenu">
-
-                        💰 Transaksi
-                        <span class="text-muted">▾</span>
-
-                    </a>
-
-                    <div class="collapse {{ request()->is('seller/orders*') || request()->is('seller/rentals*') ? 'show' : '' }}"
-                        id="transaksiMenu">
-
-                        <ul class="nav flex-column ms-3 mt-1">
-
-                            <li class="nav-item">
-                                <a class="nav-link sidebar-sub {{ request()->is('seller/orders*') ? 'active' : '' }}"
-                                href="/seller/orders">
-                                    🧾 Pesanan Baru
-                                </a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a class="nav-link sidebar-sub {{ request()->is('seller/rentals*') ? 'active' : '' }}"
-                                href="/seller/rentals">
-                                    🏕️ Penyewaan Alat
-                                </a>
-                            </li>
-
-                        </ul>
-
-                    </div>
-                </li>
-
-                {{-- LAPORAN (DROPDOWN) --}}
-                <li class="nav-item mb-1">
-
-                    <a class="nav-link sidebar-link d-flex justify-content-between align-items-center"
-                    data-bs-toggle="collapse"
-                    href="#laporanMenu"
-                    role="button"
-                    aria-expanded="false"
-                    aria-controls="laporanMenu">
-
-                        📊 Laporan
-                        <span class="text-muted">▾</span>
-
-                    </a>
-
-                    <div class="collapse {{ request()->is('seller/reports*') ? 'show' : '' }}"
-                        id="laporanMenu">
-
-                        <ul class="nav flex-column ms-3 mt-1">
-
-                            <li class="nav-item">
-                                <a class="nav-link sidebar-sub {{ request()->routeIs('seller.reports.sales') ? 'active' : '' }}"
-                                href="{{ route('seller.reports.sales') }}">
-                                    🛒 Laporan Penjualan
-                                </a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a class="nav-link sidebar-sub {{ request()->routeIs('seller.reports.rentals') ? 'active' : '' }}"
-                                href="{{ route('seller.reports.rentals') }}">
-                                    🏕️ Laporan Penyewaan
-                                </a>
-                            </li>
-
-                        </ul>
-
-                    </div>
-                </li>
-
-                {{-- CHAT --}}
-                <li class="nav-item mb-1">
-                    <a class="nav-link sidebar-link {{ request()->routeIs('chat.index') ? 'active' : '' }}"
-                    href="/seller/chat">
-                        💬 Chat Pembeli
-                    </a>
-                </li>
-
-            </ul>
+            <h2 class="fw-bold m-0 text-dark">Laporan Penyewaan</h2>
+            <p class="text-muted">Ringkasan transaksi penyewaan alat dan perlengkapan camping Anda.</p>
         </div>
-
-        {{-- BOTTOM --}}
-        <div class="px-3 pb-4">
-            <hr>
-            <a class="nav-link sidebar-link {{ request()->routeIs('seller.store-profile*') ? 'bg-success text-white rounded px-3 py-2' : 'text-dark' }}" href="{{ route('seller.store-profile.index') }}"">
-                👤 Profil Toko
-            </a>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-dark rounded-pill px-4" onclick="window.print()">
+                <i class="bi bi-printer me-2"></i>Cetak
+            </button>
+            <button class="btn btn-primary rounded-pill px-4 border-0" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);" onclick="exportPDF()">
+                <i class="bi bi-file-earmark-pdf me-2"></i>Export PDF
+            </button>
         </div>
-    </div>
-
-    {{-- MAIN CONTENT --}}
-    <div class="flex-grow-1 p-4" style="background:#f9fafb; min-height:100vh;">
-
-        {{-- HEADER --}}
-        <div class="d-flex justify-content-between align-items-start mb-4">
-            <div>
-                <h3 class="fw-bold mb-1">Laporan Penyewaan</h3>
-                <p class="text-muted mb-0">Ringkasan penyewaan produk Anda</p>
-            </div>
-
-            <div class="d-flex gap-2">
-                <button class="btn btn-light rounded-pill px-3" onclick="window.print()">
-                    🖨️ Cetak Laporan
-                </button>
-                <button class="btn btn-success rounded-pill px-3" onclick="exportPDF()">
-                    📄 Export PDF
-                </button>
-            </div>
-        </div>
-
-        {{-- FILTER --}}
-        <div class="card border-0 shadow-sm p-3 mb-4" style="border-radius:16px;">
-            <form method="GET" class="row g-3">
-                <div class="col-md-4">
-                    <label class="form-label">Tanggal Mulai</label>
-                    <input type="date" name="start_date" class="form-control" value="{{ $startDate }}">
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label">Tanggal Akhir</label>
-                    <input type="date" name="end_date" class="form-control" value="{{ $endDate }}">
-                </div>
-                <div class="col-md-4 d-flex align-items-end">
-                    <button type="submit" class="btn btn-primary">Filter</button>
-                </div>
-            </form>
-        </div>
-
-        {{-- SUMMARY CARDS --}}
-        <div class="row g-3 mb-4">
-            <div class="col-md-4">
-                <div class="card border-0 shadow-sm p-3" style="border-radius:16px;">
-                    <small class="text-muted">Total Pendapatan Sewa</small>
-                    <h4 class="fw-bold mt-1">Rp {{ number_format($totalRentalIncome, 0, ',', '.') }}</h4>
-                    <small class="text-success">{{ $totalRentals }} penyewaan</small>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card border-0 shadow-sm p-3" style="border-radius:16px;">
-                    <small class="text-muted">Rata-rata per Penyewaan</small>
-                    <h4 class="fw-bold mt-1">Rp {{ $totalRentals > 0 ? number_format($totalRentalIncome / $totalRentals, 0, ',', '.') : '0' }}</h4>
-                    <small class="text-primary">Per transaksi</small>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card border-0 shadow-sm p-3" style="border-radius:16px;">
-                    <small class="text-muted">Produk Tersewa</small>
-                    <h4 class="fw-bold mt-1">{{ $topRentedProducts->first()['nama_produk'] ?? '-' }}</h4>
-                    <small class="text-warning">{{ $topRentedProducts->first()['count'] ?? 0 }} kali</small>
-                </div>
-            </div>
-        </div>
-
-        <div class="row g-4">
-
-            {{-- LEFT --}}
-            <div class="col-md-8">
-
-                <h5 class="fw-bold mb-3">Detail Penyewaan</h5>
-
-                @foreach($rentals as $rental)
-                <div class="card border-0 shadow-sm p-3 mb-3" style="border-radius:14px;">
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                        <div>
-                            <strong>{{ $rental->user->name ?? 'User' }}</strong><br>
-                            <small class="text-muted">{{ $rental->product->nama_produk ?? '-' }}</small><br>
-                            <small class="text-muted">{{ $rental->tanggal_mulai->format('d M Y') }} - {{ $rental->tanggal_selesai->format('d M Y') }}</small>
-                        </div>
-                        <div class="text-end">
-                            <div class="fw-bold">Rp {{ number_format($rental->total_harga, 0, ',', '.') }}</div>
-                            <small class="badge bg-success">Selesai</small>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-6">
-                            <small class="text-muted">Durasi: {{ $rental->duration }} hari</small>
-                        </div>
-                        <div class="col-6 text-end">
-                            <small class="text-muted">Harga/hari: Rp {{ number_format($rental->price, 0, ',', '.') }}</small>
-                        </div>
-                    </div>
-                </div>
-                @endforeach
-
-                @if($rentals->isEmpty())
-                <div class="text-center py-5">
-                    <p class="text-muted">Belum ada penyewaan di periode ini</p>
-                </div>
-                @endif
-
-            </div>
-
-            {{-- RIGHT --}}
-            <div class="col-md-4">
-
-                <div class="card border-0 shadow-sm p-3 mb-3" style="border-radius:16px;">
-                    <h6 class="fw-bold mb-3">Produk Tersewa Terbanyak</h6>
-
-                    @foreach($topRentedProducts as $product)
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="small">{{ Str::limit($product['nama_produk'], 20) }}</span>
-                        <span class="badge bg-primary">{{ $product['count'] }}x</span>
-                    </div>
-                    @endforeach
-
-                    @if($topRentedProducts->isEmpty())
-                    <p class="text-muted small">Belum ada data</p>
-                    @endif
-                </div>
-
-            </div>
-
-        </div>
-
     </div>
 </div>
 
-{{-- TAMPILAN CETAK FORMAL (HIDDEN DI LAYAR) --}}
-<div class="print-only" style="display: none;">
-    {{-- HEADER LAPORAN (untuk cetak) --}}
-    <div class="report-header">
-        <div class="company-name">CAMPIFY MARKETPLACE</div>
-        <h1>LAPORAN PENYEWAAN PRODUK</h1>
-        <div class="period">
-            Periode: {{ \Carbon\Carbon::parse($startDate)->format('d M Y') }} - {{ \Carbon\Carbon::parse($endDate)->format('d M Y') }}
+{{-- FILTER SECTION --}}
+<div class="card card-modern p-4 mb-5 border-0">
+    <form method="GET" class="row g-3 align-items-end">
+        <div class="col-md-4">
+            <label class="form-label fw-bold small text-muted text-uppercase ls-1">Tanggal Mulai</label>
+            <input type="date" name="start_date" class="form-control border-0 bg-light rounded-3" value="{{ $startDate }}">
         </div>
-        <div>Dicetak pada: {{ \Carbon\Carbon::now()->format('d M Y H:i:s') }}</div>
-    </div>
+        <div class="col-md-4">
+            <label class="form-label fw-bold small text-muted text-uppercase ls-1">Tanggal Akhir</label>
+            <input type="date" name="end_date" class="form-control border-0 bg-light rounded-3" value="{{ $endDate }}">
+        </div>
+        <div class="col-md-4">
+            <button type="submit" class="btn btn-primary w-100 border-0 rounded-3 py-2" style="background: #3b82f6;">
+                <i class="bi bi-filter me-2"></i>Terapkan Filter
+            </button>
+        </div>
+    </form>
+</div>
 
-    {{-- RINGKASAN --}}
-    <div class="summary-section">
-        <div class="summary-row">
-            <div class="summary-cell">
-                <div class="summary-value">Rp {{ number_format($totalRentalIncome, 0, ',', '.') }}</div>
-                <div class="summary-label">Total Pendapatan Sewa</div>
-            </div>
-            <div class="summary-cell">
-                <div class="summary-value">{{ $totalRentals }}</div>
-                <div class="summary-label">Jumlah Penyewaan</div>
-            </div>
-            <div class="summary-cell">
-                <div class="summary-value">Rp {{ $totalRentals > 0 ? number_format($totalRentalIncome / $totalRentals, 0, ',', '.') : '0' }}</div>
-                <div class="summary-label">Rata-rata per Penyewaan</div>
-            </div>
-            <div class="summary-cell">
-                <div class="summary-value">{{ $topRentedProducts->first()['nama_produk'] ?? '-' }}</div>
-                <div class="summary-label">Produk Tersewa</div>
-            </div>
+{{-- SUMMARY CARDS --}}
+<div class="row g-4 mb-5">
+    <div class="col-md-4">
+        <div class="card card-modern p-4 border-0">
+            <small class="text-muted text-uppercase fw-bold ls-1 d-block mb-1">Total Pendapatan Sewa</small>
+            <h3 class="fw-bold m-0 text-primary">Rp {{ number_format($totalRentalIncome, 0, ',', '.') }}</h3>
+            <span class="text-primary small fw-semibold mt-2 d-block">
+                <i class="bi bi-calendar-check me-1"></i> {{ $totalRentals }} transaksi sewa
+            </span>
         </div>
     </div>
+    <div class="col-md-4">
+        <div class="card card-modern p-4 border-0">
+            <small class="text-muted text-uppercase fw-bold ls-1 d-block mb-1">Rata-rata Sewa</small>
+            <h3 class="fw-bold m-0">Rp {{ $totalRentals > 0 ? number_format($totalRentalIncome / $totalRentals, 0, ',', '.') : '0' }}</h3>
+            <span class="text-muted small fw-semibold mt-2 d-block">
+                <i class="bi bi-calculator me-1"></i> Per penyewaan
+            </span>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-modern p-4 border-0 text-white" style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);">
+            <small class="text-white-50 text-uppercase fw-bold ls-1 d-block mb-1">Produk Terfavorit</small>
+            <h4 class="fw-bold m-0 text-truncate">{{ $topRentedProducts->first()['nama_produk'] ?? '-' }}</h4>
+            <span class="text-white-50 small fw-semibold mt-2 d-block">
+                <i class="bi bi-fire me-1"></i> Disewa {{ $topRentedProducts->first()['count'] ?? 0 }} kali
+            </span>
+        </div>
+    </div>
+</div>
 
-    {{-- DETAIL PENYEWAAN --}}
-    <div class="section-header">Detail Penyewaan</div>
+<div class="row g-4">
+    {{-- DETAIL LIST --}}
+    <div class="col-md-8">
+        <h5 class="fw-bold mb-4">Detail Riwayat Penyewaan</h5>
+        
+        {{-- CARD LAPORAN FORMAL (Preview) --}}
+        <div class="card card-modern mb-5 border-0 overflow-hidden">
+            <div class="card-header bg-white p-4 border-bottom d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="fw-bold m-0">Laporan Formal (Preview Cetak)</h6>
+                    <small class="text-muted">Format resmi untuk dokumen cetak</small>
+                </div>
+                <i class="bi bi-file-earmark-medical text-muted fs-4"></i>
+            </div>
+            <div class="card-body p-5">
+                <div class="text-center mb-5">
+                    <h5 class="fw-bold mb-1">CAMPIFY MARKETPLACE</h5>
+                    <h4 class="fw-bold text-uppercase border-bottom pb-3 d-inline-block px-4">LAPORAN PENYEWAAN ALAT</h4>
+                    <div class="mt-3 small text-muted">
+                        Periode: {{ \Carbon\Carbon::parse($startDate)->format('d M Y') }} - {{ \Carbon\Carbon::parse($endDate)->format('d M Y') }}
+                    </div>
+                </div>
 
-    <table class="data-table">
-        <thead>
-            <tr>
-                <th width="5%">No</th>
-                <th width="15%">Tanggal</th>
-                <th width="20%">Penyewa</th>
-                <th width="25%">Produk</th>
-                <th width="10%">Durasi</th>
-                <th width="10%">Qty</th>
-                <th width="15%">Total</th>
-            </tr>
-        </thead>
-        <tbody>
-            @php $no = 1; @endphp
-            @foreach($rentals as $rental)
-            <tr>
-                <td class="number">{{ $no++ }}</td>
-                <td>{{ $rental->created_at->format('d/m/Y') }}</td>
-                <td>{{ $rental->user->name ?? 'N/A' }}</td>
-                <td>{{ $rental->product->nama_produk ?? '-' }}</td>
-                <td class="number">{{ $rental->duration }} hari</td>
-                <td class="number">Rp {{ number_format($rental->price, 0, ',', '.') }}</td>
-                <td class="number">Rp {{ number_format($rental->total_harga, 0, ',', '.') }}</td>
-            </tr>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-sm align-middle">
+                        <thead class="bg-light">
+                            <tr class="text-center">
+                                <th width="5%">No</th>
+                                <th width="15%">Tanggal</th>
+                                <th width="20%">Penyewa</th>
+                                <th width="30%">Produk</th>
+                                <th width="10%">Durasi</th>
+                                <th width="20%">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @php $no = 1; @endphp
+                            @foreach($rentals as $rental)
+                            <tr>
+                                <td class="text-center">{{ $no++ }}</td>
+                                <td>{{ $rental->created_at->format('d/m/Y') }}</td>
+                                <td>{{ $rental->user->name ?? '-' }}</td>
+                                <td>{{ $rental->product->nama_produk ?? '-' }}</td>
+                                <td class="text-center">{{ $rental->duration }} Hari</td>
+                                <td class="text-end fw-bold">Rp {{ number_format($rental->price * $rental->duration, 0, ',', '.') }}</td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                        <tfoot class="bg-light">
+                            <tr>
+                                <th colspan="5" class="text-end py-2 text-primary">TOTAL PENDAPATAN SEWA</th>
+                                <th class="text-end py-2 text-primary">Rp {{ number_format($totalRentalIncome, 0, ',', '.') }}</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        @foreach($rentals as $rental)
+        <div class="card card-modern p-4 mb-3 border-0">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="p-3 bg-primary bg-opacity-10 rounded-circle fs-5">🏕️</div>
+                    <div>
+                        <h6 class="fw-bold m-0">{{ $rental->user->name ?? 'User' }}</h6>
+                        <small class="text-muted">{{ $rental->product->nama_produk ?? '-' }}</small>
+                    </div>
+                </div>
+                <div class="text-end">
+                    <h5 class="fw-bold text-primary m-0">Rp {{ number_format($rental->price * $rental->duration, 0, ',', '.') }}</h5>
+                    <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 mt-1">Completed</span>
+                </div>
+            </div>
+            <div class="border-top pt-3 mt-2 d-flex justify-content-between text-muted small">
+                <span><i class="bi bi-calendar-event me-1"></i> {{ optional($rental->start_date)->format('d M') }} - {{ optional($rental->end_date)->format('d M Y') }}</span>
+                <span><i class="bi bi-clock me-1"></i> Durasi: <strong>{{ $rental->duration }} Hari</strong></span>
+                <span><i class="bi bi-tag me-1"></i> Rp {{ number_format($rental->price, 0, ',', '.') }}/Hari</span>
+            </div>
+        </div>
+        @endforeach
+
+        @if($rentals->isEmpty())
+        <div class="text-center py-5">
+            <i class="bi bi-calendar-x fs-1 text-muted d-block mb-3"></i>
+            <p class="text-muted">Belum ada riwayat penyewaan di periode ini</p>
+        </div>
+        @endif
+    </div>
+
+    {{-- BEST PRODUCTS --}}
+    <div class="col-md-4">
+        <div class="card card-modern p-4 border-0 position-sticky" style="top: 100px;">
+            <h5 class="fw-bold mb-4">Top Rented Gear</h5>
+            <p class="text-muted small mb-4">Peralatan yang paling sering disewa oleh pelanggan Anda.</p>
+
+            @foreach($topRentedProducts as $product)
+            <div class="d-flex align-items-center gap-3 mb-4">
+                <div class="bg-primary bg-opacity-10 text-primary rounded-4 p-3 fs-5">🏕️</div>
+                <div class="flex-grow-1 overflow-hidden">
+                    <h6 class="fw-bold m-0 text-truncate">{{ $product['nama_produk'] }}</h6>
+                    <small class="text-muted">{{ $product['count'] }} kali disewa</small>
+                </div>
+                <div class="text-end">
+                    <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-2">#{{ $loop->iteration }}</span>
+                </div>
+            </div>
             @endforeach
-            @if($rentals->isEmpty())
-            <tr>
-                <td colspan="7" style="text-align: center;">Tidak ada data penyewaan dalam periode ini</td>
-            </tr>
+
+            @if($topRentedProducts->isEmpty())
+            <p class="text-muted small text-center">Belum ada data penyewaan</p>
             @endif
-        </tbody>
-        <tfoot>
-            <tr>
-                <th colspan="6" style="text-align: right;">TOTAL</th>
-                <th class="number">Rp {{ number_format($totalRentalIncome, 0, ',', '.') }}</th>
-            </tr>
-        </tfoot>
-    </table>
-
-    {{-- PRODUK TERSEWA TERBANYAK --}}
-    @if($topRentedProducts->isNotEmpty())
-    <div class="section-header">Produk Tersewa Terbanyak</div>
-
-    <table class="data-table">
-        <thead>
-            <tr>
-                <th width="5%">No</th>
-                <th width="50%">Nama Produk</th>
-                <th width="15%">Jumlah Sewa</th>
-                <th width="30%">Total Pendapatan</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($topRentedProducts->take(10) as $index => $product)
-            <tr>
-                <td class="number">{{ $index + 1 }}</td>
-                <td>{{ $product['nama_produk'] }}</td>
-                <td class="number">{{ $product['count'] }}</td>
-                <td class="number">Rp {{ number_format($product['total'], 0, ',', '.') }}</td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
-    @endif
-
-    {{-- FOOTER --}}
-    <div class="report-footer">
-        <div>Laporan ini dicetak secara otomatis oleh sistem Campify</div>
-        <div class="signature">
-            <div>Mengetahui,</div>
-            <div class="signature-line"></div>
-            <div>Admin Campify</div>
         </div>
     </div>
 </div>
+
+{{-- PRINT STYLES --}}
+<style>
+    @media print {
+        .sidebar, .navbar, .btn, form, .card-modern:not(.overflow-hidden), h2, p, .no-print {
+            display: none !important;
+        }
+        .main-content { margin: 0 !important; padding: 0 !important; }
+        .card-modern.overflow-hidden { box-shadow: none !important; transform: none !important; border: none !important; }
+        body { background: white !important; }
+    }
+    .ls-1 { letter-spacing: 1px; }
+</style>
 
 <script>
-function exportPDF() {
-    // Simple print for now, can be enhanced with PDF library later
-    window.print();
-}
+    function exportPDF() { window.print(); }
 </script>
-
-<style>
-/* Print-only styling */
-@media print {
-    @page {
-        size: A4;
-        margin: 1.5cm;
-    }
-
-    body {
-        font-family: 'Times New Roman', serif;
-        font-size: 12px;
-        line-height: 1.4;
-        color: #000;
-        background: white !important;
-    }
-
-    /* Hide UI elements, show print-only content */
-    .sidebar, .btn, form, .d-flex.justify-content-between.align-items-start.mb-4 .d-flex.gap-2,
-    .navbar, .footer, .alert, .main-content {
-        display: none !important;
-    }
-
-    .print-only {
-        display: block !important;
-    }
-
-    /* Header Laporan */
-    .report-header {
-        text-align: center;
-        border-bottom: 2px solid #000;
-        padding-bottom: 20px;
-        margin-bottom: 30px;
-    }
-
-    .report-header h1 {
-        font-size: 18px;
-        font-weight: bold;
-        margin-bottom: 5px;
-        text-transform: uppercase;
-    }
-
-    .report-header .company-name {
-        font-size: 16px;
-        font-weight: bold;
-        margin-bottom: 10px;
-    }
-
-    .report-header .period {
-        font-size: 12px;
-        margin-bottom: 5px;
-    }
-
-    /* Summary Section */
-    .summary-section {
-        display: table;
-        width: 100%;
-        margin-bottom: 30px;
-        border-collapse: collapse;
-    }
-
-    .summary-row {
-        display: table-row;
-    }
-
-    .summary-cell {
-        display: table-cell;
-        width: 25%;
-        padding: 10px;
-        border: 1px solid #ddd;
-        text-align: center;
-        vertical-align: top;
-    }
-
-    .summary-value {
-        font-size: 14px;
-        font-weight: bold;
-        margin-bottom: 5px;
-    }
-
-    .summary-label {
-        font-size: 11px;
-        color: #666;
-    }
-
-    /* Section Headers */
-    .section-header {
-        font-size: 14px;
-        font-weight: bold;
-        margin: 30px 0 15px 0;
-        text-transform: uppercase;
-        border-bottom: 1px solid #000;
-        padding-bottom: 5px;
-    }
-
-    /* Data Tables */
-    .data-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-bottom: 20px;
-        font-size: 11px;
-    }
-
-    .data-table th {
-        background-color: #f5f5f5;
-        border: 1px solid #ddd;
-        padding: 8px;
-        text-align: left;
-        font-weight: bold;
-        font-size: 11px;
-    }
-
-    .data-table td {
-        border: 1px solid #ddd;
-        padding: 6px;
-        vertical-align: top;
-    }
-
-    .data-table .number {
-        text-align: right;
-    }
-
-    .data-table tfoot th {
-        background-color: #e9ecef;
-        font-weight: bold;
-    }
-
-    /* Report Footer */
-    .report-footer {
-        margin-top: 50px;
-        text-align: right;
-        font-size: 11px;
-    }
-
-    .signature {
-        margin-top: 40px;
-        text-align: center;
-    }
-
-    .signature-line {
-        border-bottom: 1px solid #000;
-        width: 150px;
-        margin: 40px auto 5px auto;
-    }
-}
-</style>
-        margin-bottom: 5px;
-    }
-
-    .summary-label {
-        font-size: 10px;
-        color: #666;
-    }
-
-    /* Tabel Data */
-    .data-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-bottom: 30px;
-        font-size: 11px;
-    }
-
-    .data-table th,
-    .data-table td {
-        border: 1px solid #000;
-        padding: 8px;
-        text-align: left;
-        vertical-align: top;
-    }
-
-    .data-table th {
-        background-color: #f5f5f5;
-        font-weight: bold;
-        text-align: center;
-    }
-
-    .data-table .number {
-        text-align: right;
-    }
-
-    /* Section Headers */
-    .section-header {
-        font-size: 14px;
-        font-weight: bold;
-        margin: 30px 0 15px 0;
-        padding-bottom: 5px;
-        border-bottom: 1px solid #000;
-        text-transform: uppercase;
-    }
-
-    /* Footer */
-    .report-footer {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        border-top: 1px solid #000;
-        padding-top: 10px;
-        font-size: 10px;
-        text-align: center;
-    }
-
-    .report-footer .signature {
-        margin-top: 40px;
-        text-align: center;
-    }
-
-    .report-footer .signature-line {
-        border-bottom: 1px solid #000;
-        width: 200px;
-        margin: 0 auto;
-        margin-top: 20px;
-    }
-
-    /* Page breaks */
-    .page-break {
-        page-break-before: always;
-    }
-
-    /* Hide elements not needed in print */
-    .no-print {
-        display: none !important;
-    }
-</style>
-
-<div class="no-print">
-    {{-- Tombol cetak tetap ditampilkan di layar --}}
-</div>
-
-{{-- HEADER LAPORAN (untuk cetak) --}}
-<div class="report-header">
-    <div class="company-name">CAMPIFY MARKETPLACE</div>
-    <h1>LAPORAN PENYEWAAN PRODUK</h1>
-    <div class="period">
-        Periode: {{ \Carbon\Carbon::parse($startDate)->format('d M Y') }} - {{ \Carbon\Carbon::parse($endDate)->format('d M Y') }}
-    </div>
-    <div>Dicetak pada: {{ \Carbon\Carbon::now()->format('d M Y H:i:s') }}</div>
-</div>
-
-{{-- RINGKASAN --}}
-<div class="summary-section">
-    <div class="summary-row">
-        <div class="summary-cell">
-            <div class="summary-value">Rp {{ number_format($totalRentalIncome, 0, ',', '.') }}</div>
-            <div class="summary-label">Total Pendapatan Sewa</div>
-        </div>
-        <div class="summary-cell">
-            <div class="summary-value">{{ $totalRentals }}</div>
-            <div class="summary-label">Jumlah Penyewaan</div>
-        </div>
-        <div class="summary-cell">
-            <div class="summary-value">Rp {{ $totalRentals > 0 ? number_format($totalRentalIncome / $totalRentals, 0, ',', '.') : '0' }}</div>
-            <div class="summary-label">Rata-rata per Penyewaan</div>
-        </div>
-        <div class="summary-cell">
-            <div class="summary-value">{{ $topRentedProducts->first()['nama_produk'] ?? '-' }}</div>
-            <div class="summary-label">Produk Tersewa</div>
-        </div>
-    </div>
-</div>
-
-{{-- DETAIL PENYEWAAN --}}
-<div class="section-header">Detail Penyewaan</div>
-
-<table class="data-table">
-    <thead>
-        <tr>
-            <th width="5%">No</th>
-            <th width="15%">Tanggal</th>
-            <th width="20%">Penyewa</th>
-            <th width="25%">Produk</th>
-            <th width="10%">Durasi</th>
-            <th width="10%">Qty</th>
-            <th width="15%">Total</th>
-        </tr>
-    </thead>
-    <tbody>
-        @php $no = 1; @endphp
-        @foreach($rentals as $rental)
-        <tr>
-            <td class="number">{{ $no++ }}</td>
-            <td>{{ $rental->created_at->format('d/m/Y') }}</td>
-            <td>{{ $rental->user->name ?? 'N/A' }}</td>
-            <td>{{ $rental->product->nama_produk ?? '-' }}</td>
-            <td class="number">{{ $rental->duration ?? 1 }} hari</td>
-            <td class="number">1</td>
-            <td class="number">Rp {{ number_format($rental->price ?? $rental->total_harga, 0, ',', '.') }}</td>
-        </tr>
-        @endforeach
-        @if($rentals->isEmpty())
-        <tr>
-            <td colspan="7" style="text-align: center;">Tidak ada data penyewaan dalam periode ini</td>
-        </tr>
-        @endif
-    </tbody>
-    <tfoot>
-        <tr>
-            <th colspan="6" style="text-align: right;">TOTAL</th>
-            <th class="number">Rp {{ number_format($totalRentalIncome, 0, ',', '.') }}</th>
-        </tr>
-    </tfoot>
-</table>
-
-{{-- PRODUK TERSEWA TERBANYAK --}}
-@if($topRentedProducts->isNotEmpty())
-<div class="section-header">Produk Tersewa Terbanyak</div>
-
-<table class="data-table">
-    <thead>
-        <tr>
-            <th width="5%">No</th>
-            <th width="50%">Nama Produk</th>
-            <th width="15%">Jumlah Sewa</th>
-            <th width="30%">Total Pendapatan</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach($topRentedProducts->take(10) as $index => $product)
-        <tr>
-            <td class="number">{{ $index + 1 }}</td>
-            <td>{{ $product['nama_produk'] }}</td>
-            <td class="number">{{ $product['count'] }}</td>
-            <td class="number">Rp {{ number_format($product['total'], 0, ',', '.') }}</td>
-        </tr>
-        @endforeach
-    </tbody>
-</table>
-@endif
-
-{{-- FOOTER --}}
-<div class="report-footer">
-    <div>Laporan ini dicetak secara otomatis oleh sistem Campify</div>
-    <div class="signature">
-        <div>Mengetahui,</div>
-        <div class="signature-line"></div>
-        <div>Admin Campify</div>
-    </div>
-</div>
+@endsection
