@@ -22,9 +22,9 @@
 </div>
 
 {{-- STATS CARDS --}}
-<div class="row g-4 mb-5">
+<div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-6 g-4 mb-5">
     {{-- Revenue --}}
-    <div class="col-md-3">
+    <div class="col">
         <div class="card card-modern p-4 h-100 border-0 shadow-sm position-relative overflow-hidden">
             <div class="position-absolute top-0 end-0 p-3 opacity-10 fs-1 text-emerald">💰</div>
             <small class="text-muted text-uppercase fw-bold ls-1 mb-2 d-block" style="font-size: 0.7rem;">Total Pendapatan</small>
@@ -42,7 +42,7 @@
     </div>
 
     {{-- Orders --}}
-    <div class="col-md-3">
+    <div class="col">
         <div class="card card-modern p-4 h-100 border-0 shadow-sm position-relative overflow-hidden">
             <div class="position-absolute top-0 end-0 p-3 opacity-10 fs-1 text-warning">🧾</div>
             <small class="text-muted text-uppercase fw-bold ls-1 mb-2 d-block" style="font-size: 0.7rem;">Pesanan Berjalan</small>
@@ -53,10 +53,22 @@
         </div>
     </div>
 
-    {{-- Rented Gear --}}
-    <div class="col-md-3">
+    {{-- Barang Terjual --}}
+    <div class="col">
         <div class="card card-modern p-4 h-100 border-0 shadow-sm position-relative overflow-hidden">
-            <div class="position-absolute top-0 end-0 p-3 opacity-10 fs-1 text-primary">🏕️</div>
+            <div class="position-absolute top-0 end-0 p-3 opacity-10 fs-1 text-info">🛍️</div>
+            <small class="text-muted text-uppercase fw-bold ls-1 mb-2 d-block" style="font-size: 0.7rem;">Barang Terjual</small>
+            <h3 class="fw-bold mb-2 text-dark">{{ $soldItemsCount }}</h3>
+            <span class="text-info small fw-semibold">
+                Unit berhasil dibeli
+            </span>
+        </div>
+    </div>
+
+    {{-- Rented Gear --}}
+    <div class="col">
+        <div class="card card-modern p-4 h-100 border-0 shadow-sm position-relative overflow-hidden">
+            <div class="position-absolute top-0 end-0 p-3 opacity-10 fs-1 text-primary">⛺</div>
             <small class="text-muted text-uppercase fw-bold ls-1 mb-2 d-block" style="font-size: 0.7rem;">Alat Disewa</small>
             <h3 class="fw-bold mb-2 text-dark">{{ $rentedGearCount }}</h3>
             <span class="text-primary small fw-semibold">
@@ -65,8 +77,20 @@
         </div>
     </div>
 
+    {{-- Completed Rental Funds --}}
+    <div class="col">
+        <div class="card card-modern p-4 h-100 border-0 shadow-sm position-relative overflow-hidden">
+            <div class="position-absolute top-0 end-0 p-3 opacity-10 fs-1 text-success">🏕️</div>
+            <small class="text-muted text-uppercase fw-bold ls-1 mb-2 d-block" style="font-size: 0.7rem;">Dana Sewa Selesai</small>
+            <h3 class="fw-bold mb-2 text-dark">Rp {{ number_format($completedRentalFunds,0,',','.') }}</h3>
+            <span class="text-success small fw-semibold">
+                Diterima dari Admin
+            </span>
+        </div>
+    </div>
+
     {{-- Rating --}}
-    <div class="col-md-3">
+    <div class="col">
         <div class="card card-modern p-4 h-100 border-0 shadow-sm position-relative overflow-hidden" style="background: linear-gradient(135deg, #111827 0%, #1f2937 100%);">
             <div class="position-absolute top-0 end-0 p-3 opacity-20 fs-1 text-warning">⭐</div>
             <small class="text-white-50 text-uppercase fw-bold ls-1 mb-2 d-block" style="font-size: 0.7rem;">Reputasi Toko</small>

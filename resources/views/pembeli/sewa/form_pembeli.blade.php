@@ -100,17 +100,17 @@
 
 
                         <div id="info_transfer" class="hidden space-y-2">
-                            @if($produk->store && $produk->store->bank_account_number)
+                            @if(isset($admin) && $admin->bank_account_number)
                             <div class="flex items-center justify-between p-3 bg-white rounded-xl border border-emerald-100">
                                 <div>
-                                    <p class="text-[10px] font-bold text-slate-400 uppercase">{{ $produk->store->bank_name ?? 'Transfer Bank' }}</p>
-                                    <p class="font-black text-slate-800 text-lg">{{ $produk->store->bank_account_number }}</p>
-                                    <p class="text-xs text-slate-500">a/n {{ $produk->store->bank_account_name }}</p>
+                                    <p class="text-[10px] font-bold text-slate-400 uppercase">{{ $admin->bank_name ?? 'Transfer Bank' }}</p>
+                                    <p class="font-black text-slate-800 text-lg">{{ $admin->bank_account_number }}</p>
+                                    <p class="text-xs text-slate-500">a/n {{ $admin->bank_account_name }}</p>
                                 </div>
-                                <button type="button" onclick="copyToClipboard('{{ $produk->store->bank_account_number }}')" class="text-emerald-600 font-bold text-xs hover:underline">Salin</button>
+                                <button type="button" onclick="copyToClipboard('{{ $admin->bank_account_number }}')" class="text-emerald-600 font-bold text-xs hover:underline">Salin</button>
                             </div>
                             @else
-                            <p class="text-sm text-slate-500 italic">Seller belum mengatur informasi rekening.</p>
+                            <p class="text-sm text-slate-500 italic">Admin belum mengatur informasi rekening tujuan.</p>
                             @endif
                         </div>
 
@@ -120,7 +120,7 @@
                     </div>
                 </div>
 
-                <div class="pt-4 border-t border-slate-100">
+                <div id="bukti_pembayaran_section" class="pt-4 border-t border-slate-100">
                     <h3 class="font-bold text-lg mb-3 uppercase tracking-wider text-slate-800">Bukti Pembayaran</h3>
                     <div class="p-4 bg-slate-50 rounded-xl border border-dashed border-slate-300 text-center">
                         <label class="block text-sm font-semibold mb-2 text-slate-600">Unggah Bukti Transfer / QRIS</label>
@@ -252,16 +252,34 @@ document.addEventListener('DOMContentLoaded', function() {
     const infoBox = document.getElementById('payment_info_box');
     const infoTransfer = document.getElementById('info_transfer');
     const infoCod = document.getElementById('info_cod');
+    const buktiPembayaranSection = document.getElementById('bukti_pembayaran_section');
+    const buktiInput = document.querySelector('input[name="bukti_pembayaran"]');
 
     function updatePaymentInfo() {
         const selected = document.querySelector('input[name="metode_pembayaran"]:checked').value;
         infoBox.classList.remove('hidden');
         infoTransfer.classList.add('hidden');
         infoCod.classList.add('hidden');
-
-        if(selected === 'transfer') infoTransfer.classList.remove('hidden');
-        if(selected === 'cod') infoCod.classList.remove('hidden');
+        
+        if(buktiPembayaranSection) {
+            if(selected === 'transfer') {
+                infoTransfer.classList.remove('hidden');
+                buktiPembayaranSection.classList.remove('hidden');
+                buktiInput.required = true;
+            } else if(selected === 'cod') {
+                infoCod.classList.remove('hidden');
+                buktiPembayaranSection.classList.add('hidden');
+                buktiInput.required = false;
+            }
+        }
     }
+
+    paymentRadios.forEach(radio => {
+        radio.addEventListener('change', updatePaymentInfo);
+    });
+
+    // Initialize state
+    updatePaymentInfo();
 
     // Data Alamat Dinamis (Sync with Profile)
     const dataAlamat = [

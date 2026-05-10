@@ -18,7 +18,8 @@ class PembeliProductController extends Controller
     {
         $produk = Product_pembeli::with('store')->findOrFail($id);
         $user = auth()->user();
-        return view('pembeli.sewa.form_pembeli', compact('produk', 'user'));
+        $admin = \App\Models\User::where('role', 'admin')->first();
+        return view('pembeli.sewa.form_pembeli', compact('produk', 'user', 'admin'));
     }
 
     // ================= PROSES SEWA =================
@@ -35,8 +36,8 @@ class PembeliProductController extends Controller
             'kode_pos' => 'required|string',
             'telepon' => 'required|string',
             'metode_pengiriman' => 'required|in:kurir,standar',
-            'metode_pembayaran' => 'required|in:qris,va,cod',
-            'bukti_pembayaran' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'metode_pembayaran' => 'required|in:qris,va,cod,transfer',
+            'bukti_pembayaran' => 'required_unless:metode_pembayaran,cod|nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'ktp_image' => Auth::user()->ktp_image ? 'nullable|image|max:2048' : 'required|image|max:2048',
         ]);
 

@@ -71,6 +71,19 @@ class DashboardController_seller extends Controller
         $stockScore = $totalStock > 0 ? 100 : 0;
         $chatScore = 90; // Placeholder
 
+        // 8. Hitung Dana Penyewaan Selesai (dari Admin)
+        $completedRentalFunds = \Illuminate\Support\Facades\DB::table('returns')
+            ->join('rentals', 'returns.rental_id', '=', 'rentals.id')
+            ->whereIn('rentals.product_id', $productIds)
+            ->where('returns.type', 'sewa')
+            ->where('returns.status', 'completed')
+            ->sum('returns.to_seller');
+
+        // 9. Hitung Barang Terjual (Buy)
+        $soldItemsCount = $ordersDone->sum(function($o) use ($productIds) {
+            return $o->details->whereIn('product_id', $productIds)->where('type', 'buy')->sum('qty');
+        });
+
         return view('SellerView.seller.dashboard_seller', compact(
             'products',
             'orders',
@@ -87,7 +100,9 @@ class DashboardController_seller extends Controller
             'qualityScore',
             'stockScore',
             'chatScore',
-            'trendUp'
+            'trendUp',
+            'completedRentalFunds',
+            'soldItemsCount'
         ));
     }
 }

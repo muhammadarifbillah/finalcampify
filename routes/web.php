@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\ChatbotController;
 use App\Http\Controllers\Admin\MonitoringController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\ReturnEscrowController;
+use App\Http\Controllers\Admin\SettingsController;
 
 use App\Http\Controllers\Pembeli\PembeliHomeController;
 use App\Http\Controllers\Pembeli\PembeliProductController;
@@ -117,8 +118,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::post('/returns/{returnEscrow}/message', [ReturnEscrowController::class, 'sendMediationMessage'])->name('admin.returns.message');
     Route::post('/returns/{returnEscrow}/finalize', [ReturnEscrowController::class, 'finalize'])->name('admin.returns.finalize');
 
-    Route::view('/settings', 'admin.settings')->name('admin.settings');
-
+    Route::get('/settings', [SettingsController::class, 'index'])->name('admin.settings');
+    Route::post('/settings', [SettingsController::class, 'update'])->name('admin.settings.update');
     // 💬 CHAT
     Route::get('/chats', [ChatController::class, 'index']);
     Route::get('/chats/flag/{id}', [ChatController::class, 'flag']);

@@ -65,9 +65,15 @@ class RentalController_seller extends Controller
             }
         }
 
-        // Jika seller set ke completed, otomatis anggap denda & order selesai
-        if ($request->status === 'completed' && $rental->order) {
-            $rental->order->update(['status' => 'selesai']);
+        // Sync status ke tabel orders agar pembeli melihat perubahan
+        if ($rental->order) {
+            if ($request->status === 'active') {
+                $rental->order->update(['status' => 'diproses']);
+            } elseif ($request->status === 'completed') {
+                $rental->order->update(['status' => 'selesai']);
+            } elseif ($request->status === 'cancelled') {
+                $rental->order->update(['status' => 'dibatalkan']);
+            }
         }
 
         return redirect('/seller/rentals')->with('success', 'Penyewaan berhasil diupdate');
@@ -92,4 +98,8 @@ class RentalController_seller extends Controller
                     ->orWhereHas('store', fn ($store) => $store->where('user_id', \Illuminate\Support\Facades\Auth::id()));
             });
     }
-}
+}       return Rental_seller::with(['product', 'user', 'order'])
+            ->whereHas('product', function ($query) {
+                $query->where('user_id', \Illuminate\Support\Facades\Auth::id())
+                    ->orWhereHas('store', fn ($store) => $store->where('user_id', \Illuminate\Support\Facades\Auth::id()));
+            });
