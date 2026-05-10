@@ -29,7 +29,7 @@
                     </div>
                     <div class="flex justify-between items-center py-3 border-b border-gray-50">
                         <span class="text-sm text-gray-500 font-medium">Pemilik Toko</span>
-                        <span class="text-sm font-bold text-gray-900">{{ $return->order->details->first()->product->store->nama_toko }}</span>
+                        <span class="text-sm font-bold text-gray-900">{{ $return->order->details->first()->product->store?->nama_toko ?? 'Toko' }}</span>
                     </div>
                     <div class="flex justify-between items-center py-3 border-b border-gray-50">
                         <span class="text-sm text-gray-500 font-medium">Tanggal Sewa</span>
@@ -49,8 +49,8 @@
                         <i data-lucide="package" style="width: 24px; height: 24px;" class="text-gray-300"></i>
                     </div>
                     <div>
-                        <div class="text-sm font-bold text-gray-900">{{ $return->order->details->first()->product->name }}</div>
-                        <div class="text-[10px] text-gray-500 uppercase font-black tracking-widest">{{ $return->order->details->first()->product->category->name ?? 'Kategori' }}</div>
+                        <div class="text-sm font-bold text-gray-900">{{ $return->order->details->first()->product->name ?? '-' }}</div>
+                        <div class="text-[10px] text-gray-500 uppercase font-black tracking-widest">{{ $return->order->details->first()->product->category?->name ?? 'Kategori' }}</div>
                     </div>
                 </div>
             </div>

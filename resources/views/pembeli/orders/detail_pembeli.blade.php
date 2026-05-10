@@ -154,10 +154,6 @@
                 </div>
             </div>
 
-            <!-- PRODUK LIST -->
-            <div>
-                <h2 class="font-semibold text-lg mb-4">Daftar Produk</h2>
-
             <!-- DAFTAR ITEM -->
             <div>
                 <h2 class="font-semibold text-lg mb-4 text-slate-800">Daftar Item</h2>
@@ -240,7 +236,7 @@
                                             </div>
                                             <div>
                                                 @php
-                                                    $deposit = $produk->buy_price * 0.5;
+                                                    $deposit = $produk->buy_price * 0.25;
                                                 @endphp
                                                 <p class="text-xs text-slate-500 uppercase font-semibold">Dana Jaminan (Escrow)</p>
                                                 <p class="font-bold text-blue-600">Rp {{ number_format($deposit) }}</p>

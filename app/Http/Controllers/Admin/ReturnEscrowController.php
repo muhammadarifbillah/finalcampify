@@ -89,6 +89,38 @@ class ReturnEscrowController extends Controller
         exit;
     }
 
+    public function exportJualBeli()
+    {
+        $returns = ReturnEscrow::with(['order.user', 'order.details.product'])
+            ->where('type', 'jual_beli')
+            ->latest()
+            ->get();
+
+        $filename = "pengembalian-jual-beli-" . now()->format('Y-m-d') . ".csv";
+        $handle = fopen('php://output', 'w');
+        
+        header('Content-Type: text/csv');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+
+        fputcsv($handle, ['ID Return', 'Produk', 'Pembeli', 'Escrow Total', 'Potongan (Fee)', 'Cair ke Penjual', 'Refund ke Pembeli', 'Status']);
+
+        foreach ($returns as $item) {
+            fputcsv($handle, [
+                '#RET-' . (88200 + $item->id),
+                $item->order->details->first()->product->name ?? '-',
+                $item->order->user->name ?? '-',
+                $item->escrow_total,
+                $item->damage_fee,
+                $item->to_seller,
+                $item->to_buyer,
+                strtoupper($item->status)
+            ]);
+        }
+
+        fclose($handle);
+        exit;
+    }
+
     public function index(Request $request)
     {
         return redirect()->route('admin.returns.jual_beli');
@@ -109,8 +141,9 @@ class ReturnEscrowController extends Controller
             $product = $order->details->first()->product ?? null;
             
             if ($product) {
+                $sellerId = $product->store?->user_id ?? $product->user_id;
                 $conversation = \App\Models\Conversation::where('buyer_id', $order->user_id)
-                    ->where('seller_id', $product->store->user_id)
+                    ->where('seller_id', $sellerId)
                     ->where('product_id', $product->id)
                     ->with(['messages.sender'])
                     ->first();
@@ -137,14 +170,15 @@ class ReturnEscrowController extends Controller
             $product = $order->details->first()->product ?? null;
             
             if ($product) {
+                $sellerId = $product->store?->user_id ?? $product->user_id;
                 $conversation = \App\Models\Conversation::where('buyer_id', $order->user_id)
-                    ->where('seller_id', $product->store->user_id)
+                    ->where('seller_id', $sellerId)
                     ->where('product_id', $product->id)
                     ->with(['messages.sender'])
                     ->first();
             }
 
-            if ($returnEscrow->status === 'dispute') {
+            if ($returnEscrow->status === 'dispute' || ($returnEscrow->status === 'completed' && ($returnEscrow->damage_fee > 0 || !empty($returnEscrow->dispute_chat_log)))) {
                 return view('admin.returns.show_jual_beli_dispute', [
                     'return' => $returnEscrow,
                     'statuses' => ReturnEscrow::STATUSES,
@@ -206,8 +240,10 @@ class ReturnEscrowController extends Controller
         $settlement->finalize($returnEscrow, $data['final_status']);
         $returnEscrow->save();
 
+        $redirectRoute = $returnEscrow->type === 'jual_beli' ? 'admin.returns.jual_beli' : 'admin.returns.sewa';
+
         return redirect()
-            ->route('admin.returns.sewa')
+            ->route($redirectRoute)
             ->with('success', 'Settlement berhasil disimpan dan transaksi diselesaikan.');
     }
 

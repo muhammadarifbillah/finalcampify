@@ -19,9 +19,9 @@
             <h1 class="admin-section-title text-2xl font-bold">Retur Jual-Beli</h1>
             <p class="admin-section-subtitle text-gray-500">Kelola permintaan pengembalian dana dan barang dari transaksi marketplace.</p>
         </div>
-        <button class="admin-button admin-button-primary bg-[#0f6b52] hover:bg-[#0c5843] text-white flex items-center gap-2">
+        <a href="{{ route('admin.returns.export.jual_beli') }}" class="admin-button admin-button-primary bg-[#0f6b52] hover:bg-[#0c5843] text-white flex items-center gap-2">
             <i data-lucide="download" style="width: 16px; height: 16px;"></i> Export Laporan
-        </button>
+        </a>
     </div>
 
     <!-- Stats -->
@@ -43,8 +43,8 @@
         <div class="admin-card p-5 border border-green-100 shadow-sm flex flex-col justify-between rounded-xl">
             <div class="text-[10px] font-bold text-gray-400 tracking-wider uppercase mb-3">Escrow Tertahan</div>
             <div class="flex items-end gap-2">
-                <span class="text-4xl font-extrabold text-gray-800">Rp{{ number_format($escrowTertahan / 1000000, 0, ',', '.') }}M</span>
-                <span class="text-[11px] text-gray-500 mb-1 leading-tight flex flex-col"><span>Active</span><span>Pool</span></span>
+                <span class="text-3xl font-extrabold text-gray-800">Rp {{ number_format($escrowTertahan, 0, ',', '.') }}</span>
+                <span class="text-[11px] text-gray-500 mb-1 leading-tight flex flex-col"><span>Total</span><span>Active</span></span>
             </div>
         </div>
         <div class="admin-card p-5 border border-green-100 shadow-sm flex flex-col justify-between rounded-xl">
@@ -126,7 +126,7 @@
                         <tr class="hover:bg-gray-50">
                             <td class="py-4 px-6">
                                 <div class="font-bold text-[#0f6b52] text-[13px]">#RET-{{ 88200 + $item->id }}</div>
-                                <div class="text-[9px] text-gray-400 mt-0.5">{{ $item->created_at->format('d Okt Y, H:i') }}</div>
+                                <div class="text-[9px] text-gray-400 mt-0.5">{{ $item->created_at->isoFormat('D MMM Y, HH:mm') }}</div>
                             </td>
                             <td class="py-4 px-6 text-gray-600 text-[13px] font-medium">ORD-{{ 22900000 + $item->order_id }}</td>
                             <td class="py-4 px-6">
@@ -135,17 +135,19 @@
                             </td>
                             <td class="py-4 px-6 font-semibold text-gray-700 text-center text-[14px]">Rp{{ number_format((int) $item->escrow_total, 0, ',', '.') }}</td>
                             <td class="py-4 px-6 text-center">
-                                @if($item->status == 'dispute')
-                                    <span class="inline-block px-3 py-1 text-[9px] font-bold uppercase tracking-wider rounded-full bg-red-100 text-red-600 border border-red-200">Mediation</span>
-                                @elseif($item->status == 'pending')
-                                    <span class="inline-block px-3 py-1 text-[9px] font-bold uppercase tracking-wider rounded-full bg-blue-100 text-blue-600 border border-blue-200">Pending</span>
-                                @elseif($item->status == 'checking')
-                                    <span class="inline-block px-3 py-1 text-[9px] font-bold uppercase tracking-wider rounded-full bg-green-100 text-green-600 border border-green-200">Approved</span>
-                                @elseif($item->status == 'rejected')
-                                    <span class="inline-block px-3 py-1 text-[9px] font-bold uppercase tracking-wider rounded-full bg-red-100 text-red-600 border border-red-200">Rejected</span>
-                                @elseif($item->status == 'completed')
-                                    <span class="inline-block px-3 py-1 text-[9px] font-bold uppercase tracking-wider rounded-full bg-gray-200 text-gray-600 border border-gray-300">Completed</span>
-                                @endif
+                                @php
+                                    $statusClass = $badgeMap[$item->status] ?? 'admin-badge-muted';
+                                    $statusLabel = [
+                                        'pending' => 'Pending',
+                                        'dispute' => 'Sengketa',
+                                        'checking' => 'Checking',
+                                        'completed' => 'Selesai',
+                                        'rejected' => 'Ditolak',
+                                    ][$item->status] ?? ucfirst($item->status);
+                                @endphp
+                                <span class="inline-block px-3 py-1 text-[9px] font-bold uppercase tracking-wider rounded-full {{ $statusClass }} border">
+                                    {{ $statusLabel }}
+                                </span>
                             </td>
                             <td class="py-4 px-6 text-center">
                                 @if($item->status == 'dispute')

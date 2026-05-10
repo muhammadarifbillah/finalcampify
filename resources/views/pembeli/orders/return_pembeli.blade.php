@@ -44,8 +44,8 @@
                             <p class="text-sm font-bold text-slate-800">Rp {{ number_format($detail->harga) }}</p>
                         </div>
                         <div class="space-y-1">
-                            <label class="block text-[10px] font-black text-emerald-500 uppercase tracking-widest">Dana Jaminan (50%)</label>
-                            <p class="text-sm font-bold text-emerald-600">Rp {{ number_format($detail->product->buy_price * 0.5) }}</p>
+                            <label class="block text-[10px] font-black text-emerald-500 uppercase tracking-widest">Dana Jaminan (25%)</label>
+                            <p class="text-sm font-bold text-emerald-600">Rp {{ number_format($detail->product->buy_price * 0.25) }}</p>
                             <p class="text-[8px] text-slate-400 leading-tight">*Akan dikembalikan utuh jika barang aman.</p>
                         </div>
                     </div>
@@ -154,7 +154,7 @@
                     </form>
                 </div>
 
-            @elseif($rental->status === 'completed')
+            @elseif($rental && in_array($rental->status, ['completed', 'selesai', 'returned', 'denda_dibayar']))
                 {{-- STATUS: SELESAI --}}
                 <div class="text-center py-10">
                     <div class="w-20 h-20 bg-emerald-500 text-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-emerald-200">

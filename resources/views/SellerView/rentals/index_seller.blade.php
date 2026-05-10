@@ -104,7 +104,7 @@
                         <div>
                             <small class="text-muted text-uppercase fw-bold ls-1 d-block mb-1">Total Biaya Sewa</small>
                             <h4 class="fw-bold text-primary mb-1">Rp {{ number_format($rental->price, 0, ',', '.') }}</h4>
-                            <div class="text-muted small mb-3">Escrow: Rp {{ number_format($rental->product->buy_price * 0.5, 0, ',', '.') }}</div>
+                            <div class="text-muted small mb-3">Escrow: Rp {{ number_format($rental->product->buy_price * 0.25, 0, ',', '.') }}</div>
                         </div>
                         
                         <div class="d-grid gap-2">

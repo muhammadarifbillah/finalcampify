@@ -29,7 +29,7 @@
                     </div>
                     <div class="flex justify-between items-center py-3 border-b border-gray-50">
                         <span class="text-sm text-gray-500 font-medium">Toko Penjual</span>
-                        <span class="text-sm font-bold text-gray-900">{{ $return->order->details->first()->product->store->nama_toko }}</span>
+                        <span class="text-sm font-bold text-gray-900">{{ $return->order->details->first()->product->store?->nama_toko ?? 'Toko' }}</span>
                     </div>
                     <div class="flex justify-between items-center py-3 border-b border-gray-50">
                         <span class="text-sm text-gray-500 font-medium">Tanggal Transaksi</span>
@@ -49,8 +49,8 @@
                         <i data-lucide="package" style="width: 24px; height: 24px;" class="text-gray-300"></i>
                     </div>
                     <div>
-                        <div class="text-sm font-bold text-gray-900">{{ $return->order->details->first()->product->name }}</div>
-                        <div class="text-[10px] text-gray-500 uppercase font-black tracking-widest">{{ $return->order->details->first()->product->store->nama_toko }}</div>
+                        <div class="text-sm font-bold text-gray-900">{{ $return->order->details->first()->product->name ?? '-' }}</div>
+                        <div class="text-[10px] text-gray-500 uppercase font-black tracking-widest">{{ $return->order->details->first()->product->store?->nama_toko ?? 'Toko' }}</div>
                     </div>
                 </div>
             </div>
@@ -67,9 +67,15 @@
                 </div>
 
                 <div class="space-y-4">
+                    @if($return->to_seller > 0)
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-gray-500 font-medium">Kompensasi Penjual</span>
+                            <span class="font-bold text-gray-900">Rp {{ number_format((int)$return->to_seller, 0, ',', '.') }}</span>
+                        </div>
+                    @endif
                     <div class="flex justify-between items-center text-sm pt-4 border-t border-dashed border-gray-100">
-                        <span class="text-gray-500 font-bold italic">Refund ke Pembeli (Penuh)</span>
-                        <span class="text-lg font-black text-[#0f6b52]">Rp {{ number_format((int)$return->escrow_total, 0, ',', '.') }}</span>
+                        <span class="text-gray-500 font-bold italic">Refund ke Pembeli</span>
+                        <span class="text-lg font-black text-[#0f6b52]">Rp {{ number_format((int)$return->to_buyer, 0, ',', '.') }}</span>
                     </div>
                 </div>
             </div>

@@ -89,11 +89,11 @@
                                 <div class="group relative">
                                     <span class="cursor-help text-blue-400 text-xs">ⓘ</span>
                                     <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-48 p-2 bg-slate-900 text-white text-[10px] rounded-lg shadow-xl z-20">
-                                        Dana ini adalah deposit 50% dari harga beli produk (Rp {{ number_format($produk->buy_price) }}) yang akan dikembalikan utuh jika barang kembali aman.
+                                        Dana ini adalah deposit 25% dari harga beli produk (Rp {{ number_format($produk->buy_price) }}) yang akan dikembalikan utuh jika barang kembali aman.
                                     </div>
                                 </div>
                             </div>
-                            <p class="text-xl font-black text-blue-700">Rp {{ number_format($produk->buy_price * 0.5) }}</p>
+                            <p class="text-xl font-black text-blue-700">Rp {{ number_format($produk->buy_price * 0.25) }}</p>
                             <p class="text-[9px] text-blue-500 italic mt-1">*Dibayarkan sekali di awal, kembali utuh di akhir.</p>
                         </div>
                     </div>

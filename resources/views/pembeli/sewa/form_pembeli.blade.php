@@ -172,10 +172,10 @@
                         </div>
                         <div class="flex justify-between items-center text-sm">
                             <div class="flex flex-col">
-                                <span class="text-slate-500 font-medium">Dana Jaminan (Keamanan 50%)</span>
-                                <span class="text-[9px] text-slate-400 leading-tight">*Dihitung dari 50% harga barang (Rp {{ number_format($produk->buy_price) }})</span>
+                                <span class="text-slate-500 font-medium">Dana Jaminan (Keamanan 25%)</span>
+                                <span class="text-[9px] text-slate-400 leading-tight">*Dihitung dari 25% harga barang (Rp {{ number_format($produk->buy_price) }})</span>
                             </div>
-                            @php $deposit = $produk->buy_price * 0.5; @endphp
+                            @php $deposit = $produk->buy_price * 0.25; @endphp
                             <span class="font-bold text-blue-600">Rp {{ number_format($deposit) }}</span>
                         </div>
                         <div class="pt-3 border-t border-dashed border-slate-200 flex justify-between items-center">
@@ -221,7 +221,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Hitung dan update subtotal
             const rentPrice = {{ $produk->rent_price ?? 0 }};
             const buyPrice = {{ $produk->buy_price ?? 0 }};
-            const deposit = buyPrice * 0.5;
+            const deposit = buyPrice * 0.25;
             const rentalFee = rentPrice * durationInput.value;
             const total = rentalFee + deposit;
 

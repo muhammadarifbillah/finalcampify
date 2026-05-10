@@ -120,7 +120,7 @@
                         if ($conversation && $conversation->messages->count() > 0) {
                             foreach ($conversation->messages as $msg) {
                                 $messagesToShow[] = [
-                                    'sender' => ($msg->sender_id === $return->order->user_id ? 'renter' : ($msg->sender_id === $return->order->details->first()->product->store->user_id ? 'owner' : 'admin')),
+                                    'sender' => ($msg->sender_id === $return->order->user_id ? 'renter' : ($msg->sender_id === ($return->order->details->first()->product->store?->user_id ?? $return->order->details->first()->product->user_id) ? 'owner' : 'admin')),
                                     'name' => $msg->sender->name,
                                     'message' => $msg->message,
                                     'time' => $msg->created_at->format('H:i')
@@ -202,7 +202,7 @@
                             <div class="text-sm font-black text-gray-900">Rp {{ number_format((int)$return->rental_fee_amount, 0, ',', '.') }}</div>
                         </div>
                         <div class="bg-white p-4 rounded-xl border border-gray-100 text-center space-y-1 shadow-sm">
-                            <div class="text-[8px] font-black text-emerald-600 uppercase tracking-widest">Dana Jaminan (50%)</div>
+                            <div class="text-[8px] font-black text-emerald-600 uppercase tracking-widest">Dana Jaminan (25%)</div>
                             <div class="text-sm font-black text-emerald-700">Rp {{ number_format((int)$return->deposit_amount, 0, ',', '.') }}</div>
                         </div>
                     </div>
