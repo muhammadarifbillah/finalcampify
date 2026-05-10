@@ -33,6 +33,7 @@ class DatabaseSeeder extends Seeder
             ChatbotResponseSeeder::class,
             ArticleSeeder::class,
             SellerStoreProductSeeder::class,
+            ProductUnsplashSeeder::class,
             BuyerOrderChatReportSeeder::class,
             ReturnComprehensiveSeeder::class,
         ]);

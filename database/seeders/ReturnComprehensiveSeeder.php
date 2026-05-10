@@ -6,18 +6,17 @@ use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\Product;
 use App\Models\ReturnEscrow;
-use App\Models\Store;
 use App\Models\User;
 use App\Models\Conversation;
 use App\Models\Message;
 use Illuminate\Database\Seeder;
-use Carbon\Carbon;
 
 class ReturnComprehensiveSeeder extends Seeder
 {
     public function run(): void
     {
         $buyers = User::where('role', 'buyer')->get();
+
         $sellers = User::where('role', 'seller')
             ->has('store')
             ->with('store')
@@ -64,7 +63,9 @@ class ReturnComprehensiveSeeder extends Seeder
                 ->first()
                 ?? Product::where('jenis_produk', 'jual')->first();
 
-            if (!$product) continue;
+            if (!$product) {
+                continue;
+            }
 
             $order = Order::create([
                 'user_id' => $buyer->id,
@@ -98,7 +99,7 @@ class ReturnComprehensiveSeeder extends Seeder
 
     private function seedSewaReturns($buyers, $sellers)
     {
-        // REALISTIC DISPUTE SCENARIO
+        // SCENARIO 1
         $buyer = $buyers->where('email', 'agus.pratama@gmail.com')->first()
             ?? $buyers->first();
 
@@ -183,22 +184,18 @@ class ReturnComprehensiveSeeder extends Seeder
                 'product_id' => $product->id,
             ]);
 
-            // Hindari duplicate message
             if ($conv->messages()->count() == 0) {
 
                 foreach ($chatLog as $log) {
 
                     Message::create([
                         'conversation_id' => $conv->id,
-
                         'sender_id' => (
                             $log['sender'] === 'renter'
                                 ? $buyer->id
                                 : $seller->id
                         ),
-
                         'message' => $log['message'],
-
                         'created_at' => now()->subDays(1),
                     ]);
                 }
@@ -218,7 +215,6 @@ class ReturnComprehensiveSeeder extends Seeder
 
             if ($product2) {
 
-<<<<<<< HEAD
                 $order2 = Order::create([
                     'user_id' => $buyer2->id,
                     'receiver_name' => $buyer2->name,
@@ -228,69 +224,6 @@ class ReturnComprehensiveSeeder extends Seeder
                     'status' => 'selesai',
                     'kurir' => 'jne',
                     'created_at' => now()->subDays(12),
-=======
-            OrderDetail::create([
-                'order_id' => $order2->id,
-                'product_id' => $product2->id,
-                'qty' => 1,
-                'harga' => $product2->price,
-                'type' => 'rent',
-                'duration' => 2,
-                'start_date' => now()->subDays(10),
-            ]);
-
-            $chatLog2 = [
-                [
-                    'sender' => 'owner',
-                    'name' => $seller2->store->nama_toko,
-                    'message' => 'Malam kak Siti, ini kompornya pas kami coba nyalain kok pemantiknya macet ya? Kemarin pas dikirim lancar jaya.',
-                    'time' => '19:00'
-                ],
-                [
-                    'sender' => 'renter',
-                    'name' => $buyer2->name,
-                    'message' => 'Loh iya kah kak? Saya pakai normal kok kemarin buat masak air. Mungkin kena tumpahan kuah sup dikit kak, tapi harusnya nggak sampai macet.',
-                    'time' => '19:15'
-                ],
-                [
-                    'sender' => 'owner',
-                    'name' => $seller2->store->nama_toko,
-                    'message' => 'Ini kalau macet harus dibongkar kak, kena biaya servis 50rb di tukang servis langganan kami.',
-                    'time' => '19:30'
-                ]
-            ];
-
-            $rentPrice2 = $product2->price * 2;
-            $deposit2 = 100000; // Dana Jaminan Kompor
-
-            ReturnEscrow::create([
-                'order_id' => $order2->id,
-                'type' => 'sewa',
-                'status' => 'dispute',
-                'escrow_total' => $rentPrice2 + $deposit2,
-                'expected_date' => now()->subDays(7),
-                'actual_date' => now()->subDays(7), // returned on time but damaged
-                'late_fee' => 0,
-                'damage_fee' => 0,
-                'dispute_chat_log' => $chatLog2,
-                'proof_sent_image' => 'https://images.unsplash.com/photo-1596263576925-d90d63691097?w=800&q=80',
-                'proof_returned_image' => 'https://images.unsplash.com/photo-1544253133-722a94593466?w=800&q=80',
-                'created_at' => now()->subDays(6),
-            ]);
-
-            $conv2 = Conversation::firstOrCreate([
-                'buyer_id' => $buyer2->id,
-                'seller_id' => $seller2->id,
-                'product_id' => $product2->id,
-            ]);
-
-            foreach ($chatLog2 as $log) {
-                Message::create([
-                    'conversation_id' => $conv2->id,
-                    'sender_id' => ($log['sender'] === 'renter' ? $buyer2->id : $seller2->id),
-                    'message' => $log['message'],
-                    'created_at' => now()->subDays(1),
->>>>>>> 636cb1417539c24ebb919b74dd5d9791b15d6931
                 ]);
 
                 OrderDetail::create([
@@ -348,22 +281,18 @@ class ReturnComprehensiveSeeder extends Seeder
                     'product_id' => $product2->id,
                 ]);
 
-                // Hindari duplicate message
                 if ($conv2->messages()->count() == 0) {
 
                     foreach ($chatLog2 as $log) {
 
                         Message::create([
                             'conversation_id' => $conv2->id,
-
                             'sender_id' => (
                                 $log['sender'] === 'renter'
                                     ? $buyer2->id
                                     : $seller2->id
                             ),
-
                             'message' => $log['message'],
-
                             'created_at' => now()->subDays(1),
                         ]);
                     }
@@ -371,7 +300,7 @@ class ReturnComprehensiveSeeder extends Seeder
             }
         }
 
-        // Add some more random returns
+        // RANDOM RETURNS
         $otherScenarios = [
             [
                 'status' => 'checking',
@@ -396,7 +325,9 @@ class ReturnComprehensiveSeeder extends Seeder
                 ->where('is_rental', true)
                 ->first();
 
-            if (!$product) continue;
+            if (!$product) {
+                continue;
+            }
 
             $order = Order::create([
                 'user_id' => $buyer->id,

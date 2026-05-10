@@ -21,6 +21,13 @@ use App\Http\Controllers\Api\ReportController;
 */
 
 // Public Routes
+Route::get('/register', function () {
+    return response()->json([
+        'success' => false,
+        'message' => 'Method not allowed. Gunakan POST untuk endpoint /api/register.',
+    ], 405);
+});
+
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/products', [ProductController::class, 'index']);
