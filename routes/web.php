@@ -261,11 +261,38 @@ Route::middleware(['auth', 'role:seller'])->prefix('seller')->name('seller.')->g
 |--------------------------------------------------------------------------
 */
 Route::get('/images/{path}', function ($path) {
-    $file = storage_path('app/public/images/' . $path);
+    $normalizedPath = ltrim($path, '/');
+    $candidates = [
+        storage_path('app/public/images/' . $normalizedPath),
+        public_path('assets/images/' . $normalizedPath),
+    ];
+
+    $file = null;
+    foreach ($candidates as $candidate) {
+        if (file_exists($candidate) && is_file($candidate)) {
+            $file = $candidate;
+            break;
+        }
+    }
+
+    abort_if(!$file, 404);
+
+    return response()->file($file, [
+        'Access-Control-Allow-Origin' => '*',
+        'Access-Control-Allow-Methods' => 'GET, HEAD, OPTIONS',
+        'Access-Control-Allow-Headers' => 'Content-Type, Accept, Origin',
+    ]);
+})->where('path', '.*');
+
+// Serve static assets with CORS headers for mobile client
+Route::get('/assets/{type}/{path}', function ($type, $path) {
+    $file = public_path("assets/$type/$path");
 
     abort_if(!file_exists($file), 404);
 
     return response()->file($file, [
         'Access-Control-Allow-Origin' => '*',
+        'Access-Control-Allow-Methods' => 'GET, HEAD, OPTIONS',
+        'Access-Control-Allow-Headers' => 'Content-Type, Accept',
     ]);
-})->where('path', '.*');
+})->where(['type' => '[a-z]+', 'path' => '.*']);
