@@ -97,5 +97,3 @@ class RentalController_seller extends Controller
                 $query->where('user_id', \Illuminate\Support\Facades\Auth::id())
                     ->orWhereHas('store', fn ($store) => $store->where('user_id', \Illuminate\Support\Facades\Auth::id()));
             });
-    }
-}
