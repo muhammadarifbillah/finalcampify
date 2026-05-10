@@ -41,8 +41,8 @@
             
             {{-- IMAGE SECTION --}}
             <div class="position-relative" style="height: 240px;">
-                @if($product->gambar && file_exists(public_path($product->gambar)))
-                    <img src="{{ asset($product->gambar) }}" class="w-100 h-100 object-fit-cover" alt="{{ $product->nama_produk }}">
+                @if($product->image_url)
+                    <img src="{{ $product->image_url }}" class="w-100 h-100 object-fit-cover" alt="{{ $product->nama_produk }}">
                 @else
                     <div class="w-100 h-100 bg-light d-flex flex-column align-items-center justify-content-center">
                         <span class="fs-1 opacity-25">🏕️</span>

@@ -195,7 +195,7 @@
                                 <!-- FOTO PRODUK -->
                                 <div class="w-full md:w-32 h-32 flex-shrink-0">
                                     <img 
-                                        src="{{ asset($produk->image) }}"
+                                        src="{{ $produk->image_url }}"
                                         class="w-full h-full object-cover rounded-2xl shadow-sm"
                                     >
                                 </div>
@@ -235,7 +235,7 @@
 
                                         {{-- Rating & Review Section --}}
                                         @if($pesanan->status == 'selesai')
-                                        <div class="mt-4 pt-4 border-t border-slate-200">
+                                        <div class="mt-4 pt-4 border-t border-slate-200" id="review-section">
                                             <p class="text-sm font-bold text-slate-800 mb-3">Rating & Ulasan</p>
                                             @include('pembeli.produk.partials.review_pembeli', ['produk' => $produk])
                                         </div>
@@ -245,6 +245,7 @@
                                         @php
                                             $returnInfo = \App\Models\Pembeli\Return_pembeli::where('order_id', $pesanan->id)->where('type', 'sewa')->first();
                                             $rentalInfo = \App\Models\Pembeli\Rental_pembeli::where('order_id', $pesanan->id)->first();
+                                            $canReturnRental = in_array($pesanan->status, ['selesai', 'sampai']) || ($rentalInfo && in_array($rentalInfo->status, ['active', 'selesai', 'completed']));
                                         @endphp
                                         
                                         <div class="grid grid-cols-2 md:grid-cols-5 gap-4 py-2">
@@ -290,7 +291,7 @@
                                         <div class="mt-4 pt-4 border-t border-slate-200 space-y-4">
                                             <div class="flex flex-col gap-3">
                                                 @if(!$returnInfo)
-                                                    @if($rentalInfo && $rentalInfo->status === 'active')
+                                                    @if($canReturnRental)
                                                         <a href="{{ route('orders.return', $item->id) }}" class="inline-flex items-center justify-center rounded-xl bg-slate-900 px-4 py-2 text-xs font-bold text-white hover:bg-slate-800 transition shadow-lg shadow-slate-200">
                                                             <i data-lucide="rotate-ccw" class="w-3 h-3 me-2"></i> AJUKAN PENGEMBALIAN SEKARANG
                                                         </a>
@@ -342,7 +343,7 @@
                                             </div>
                                             
                                             @if($pesanan->status == 'selesai')
-                                            <div>
+                                            <div id="review-section">
                                                 <p class="text-sm font-bold text-slate-800 mb-3">Rating & Ulasan Penyewaan</p>
                                                 @include('pembeli.produk.partials.review_pembeli', ['produk' => $produk])
                                             </div>

@@ -17,7 +17,7 @@
 
             <div class="space-y-6">
                 <div class="rounded-[32px] overflow-hidden shadow-lg bg-white">
-                    <img src="{{ asset($produk->image) }}"
+                    <img src="{{ $produk->image_url }}"
                          alt="{{ $produk->name }}"
                          class="w-full h-[520px] object-cover object-center">
                 </div>

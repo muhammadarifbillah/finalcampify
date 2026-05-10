@@ -176,7 +176,10 @@
                                             <p class="font-medium">Rp {{ number_format($order->total, 0, ',', '.') }}</p>
                                         </div>
                                         <div class="text-right">
-                                            <a href="{{ route('orders.detail', $order->id) }}" class="text-green-600 hover:underline">Lihat Detail</a>
+                                            @if($order->status == 'selesai')
+                                                <a href="{{ route('orders.detail', $order->id) }}#review-section" class="inline-block bg-emerald-600 text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-emerald-700 transition mr-2 mb-2 md:mb-0">Beri Ulasan</a>
+                                            @endif
+                                            <a href="{{ route('orders.detail', $order->id) }}" class="text-green-600 hover:underline font-medium">Lihat Detail</a>
                                         </div>
                                     </div>
                                 </div>

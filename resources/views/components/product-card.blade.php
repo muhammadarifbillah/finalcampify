@@ -11,7 +11,7 @@
         : route('produk.detail.rent', $product->id) }}">
         
       <img
-  src="{{ asset($product->image) }}"
+  src="{{ $product->image_url }}"
   alt="{{ $product->name }}"
   class="w-full h-full object-cover transition duration-500 group-hover:scale-110"
 >

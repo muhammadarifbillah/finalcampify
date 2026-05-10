@@ -18,7 +18,7 @@
                 <div class="md:col-span-1">
                     <div class="bg-slate-100 rounded-xl overflow-hidden aspect-square">
                         <img 
-                            src="{{ asset($produk->image) }}"
+                            src="{{ $produk->image_url }}"
                             alt="{{ $produk->name }}"
                             class="w-full h-full object-cover"
                         >
