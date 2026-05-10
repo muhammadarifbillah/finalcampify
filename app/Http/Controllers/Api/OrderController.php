@@ -38,6 +38,7 @@ class OrderController extends Controller
             'metode_pembayaran' => 'required|string|in:transfer,cod',
             'kurir' => 'required|string',
             'bukti_pembayaran' => 'required_if:metode_pembayaran,transfer|nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'ktp_image' => 'nullable|image|mimes:jpeg,png,jpg,webp,pdf|max:5120',
             'items' => 'required|array',
             'items.*.product_id' => 'required|exists:products,id',
             'items.*.qty' => 'required|integer|min:1',
@@ -48,6 +49,14 @@ class OrderController extends Controller
 
         if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
+        }
+
+        $hasRent = collect($request->items)->contains('type', 'rent');
+        if ($hasRent && empty(Auth::user()->ktp_image) && !$request->hasFile('ktp_image')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'KTP wajib diunggah untuk transaksi sewa barang.'
+            ], 422);
         }
 
         try {
@@ -86,6 +95,17 @@ class OrderController extends Controller
                 $filename = time() . '_api_' . Auth::id() . '.' . $file->getClientOriginalExtension();
                 $file->move(public_path('uploads/pembayaran'), $filename);
                 $buktiPath = 'uploads/pembayaran/' . $filename;
+            }
+
+            if ($request->hasFile('ktp_image')) {
+                $ktpFile = $request->file('ktp_image');
+                $ktpFilename = time() . '_ktp_' . Auth::id() . '.' . $ktpFile->getClientOriginalExtension();
+                $ktpFile->move(public_path('uploads/ktp'), $ktpFilename);
+                $ktpPath = 'uploads/ktp/' . $ktpFilename;
+                
+                $user = Auth::user();
+                $user->ktp_image = $ktpPath;
+                $user->save();
             }
 
             $order = Order::create([
