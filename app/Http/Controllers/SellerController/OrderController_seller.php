@@ -31,8 +31,19 @@ class OrderController_seller extends Controller
     {
         $order = $this->sellerOrders()->findOrFail($id);
 
+        // Map English status to Indonesian database values if necessary
+        $statusMap = [
+            'pending' => 'menunggu',
+            'processing' => 'diproses',
+            'shipped' => 'dikirim',
+            'completed' => 'selesai',
+            'cancelled' => 'dibatalkan',
+        ];
+
+        $status = $statusMap[$request->status] ?? $request->status;
+
         $order->update([
-            'status' => $request->status,
+            'status' => $status,
             'no_resi' => $request->resi ?? $request->no_resi,
         ]);
 

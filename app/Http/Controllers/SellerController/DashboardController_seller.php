@@ -22,9 +22,12 @@ class DashboardController_seller extends Controller
         // 2. Ambil Data Penyewaan (Rentals)
         $rentals = Rental_seller::whereIn('product_id', $productIds)->get();
 
-        // 3. Ambil Data Pesanan (Orders)
+        // 3. Ambil Data Pesanan (Orders) - Hanya yang bertipe 'sell'
         $orders = Order_seller::with(['details.product'])
-            ->whereHas('details', fn ($query) => $query->whereIn('product_id', $productIds))
+            ->whereHas('details', function ($query) use ($productIds) {
+                $query->whereIn('product_id', $productIds)
+                      ->where('type', '!=', 'rent');
+            })
             ->get();
 
         // 4. Hitung Statistik Dasar

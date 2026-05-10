@@ -1,243 +1,153 @@
 @extends('SellerView.layouts.app_seller')
 
 @section('content')
-<div class="d-flex" style="min-height:100vh; background:#f9fafb;">
+<div class="dashboard-header mb-5">
+    <h2 class="fw-bold m-0 text-dark">Profil Toko</h2>
+    <p class="text-muted">Kelola identitas dan informasi rekening toko Anda di sini.</p>
+</div>
 
-    {{-- SIDEBAR --}}
-    <div style="width:260px; background:#ffffff; border-right:1px solid #e5e7eb; display:flex; flex-direction:column; justify-content:space-between;">
+<div class="row g-4">
+    {{-- LEFT: FORM EDIT --}}
+    <div class="col-lg-8">
+        <form method="POST" action="/seller/store-profile">
+            @csrf
+            @method('POST')
+            
+            <div class="card card-modern border-0 p-5 mb-4">
+                <h5 class="fw-bold mb-4">Informasi Dasar Toko</h5>
+                
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold text-muted small text-uppercase ls-1">Nama Toko</label>
+                        <input type="text" name="nama_toko" class="form-control border-0 bg-light rounded-3 px-4 py-2" 
+                               value="{{ $profile->nama_toko ?? '' }}" placeholder="Nama toko Anda" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold text-muted small text-uppercase ls-1">No. Telepon</label>
+                        <input type="text" name="no_telp" class="form-control border-0 bg-light rounded-3 px-4 py-2" 
+                               value="{{ $profile->no_telp ?? '' }}" placeholder="Contoh: 08123456789">
+                    </div>
+                </div>
 
-        {{-- TOP --}}
-        <div>
+                <div class="mb-4">
+                    <label class="form-label fw-bold text-muted small text-uppercase ls-1">Alamat Lengkap</label>
+                    <input type="text" name="alamat" class="form-control border-0 bg-light rounded-3 px-4 py-2" 
+                           value="{{ $profile->alamat ?? '' }}" placeholder="Alamat fisik toko">
+                </div>
 
-            {{-- BRAND --}}
-            <div class="p-4 border-bottom">
-                <h4 style="color:#10B981; font-weight:800; letter-spacing:1px;">CAMPIFY.</h4>
-                <small class="text-muted">SELLER HUB</small>
+                <div class="mb-0">
+                    <label class="form-label fw-bold text-muted small text-uppercase ls-1">Deskripsi Toko</label>
+                    <textarea name="deskripsi" class="form-control border-0 bg-light rounded-3 px-4 py-3" rows="4" 
+                              placeholder="Ceritakan tentang toko Anda kepada pelanggan...">{{ $profile->deskripsi ?? '' }}</textarea>
+                </div>
             </div>
 
-            {{-- MENU --}}
-            <ul class="nav flex-column px-3 mt-3">
-
-                {{-- DASHBOARD --}}
-                <li class="nav-item mb-1">
-                    <a class="nav-link sidebar-link {{ request()->routeIs('seller.dashboard') ? 'active' : '' }}"
-                    href="{{ route('seller.dashboard') }}">
-                        📊 Dashboard
-                    </a>
-                </li>
-
-                {{-- PRODUK --}}
-                <li class="nav-item mb-1">
-                    <a class="nav-link sidebar-link {{ request()->routeIs('products*') ? 'active' : '' }}"
-                    href="{{ route('seller.products.index') }}">
-                        📦 Kelola Produk
-                    </a>
-                </li>
-
-                {{-- RATING --}}
-                <li class="nav-item mb-1">
-                    <a class="nav-link sidebar-link {{ request()->routeIs('seller.ratings.index') ? 'active' : '' }}"
-                    href="/seller/ratings">
-                        ⭐ Kelola Rating
-                    </a>
-                </li>
-
-                {{-- TRANSAKSI (DROPDOWN) --}}
-                <li class="nav-item mb-1">
-
-                    <a class="nav-link sidebar-link d-flex justify-content-between align-items-center"
-                    data-bs-toggle="collapse"
-                    href="#transaksiMenu"
-                    role="button"
-                    aria-expanded="false"
-                    aria-controls="transaksiMenu">
-
-                        💰 Transaksi
-                        <span class="text-muted">▾</span>
-
-                    </a>
-
-                    <div class="collapse {{ request()->is('seller/orders*') || request()->is('seller/rentals*') ? 'show' : '' }}"
-                        id="transaksiMenu">
-
-                        <ul class="nav flex-column ms-3 mt-1">
-
-                            <li class="nav-item">
-                                <a class="nav-link sidebar-sub {{ request()->is('seller/orders*') ? 'active' : '' }}"
-                                href="/seller/orders">
-                                    🧾 Pesanan Baru
-                                </a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a class="nav-link sidebar-sub {{ request()->is('seller/rentals*') ? 'active' : '' }}"
-                                href="/seller/rentals">
-                                    🏕️ Penyewaan Alat
-                                </a>
-                            </li>
-
-                        </ul>
-
+            <div class="card card-modern border-0 p-5 mb-4">
+                <h5 class="fw-bold mb-4">Informasi Rekening Bank</h5>
+                <p class="text-muted small mb-4">Informasi ini digunakan untuk pencairan dana hasil penjualan Anda.</p>
+                
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold text-muted small text-uppercase ls-1">Nama Bank</label>
+                        <input type="text" name="bank_name" class="form-control border-0 bg-light rounded-3 px-4" 
+                               value="{{ $profile->bank_name ?? '' }}" placeholder="BCA, Mandiri, dll">
                     </div>
-                </li>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold text-muted small text-uppercase ls-1">Nomor Rekening</label>
+                        <input type="text" name="bank_account_number" class="form-control border-0 bg-light rounded-3 px-4" 
+                               value="{{ $profile->bank_account_number ?? '' }}" placeholder="1234567890">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold text-muted small text-uppercase ls-1">Atas Nama</label>
+                        <input type="text" name="bank_account_name" class="form-control border-0 bg-light rounded-3 px-4" 
+                               value="{{ $profile->bank_account_name ?? '' }}" placeholder="Nama Pemilik">
+                    </div>
+                </div>
+            </div>
 
-                {{-- CHAT --}}
-                <li class="nav-item mb-1">
-                    <a class="nav-link sidebar-link {{ request()->routeIs('chat.index') ? 'active' : '' }}"
-                    href="/seller/chat">
-                        💬 Chat Pembeli
-                    </a>
-                </li>
-
-            </ul>
-        </div>
-
-        {{-- BOTTOM --}}
-        <div class="px-3 pb-4">
-            <hr>
-            <a class="nav-link sidebar-link {{ request()->routeIs('seller.store-profile*') ? 'bg-success text-white rounded px-3 py-2' : 'text-dark' }}" href="{{ route('seller.store-profile.index') }}"">
-                👤 Profil Toko
-            </a>
-        </div>
+            <div class="text-end">
+                <button type="submit" class="btn btn-emerald px-5 py-3 rounded-4 shadow-sm fw-bold">
+                    <i class="bi bi-save me-2"></i>Simpan Perubahan Profil
+                </button>
+            </div>
+        </form>
     </div>
 
-    {{-- CONTENT --}}
-    <div class="flex-grow-1 p-4">
-
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h4 class="fw-bold">PROFIL TOKO</h4>
-        </div>
-
-        <div class="card border-0 shadow-sm p-4" style="border-radius:16px;">
-
-            <form method="POST" action="/seller/store-profile">
-                @csrf
-                @method('POST')
-
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Nama Toko</label>
-                            <input type="text" name="nama_toko" class="form-control" 
-                                   value="{{ $profile->nama_toko ?? '' }}" 
-                                   placeholder="Masukkan nama toko" required>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">No. Telepon</label>
-                            <input type="text" name="no_telp" class="form-control" 
-                                   value="{{ $profile->no_telp ?? '' }}" 
-                                   placeholder="Masukkan nomor telepon">
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Alamat</label>
-                            <input type="text" name="alamat" class="form-control" 
-                                   value="{{ $profile->alamat ?? '' }}" 
-                                   placeholder="Masukkan alamat toko">
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Deskripsi Toko</label>
-                            <textarea name="deskripsi" class="form-control" rows="3" 
-                                      placeholder="Deskripsi tentang toko Anda">{{ $profile->deskripsi ?? '' }}</textarea>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row mt-2">
-                    <div class="col-12"><h6 class="fw-bold mb-3">Informasi Rekening Bank</h6></div>
-                    <div class="col-md-4">
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Nama Bank</label>
-                            <input type="text" name="bank_name" class="form-control" 
-                                   value="{{ $profile->bank_name ?? '' }}" 
-                                   placeholder="Contoh: BCA, Mandiri, BNI dll">
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Nomor Rekening</label>
-                            <input type="text" name="bank_account_number" class="form-control" 
-                                   value="{{ $profile->bank_account_number ?? '' }}" 
-                                   placeholder="Masukkan nomor rekening">
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Atas Nama</label>
-                            <input type="text" name="bank_account_name" class="form-control" 
-                                   value="{{ $profile->bank_account_name ?? '' }}" 
-                                   placeholder="Masukkan nama pemilik rekening">
-                        </div>
-                    </div>
-                </div>
-
-                <button class="btn text-white rounded-pill px-4" style="background:#10B981;">
-                    Simpan Profil
-                </button>
-            </form>
-
-        </div>
-
-        {{-- RATING TOKO --}}
-        <div class="card border-0 shadow-sm p-4 mt-4" style="border-radius:16px;">
-            <h6 class="fw-bold mb-3">RATING TOKO</h6>
+    {{-- RIGHT: PREVIEW & STATS --}}
+    <div class="col-lg-4">
+        {{-- STORE CARD PREVIEW --}}
+        <div class="card card-modern border-0 p-5 mb-4 text-center overflow-hidden position-relative" style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: white;">
+            <div class="position-absolute top-0 end-0 p-4 opacity-10 fs-1">🏪</div>
             
+            <div class="profile-avatar mx-auto mb-4 d-flex align-items-center justify-content-center text-white fw-bold rounded-circle border border-4 border-white border-opacity-10 shadow" style="width: 100px; height: 100px; background: var(--primary-emerald); font-size: 2.5rem;">
+                {{ substr($profile->nama_toko ?? auth()->user()->name, 0, 1) }}
+            </div>
+            
+            <h4 class="fw-bold mb-1">{{ $profile->nama_toko ?? 'Toko Saya' }}</h4>
+            <p class="text-white-50 small mb-4">{{ auth()->user()->email }}</p>
+            
+            <div class="d-flex justify-content-center gap-2 mb-4">
+                <span class="badge rounded-pill bg-white bg-opacity-10 text-white px-3 py-2">
+                    <i class="bi bi-geo-alt me-1"></i> {{ Str::limit($profile->alamat ?? 'Lokasi belum diset', 20) }}
+                </span>
+            </div>
+
             @php
                 $storeId = \Illuminate\Support\Facades\Auth::id();
                 $avgStoreRating = \App\Models\SellerModels\StoreRating_seller::getAverageRating($storeId);
                 $storeRatingCount = \App\Models\SellerModels\StoreRating_seller::getRatingCount($storeId);
+            @endphp
+
+            <div class="row border-top border-white border-opacity-10 pt-4 mt-2">
+                <div class="col-6 border-end border-white border-opacity-10">
+                    <h5 class="fw-bold m-0">{{ number_format($avgStoreRating, 1) }}</h5>
+                    <small class="text-white-50">Rating Toko</small>
+                </div>
+                <div class="col-6">
+                    <h5 class="fw-bold m-0">{{ $storeRatingCount }}</h5>
+                    <small class="text-white-50">Ulasan</small>
+                </div>
+            </div>
+        </div>
+
+        {{-- RECENT REVIEWS --}}
+        <div class="card card-modern border-0 p-4">
+            <h6 class="fw-bold mb-4">Ulasan Toko Terbaru</h6>
+            
+            @php
                 $storeRatings = \App\Models\SellerModels\StoreRating_seller::where('store_id', $storeId)
                     ->with('user:id,name')
                     ->orderBy('created_at', 'desc')
-                    ->take(5)
+                    ->take(3)
                     ->get();
             @endphp
 
-            <div class="d-flex align-items-center mb-4">
-                <h2 class="fw-bold me-2">{{ number_format($avgStoreRating, 1) }}</h2>
-                <div>
-                    <div>
-                        @for($i = 1; $i <= 5; $i++)
-                            @if($i <= round($avgStoreRating))
-                                <span style="color:#F59E0B; font-size:20px;">★</span>
-                            @else
-                                <span style="color:#D1D5DB; font-size:20px;">★</span>
-                            @endif
-                        @endfor
-                    </div>
-                    <small class="text-muted">{{ $storeRatingCount }} ulasan</small>
-                </div>
-            </div>
-
             @forelse($storeRatings as $sr)
-            <div class="border-bottom py-3">
-                <div class="d-flex justify-content-between">
-                    <strong>{{ $sr->user->name ?? 'User' }}</strong>
-                    <small class="text-muted">{{ $sr->created_at->diffForHumans() }}</small>
+            <div class="review-item mb-4 pb-3 border-bottom last-border-0">
+                <div class="d-flex justify-content-between mb-1">
+                    <span class="fw-bold small">{{ $sr->user->name ?? 'User' }}</span>
+                    <small class="text-muted" style="font-size: 0.7rem;">{{ $sr->created_at->diffForHumans() }}</small>
                 </div>
-                <div class="mb-1">
-                    @for($i = 1; $i <= 5; $i++)
-                        @if($i <= $sr->rating)
-                            <span style="color:#F59E0B;">★</span>
-                        @else
-                            <span style="color:#D1D5DB;">★</span>
-                        @endif
+                <div class="text-warning small mb-2">
+                    @for($i=1; $i<=5; $i++)
+                        <i class="bi bi-star{{ $i <= $sr->rating ? '-fill' : '' }}"></i>
                     @endfor
                 </div>
-                <p class="mb-0 text-muted small">{{ $sr->ulasan ?? '-' }}</p>
+                <p class="text-muted small m-0 fst-italic">"{{ Str::limit($sr->ulasan ?? 'Tanpa ulasan teks', 60) }}"</p>
             </div>
             @empty
-            <p class="text-muted">Belum ada rating untuk toko ini.</p>
+            <div class="text-center py-4">
+                <p class="text-muted small mb-0">Belum ada ulasan toko.</p>
+            </div>
             @endforelse
-
+            
+            <a href="/seller/ratings" class="btn btn-light w-100 rounded-pill py-2 small fw-bold text-muted">Lihat Semua Rating</a>
         </div>
-
     </div>
-
 </div>
-@endsection
 
+<style>
+    .ls-1 { letter-spacing: 1px; }
+    .last-border-0:last-child { border-bottom: none !important; margin-bottom: 0 !important; padding-bottom: 0 !important; }
+</style>
+@endsection

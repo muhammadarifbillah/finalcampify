@@ -9,7 +9,7 @@
 <body>
 
     {{-- Navbar --}}
-    @include('layouts.navbar_pembeli')
+    <!-- @include('layouts.navbar_pembeli') -->
 
     {{-- Content --}}
     <main class="{{ request()->routeIs('home') ? '' : 'pt-24' }}">
@@ -17,7 +17,7 @@
     </main>
 
     {{-- Footer --}}
-    @include('layouts.footer_pembeli')
+    <!-- @include('layouts.footer_pembeli') -->
 
     @yield('extra_js')
 </body>
