@@ -17,7 +17,6 @@ class AdminUserSeeder extends Seeder
             ['email' => 'admin@campify.com'],
             [
                 'name' => 'Administrator',
-                'nama' => 'Administrator',
                 'password' => Hash::make('admin123'),
                 'role' => 'admin',
                 'status' => 'active',
@@ -29,7 +28,6 @@ class AdminUserSeeder extends Seeder
             ['email' => 'buyer@campify.com'],
             [
                 'name' => 'Sample Buyer',
-                'nama' => 'Sample Buyer',
                 'password' => Hash::make('buyer123'),
                 'role' => 'buyer',
                 'status' => 'active',
@@ -40,7 +38,6 @@ class AdminUserSeeder extends Seeder
             ['email' => 'seller@campify.com'],
             [
                 'name' => 'Sample Seller',
-                'nama' => 'Sample Seller',
                 'password' => Hash::make('seller123'),
                 'role' => 'seller',
                 'status' => 'active',
