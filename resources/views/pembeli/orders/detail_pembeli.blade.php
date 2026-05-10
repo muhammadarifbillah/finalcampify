@@ -52,14 +52,39 @@
                 Detail Pesanan #{{ $pesanan->id }}
             </h1>
 
-            <span class="px-4 py-1 rounded-full text-sm font-semibold
-                @if($pesanan->status == 'diproses') bg-yellow-100 text-yellow-700
-                @elseif($pesanan->status == 'selesai') bg-green-100 text-green-700
-                @elseif($pesanan->status == 'menunggu') bg-amber-100 text-amber-700
-                @else bg-red-100 text-red-700
-                @endif">
-                {{ ucfirst($pesanan->status) }}
-            </span>
+            @php
+                $rental = \App\Models\Pembeli\Rental_pembeli::where('order_id', $pesanan->id)->first();
+                $displayStatus = $pesanan->status;
+                $statusColor = 'bg-amber-100 text-amber-700';
+
+                if ($rental) {
+                    $displayStatus = $rental->status;
+                    $statusColor = match($rental->status) {
+                        'active' => 'bg-blue-100 text-blue-700',
+                        'returned' => 'bg-indigo-100 text-indigo-700',
+                        'completed' => 'bg-emerald-100 text-emerald-700',
+                        'cancelled' => 'bg-red-100 text-red-700',
+                        default => 'bg-amber-100 text-amber-700'
+                    };
+                } else {
+                    $statusColor = match($pesanan->status) {
+                        'diproses' => 'bg-yellow-100 text-yellow-700',
+                        'selesai' => 'bg-green-100 text-green-700',
+                        'menunggu' => 'bg-amber-100 text-amber-700',
+                        'dibatalkan' => 'bg-red-100 text-red-700',
+                        default => 'bg-slate-100 text-slate-700'
+                    };
+                }
+            @endphp
+
+            <div class="flex items-center gap-2">
+                @if($rental)
+                    <span class="px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-[10px] font-black uppercase tracking-widest border border-blue-100">Penyewaan</span>
+                @endif
+                <span class="px-4 py-1 rounded-full text-sm font-bold uppercase {{ $statusColor }}">
+                    {{ ucfirst($displayStatus) }}
+                </span>
+            </div>
         </div>
 
         <!-- CARD -->
@@ -217,6 +242,11 @@
                                         @endif
                                     @else
                                         {{-- LAYOUT PENYEWAAN --}}
+                                        @php
+                                            $returnInfo = \App\Models\Pembeli\Return_pembeli::where('order_id', $pesanan->id)->where('type', 'sewa')->first();
+                                            $rentalInfo = \App\Models\Pembeli\Rental_pembeli::where('order_id', $pesanan->id)->first();
+                                        @endphp
+                                        
                                         <div class="grid grid-cols-2 md:grid-cols-5 gap-4 py-2">
                                             <div>
                                                 <p class="text-xs text-slate-500 uppercase font-semibold">Durasi</p>
@@ -236,7 +266,15 @@
                                             </div>
                                             <div>
                                                 @php
-                                                    $deposit = $produk->buy_price * 0.25;
+                                                    // Ambil deposit dari record return jika sudah ada, atau hitung manual
+                                                    $deposit = ($returnInfo && $returnInfo->deposit_amount > 0) 
+                                                        ? $returnInfo->deposit_amount 
+                                                        : (($produk->buy_price ?? 0) * 0.25);
+                                                    
+                                                    // Jika tetap 0 tapi ada escrow_total di return, gunakan itu
+                                                    if ($deposit <= 0 && $returnInfo && $returnInfo->escrow_total > 0) {
+                                                        $deposit = $returnInfo->escrow_total;
+                                                    }
                                                 @endphp
                                                 <p class="text-xs text-slate-500 uppercase font-semibold">Dana Jaminan (Escrow)</p>
                                                 <p class="font-bold text-blue-600">Rp {{ number_format($deposit) }}</p>
@@ -250,15 +288,26 @@
 
                                         {{-- Return & Review Section for Rental --}}
                                         <div class="mt-4 pt-4 border-t border-slate-200 space-y-4">
-                                            @php
-                                                $returnInfo = \App\Models\ReturnEscrow::where('order_id', $pesanan->id)->where('type', 'sewa')->first();
-                                            @endphp
-
                                             <div class="flex flex-col gap-3">
                                                 @if(!$returnInfo)
-                                                    <a href="{{ route('orders.return', $item->id) }}" class="inline-flex items-center justify-center rounded-xl bg-slate-900 px-4 py-2 text-xs font-bold text-white hover:bg-slate-800 transition">
-                                                        Proses Pengembalian
-                                                    </a>
+                                                    @if($rentalInfo && $rentalInfo->status === 'active')
+                                                        <a href="{{ route('orders.return', $item->id) }}" class="inline-flex items-center justify-center rounded-xl bg-slate-900 px-4 py-2 text-xs font-bold text-white hover:bg-slate-800 transition shadow-lg shadow-slate-200">
+                                                            <i data-lucide="rotate-ccw" class="w-3 h-3 me-2"></i> AJUKAN PENGEMBALIAN SEKARANG
+                                                        </a>
+                                                    @elseif($rentalInfo && $rentalInfo->status === 'completed')
+                                                        <div class="p-4 bg-emerald-50 rounded-2xl border border-emerald-100 flex items-center gap-3">
+                                                            <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
+                                                                <i data-lucide="check-circle" class="w-4 h-4"></i>
+                                                            </div>
+                                                            <p class="text-[10px] text-emerald-800 font-bold uppercase tracking-widest">Penyewaan Selesai</p>
+                                                        </div>
+                                                    @else
+                                                        <div class="p-4 bg-slate-100 rounded-2xl border border-slate-200">
+                                                            <p class="text-[10px] text-slate-500 font-bold leading-relaxed uppercase tracking-widest text-center">
+                                                                <i data-lucide="clock" class="w-3 h-3 inline me-1"></i> Form pengembalian muncul setelah status "AKTIF"
+                                                            </p>
+                                                        </div>
+                                                    @endif
                                                 @else
                                                     <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-3">
                                                         <div class="flex items-center justify-between">
