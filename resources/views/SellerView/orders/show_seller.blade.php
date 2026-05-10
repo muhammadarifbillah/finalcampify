@@ -118,12 +118,12 @@
             </div>
 
             {{-- TRACKING INFO --}}
-            @if($order->resi)
+            @if($order->no_resi)
             <div class="mt-4 p-4 rounded-4 bg-emerald-soft border-emerald border-start border-4 shadow-sm">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <small class="text-emerald fw-bold text-uppercase ls-1">Nomor Resi Pengiriman</small>
-                        <h4 class="fw-bold m-0 text-dark">{{ $order->resi }}</h4>
+                        <h4 class="fw-bold m-0 text-dark">{{ $order->no_resi }}</h4>
                     </div>
                     <i class="bi bi-truck fs-1 text-emerald opacity-25"></i>
                 </div>

@@ -54,7 +54,7 @@ class PembeliProductController extends Controller
         $user = Auth::user();
         $produk = Product_pembeli::findOrFail($requestData['product_id']);
         $rentalFee = $produk->rent_price * $requestData['duration'];
-        $deposit = $produk->buy_price * 0.5;
+        $deposit = $produk->buy_price * 0.25;
         $totalPrice = $rentalFee + $deposit;
 
         // Handle KTP Upload if provided (Mandatory check handled by Frontend 'required')

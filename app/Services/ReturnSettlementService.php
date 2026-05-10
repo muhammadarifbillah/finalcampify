@@ -112,14 +112,14 @@ class ReturnSettlementService
             $order = $return->order;
             $product = $order?->details?->first()?->product;
             
-            // Logika baru: Sewa + Jaminan (50% harga barang)
+            // Logika baru: Sewa + Jaminan (25% harga barang)
             if ($return->rental_fee_amount <= 0) {
                 $return->rental_fee_amount = (string) $this->rentalSubtotal($order);
             }
             
             if ($return->deposit_amount <= 0 && $product) {
-                // Deposit = 50% dari buy_price (harga barang)
-                $return->deposit_amount = (string) ($product->buy_price * 0.5);
+                // Deposit = 25% dari buy_price (harga barang)
+                $return->deposit_amount = (string) ($product->buy_price * 0.25);
             }
             
             // Sync escrow_total
