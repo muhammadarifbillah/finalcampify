@@ -43,15 +43,14 @@ class PembeliOrderController extends Controller
         $today = now()->startOfDay();
 
         $daysLate = max(0, $endDate->diffInDays($today, false));
-        $denda = $daysLate * 10000;
+        $dailyFine = (int) config('returns.daily_fine', 50000);
+        $denda = $daysLate * $dailyFine;
 
-        $rental = Rental_pembeli::query()
+        $return = Return_pembeli::query()
             ->where('order_id', $pesanan->id)
-            ->where('product_id', $detail->product_id)
-            ->whereDate('start_date', $startDate)
             ->first();
 
-        $return = $rental?->returnRequest;
+        $rental = Rental_pembeli::where('order_id', $pesanan->id)->first();
 
         return view('pembeli.orders.return_pembeli', compact('detail', 'pesanan', 'denda', 'daysLate', 'endDate', 'return', 'rental'));
     }
@@ -90,9 +89,9 @@ class PembeliOrderController extends Controller
                 'user_id' => $pesanan->user_id,
                 'product_id' => $detail->product_id,
                 'order_id' => $pesanan->id,
-                'start_date' => $startDate->toDateString(),
             ],
             [
+                'start_date' => $startDate->toDateString(),
                 'end_date' => $endDate->toDateString(),
                 'duration' => (int) $detail->duration,
                 'price' => (int) $detail->harga,
@@ -100,7 +99,10 @@ class PembeliOrderController extends Controller
             ]
         );
 
-        $return = Return_pembeli::firstOrNew(['rental_id' => $rental->id]);
+        $return = Return_pembeli::firstOrNew([
+            'order_id' => $pesanan->id,
+            'type' => 'sewa',
+        ]);
 
         if ($return->exists) {
             return back()->with('error', 'Pengembalian untuk sewa ini sudah pernah disubmit.');
@@ -110,9 +112,23 @@ class PembeliOrderController extends Controller
             'resi_return' => $resi,
             'foto_kondisi' => $fotoKondisiPath,
             'tanggal_pengembalian' => now(),
-            'denda' => 0, // Akan diisi oleh seller
-            'kondisi_barang' => 'baik', // Akan diupdate oleh seller
+            'denda' => 0, 
+            'kondisi_barang' => 'baik',
+            'status' => 'pending',
+            'escrow_total' => (string) ((int) ($pesanan->total ?? 0)),
+            'expected_date' => $endDate,
+            'late_fee' => '0',
+            'damage_fee' => '0',
+            'to_seller' => '0',
+            'to_buyer' => '0',
         ]);
+
+        // Use settlement service if exists
+        if (class_exists(\App\Services\ReturnSettlementService::class)) {
+            $settlement = app(\App\Services\ReturnSettlementService::class);
+            $settlement->applyAutoCalculations($return);
+        }
+        
         $return->save();
 
         $rental->status = 'returned';
@@ -126,9 +142,10 @@ class PembeliOrderController extends Controller
     public function uploadBuktiDenda(Request $request, $return_id)
     {
         $return = Return_pembeli::findOrFail($return_id);
-        $rental = Rental_pembeli::findOrFail($return->rental_id);
+        $pesanan = Order_pembeli::findOrFail($return->order_id);
+        $rental = Rental_pembeli::where('order_id', $pesanan->id)->firstOrFail();
 
-        if ($rental->user_id !== \Illuminate\Support\Facades\Auth::id()) {
+        if ($pesanan->user_id !== \Illuminate\Support\Facades\Auth::id()) {
             abort(403);
         }
 

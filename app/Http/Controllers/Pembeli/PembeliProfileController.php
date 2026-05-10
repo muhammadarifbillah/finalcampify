@@ -79,4 +79,26 @@ class PembeliProfileController extends Controller
 
         return back()->with('success', 'Password berhasil diperbarui.');
     }
+
+    public function uploadKtp(Request $request)
+    {
+        $user = auth()->user();
+        $request->validate([
+            'ktp_image' => 'required|image|max:2048',
+        ]);
+
+        if ($request->hasFile('ktp_image')) {
+            $file = $request->file('ktp_image');
+            $filename = 'ktp_' . $user->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('ktp_uploads', $filename, 'public');
+            
+            $user->update([
+                'ktp_image' => 'storage/' . $path,
+            ]);
+            
+            return back()->with('success', 'Foto KTP berhasil diunggah. Mohon tunggu verifikasi admin.');
+        }
+
+        return back()->with('error', 'Gagal mengunggah foto KTP.');
+    }
 }

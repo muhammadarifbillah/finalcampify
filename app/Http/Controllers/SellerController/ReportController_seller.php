@@ -22,6 +22,7 @@ class ReportController_seller extends Controller
         // Ringkasan Cepat
         $totalSales = Order_seller::where('status', 'selesai')
             ->whereHas('details.product', fn($q) => $q->where('user_id', $sellerId))
+            ->whereDoesntHave('details', fn($q) => $q->where('type', 'rent'))
             ->sum('total');
 
         $totalRentals = Rental_seller::where('status', 'completed')
@@ -44,6 +45,7 @@ class ReportController_seller extends Controller
         if ($type === 'sales') {
             $data = Order_seller::where('status', 'selesai')
                 ->whereHas('details.product', fn($q) => $q->where('user_id', $sellerId))
+                ->whereDoesntHave('details', fn($q) => $q->where('type', 'rent'))
                 ->with(['buyer', 'details.product'])
                 ->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
                 ->get();
@@ -72,10 +74,13 @@ class ReportController_seller extends Controller
         $startDate = $request->get('start_date', Carbon::now()->startOfMonth()->format('Y-m-d'));
         $endDate = $request->get('end_date', Carbon::now()->endOfMonth()->format('Y-m-d'));
 
-        // Ambil orders yang sudah selesai
+        // Ambil orders yang sudah selesai dan tipe itemnya 'sell'
         $orders = Order_seller::where('status', 'selesai')
             ->whereHas('details.product', function($query) use ($sellerId) {
                 $query->where('user_id', $sellerId);
+            })
+            ->whereDoesntHave('details', function($query) {
+                $query->where('type', 'rent');
             })
             ->with(['buyer', 'details.product'])
             ->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])

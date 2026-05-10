@@ -73,6 +73,17 @@ class RentalController_seller extends Controller
         return redirect('/seller/rentals')->with('success', 'Penyewaan berhasil diupdate');
     }
 
+    public function verifyUserKtp($userId)
+    {
+        $user = \App\Models\User::findOrFail($userId);
+        
+        $user->update([
+            'ktp_verified_at' => now()
+        ]);
+
+        return back()->with('success', 'Identitas Pembeli Berhasil Diverifikasi! Pesanan kini dapat diproses.');
+    }
+
     private function sellerRentals()
     {
         return Rental_seller::with(['product', 'user', 'order'])

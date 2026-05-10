@@ -69,6 +69,13 @@ class UserController extends Controller
         return back()->with('success', 'User berhasil diblokir.');
     }
 
+    public function verifyKtp($id)
+    {
+        $user = User::findOrFail($id);
+        $user->update(['ktp_verified_at' => now()]);
+        return back()->with('success', 'Identitas (KTP) user berhasil diverifikasi.');
+    }
+
     public function destroy($id)
     {
         User::findOrFail($id)->delete();

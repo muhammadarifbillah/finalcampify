@@ -27,8 +27,22 @@ class DatabaseSeeder extends Seeder
 
     public function run(): void
     {
+<<<<<<< HEAD
         $this->call(AdminUserSeeder::class);
         $this->call(ProductSeeder::class);
     }
 }
 
+=======
+        $this->call([
+            AdminUserSeeder::class,
+            CourierSeeder::class,
+            ChatbotResponseSeeder::class,
+            ArticleSeeder::class,
+            SellerStoreProductSeeder::class,
+            BuyerOrderChatReportSeeder::class,
+            ReturnComprehensiveSeeder::class,
+        ]);
+    }
+}
+>>>>>>> 4618886ce8ec2779a7c8dff7bb6f1acbff2c0b54

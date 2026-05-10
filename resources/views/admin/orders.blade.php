@@ -33,7 +33,19 @@
                                 <td class="font-extrabold">#{{ $order->id }}</td>
                                 <td>{{ $order->buyer->name ?? '-' }}</td>
                                 <td>{{ $order->details->pluck('product.name')->filter()->implode(', ') ?: '-' }}</td>
-                                <td>Rp {{ number_format($order->total, 0, ',', '.') }}</td>
+                                <td>
+                                    @php 
+                                        $isRent = $order->details->where('type', 'rent')->isNotEmpty();
+                                        $rentalFee = $order->details->where('type', 'rent')->sum('harga');
+                                        $deposit = $order->total - $rentalFee;
+                                    @endphp
+                                    <div class="flex flex-col">
+                                        <span class="font-bold">Rp {{ number_format($order->total, 0, ',', '.') }}</span>
+                                        @if($isRent && $deposit > 0)
+                                            <span class="text-[10px] text-blue-500 font-bold uppercase">Incl. Jaminan: Rp {{ number_format($deposit, 0, ',', '.') }}</span>
+                                        @endif
+                                    </div>
+                                </td>
                                 <td><span class="admin-badge admin-badge-info">{{ $order->status }}</span></td>
                                 <td>{{ $order->kurir ?? '-' }}</td>
                                 <td>{{ $order->created_at?->format('d M Y H:i') ?? '-' }}</td>

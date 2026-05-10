@@ -14,9 +14,13 @@
             <h1 class="text-2xl font-bold text-slate-900 mb-6">Pengembalian Produk</h1>
 
             <div class="flex items-center gap-4 mb-8 p-4 bg-slate-50 rounded-2xl">
-                <img src="{{ asset('storage/' . $detail->product->image) }}" class="w-16 h-16 object-cover rounded-xl shadow-sm">
+                @if($detail->product->image)
+                    <img src="{{ asset($detail->product->image) }}" class="w-16 h-16 object-cover rounded-xl shadow-sm">
+                @else
+                    <div class="w-16 h-16 bg-slate-200 rounded-xl flex items-center justify-center">🏕️</div>
+                @endif
                 <div>
-                    <h3 class="font-bold text-slate-800">{{ $detail->product->name }}</h3>
+                    <h3 class="font-bold text-slate-800">{{ $detail->product->nama_produk }}</h3>
                     <p class="text-xs text-slate-500">Durasi Sewa: {{ $detail->duration }} Hari</p>
                 </div>
             </div>
@@ -31,6 +35,18 @@
                             <p class="font-bold">{{ $detail->product->store->nama_toko ?? 'Toko Campify' }}</p>
                             <p>{{ $detail->product->store->alamat ?? 'Alamat Toko' }}</p>
                             <p class="mt-1 text-xs opacity-75">Silakan kirimkan barang ke alamat di atas.</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50 p-6 rounded-[24px] border border-slate-100">
+                        <div class="space-y-1">
+                            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Biaya Sewa</label>
+                            <p class="text-sm font-bold text-slate-800">Rp {{ number_format($detail->harga) }}</p>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="block text-[10px] font-black text-emerald-500 uppercase tracking-widest">Dana Jaminan (50%)</label>
+                            <p class="text-sm font-bold text-emerald-600">Rp {{ number_format($detail->product->buy_price * 0.5) }}</p>
+                            <p class="text-[8px] text-slate-400 leading-tight">*Akan dikembalikan utuh jika barang aman.</p>
                         </div>
                     </div>
 
@@ -60,22 +76,34 @@
                             <p class="mt-2 text-[10px] text-slate-500">Wajib diisi sebagai bukti kondisi barang sebelum dikembalikan.</p>
                         </div>
                     </div>
-                    <p class="mt-2 text-[10px] text-slate-500 italic">*Silakan tentukan bagaimana Anda mengembalikan barang ke toko.</p>
 
-                    <script>
-                        function toggleResi(show) {
-                            const container = document.getElementById('resi_container');
-                            const input = document.getElementById('resi_input');
-                            container.style.display = show ? 'block' : 'none';
-                            input.required = show;
-                            if(!show) input.value = '';
-                        }
-                    </script>
+                    <div class="p-4 bg-blue-50 border border-blue-100 rounded-2xl flex gap-4 items-start">
+                        <div class="shrink-0 text-blue-600">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.040L3 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622l-.618-3.016z"></path></svg>
+                        </div>
+                        <div class="space-y-1">
+                            <h4 class="text-xs font-bold text-blue-900 uppercase tracking-wider">Proteksi Penyewa Campify</h4>
+                            <p class="text-[10px] text-blue-700 leading-relaxed">
+                                Dana Jaminan Anda tersimpan aman di escrow Campify. Pastikan Anda <strong>{{ auth()->user()->ktp_verified_at ? 'sudah terverifikasi' : 'segera verifikasi KTP' }}</strong> untuk mempercepat proses pencairan refund.
+                            </p>
+                        </div>
+                    </div>
 
                     <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-4 rounded-2xl font-bold shadow-lg shadow-emerald-200 transition-all transform hover:-translate-y-1">
                         Submit Resi Pengembalian
                     </button>
                 </form>
+
+                <script>
+                    function toggleResi(show) {
+                        const container = document.getElementById('resi_container');
+                        const input = document.getElementById('resi_input');
+                        container.style.display = show ? 'block' : 'none';
+                        input.required = show;
+                        if(!show) input.value = '';
+                    }
+                </script>
+
             @elseif($return && $return->denda > 0 && !$return->bukti_denda)
                 {{-- TAHAP 2: UPLOAD BUKTI DENDA --}}
                 <div class="space-y-6">
@@ -125,6 +153,7 @@
                         </button>
                     </form>
                 </div>
+
             @elseif($rental->status === 'completed')
                 {{-- STATUS: SELESAI --}}
                 <div class="text-center py-10">
@@ -158,6 +187,7 @@
                         </div>
                     </div>
                 </div>
+
             @else
                 {{-- STATUS: MENUNGGU VERIFIKASI TOKO --}}
                 <div class="text-center py-10">

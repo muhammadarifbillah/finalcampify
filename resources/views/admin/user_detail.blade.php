@@ -43,6 +43,24 @@
             <div class="admin-card p-6">
                 <h2 class="text-2xl font-extrabold mb-5">Aksi Admin</h2>
                 <div class="space-y-3">
+                    @if(!$user->ktp_verified_at && $user->ktp_image)
+                        <div class="p-4 bg-blue-50 rounded-2xl border border-blue-100 mb-4">
+                            <h3 class="text-xs font-bold text-blue-900 uppercase mb-3">Verifikasi Identitas (KTP)</h3>
+                            <a href="{{ asset($user->ktp_image) }}" target="_blank" class="block rounded-xl overflow-hidden mb-3 border-2 border-white shadow-sm">
+                                <img src="{{ asset($user->ktp_image) }}" class="w-full h-32 object-cover">
+                            </a>
+                            <a href="{{ route('admin.users.verify_ktp', $user->id) }}" class="admin-button admin-button-primary w-full text-center">Verifikasi KTP Sekarang</a>
+                        </div>
+                    @elseif($user->ktp_verified_at)
+                        <div class="p-4 bg-emerald-50 rounded-2xl border border-emerald-100 mb-4">
+                            <div class="flex items-center gap-2 text-emerald-700 mb-2">
+                                <i data-lucide="check-circle" style="width: 16px; height: 16px;"></i>
+                                <span class="text-xs font-bold uppercase">Identitas Terverifikasi</span>
+                            </div>
+                            <p class="text-[10px] text-emerald-600">Terverifikasi pada: {{ $user->ktp_verified_at->format('d M Y H:i') }}</p>
+                        </div>
+                    @endif
+
                     @if($user->status !== 'active')
                         <a href="/admin/users/{{ $user->id }}/activate" class="admin-button admin-button-primary w-full">Aktifkan User</a>
                     @endif

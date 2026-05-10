@@ -1,288 +1,107 @@
 @extends('SellerView.layouts.app_seller')
 
 @section('content')
-
-<div class="d-flex" style="min-height:100vh; background:#f9fafb;">
-
-    {{-- SIDEBAR --}}
-    <div style="width:260px; background:#ffffff; border-right:1px solid #e5e7eb; display:flex; flex-direction:column; justify-content:space-between;">
-
-        {{-- TOP --}}
-        <div>
-
-            {{-- BRAND --}}
-            <div class="p-4 border-bottom">
-                <h4 style="color:#10B981; font-weight:800; letter-spacing:1px;">CAMPIFY.</h4>
-                <small class="text-muted">SELLER HUB</small>
-            </div>
-
-            {{-- MENU --}}
-            <ul class="nav flex-column px-3 mt-3">
-
-                {{-- DASHBOARD --}}
-                <li class="nav-item mb-1">
-                    <a class="nav-link sidebar-link {{ request()->routeIs('seller.dashboard') ? 'active' : '' }}"
-                    href="{{ route('seller.dashboard') }}">
-                        📊 Dashboard
-                    </a>
-                </li>
-
-                {{-- PRODUK --}}
-                <li class="nav-item mb-1">
-                    <a class="nav-link sidebar-link {{ request()->routeIs('products*') ? 'active' : '' }}"
-                    href="{{ route('seller.products.index') }}">
-                        📦 Kelola Produk
-                    </a>
-                </li>
-
-                {{-- RATING --}}
-                <li class="nav-item mb-1">
-                    <a class="nav-link sidebar-link {{ request()->routeIs('seller.ratings.index') ? 'active' : '' }}"
-                    href="/seller/ratings">
-                        ⭐ Kelola Rating
-                    </a>
-                </li>
-
-                {{-- TRANSAKSI (DROPDOWN) --}}
-                <li class="nav-item mb-1">
-
-                    <a class="nav-link sidebar-link d-flex justify-content-between align-items-center"
-                    data-bs-toggle="collapse"
-                    href="#transaksiMenu"
-                    role="button"
-                    aria-expanded="false"
-                    aria-controls="transaksiMenu">
-
-                        💰 Transaksi
-                        <span class="text-muted">▾</span>
-
-                    </a>
-
-                    <div class="collapse {{ request()->is('seller/orders*') || request()->is('seller/rentals*') ? 'show' : '' }}"
-                        id="transaksiMenu">
-
-                        <ul class="nav flex-column ms-3 mt-1">
-
-                            <li class="nav-item">
-                                <a class="nav-link sidebar-sub {{ request()->is('seller/orders*') ? 'active' : '' }}"
-                                href="/seller/orders">
-                                    🧾 Pesanan Baru
-                                </a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a class="nav-link sidebar-sub {{ request()->is('seller/rentals*') ? 'active' : '' }}"
-                                href="/seller/rentals">
-                                    🏕️ Penyewaan Alat
-                                </a>
-                            </li>
-
-                        </ul>
-
-                    </div>
-                </li>
-
-                {{-- CHAT --}}
-                <li class="nav-item mb-1">
-                    <a class="nav-link sidebar-link {{ request()->routeIs('chat.index') ? 'active' : '' }}"
-                    href="/seller/chat">
-                        💬 Chat Pembeli
-                    </a>
-                </li>
-
-            </ul>
+<div class="dashboard-header mb-5">
+    <div class="row align-items-center">
+        <div class="col-md-8">
+            <h2 class="fw-bold m-0 text-dark">Edit Produk</h2>
+            <p class="text-muted">Perbarui informasi produk dan stok barang Anda.</p>
         </div>
-
-        {{-- BOTTOM --}}
-        <div class="px-3 pb-4">
-            <hr>
-            <a class="nav-link sidebar-link {{ request()->routeIs('seller.store-profile*') ? 'bg-success text-white rounded px-3 py-2' : 'text-dark' }}" href="{{ route('seller.store-profile.index') }}"">
-                👤 Profil Toko
+        <div class="col-md-4 text-md-end">
+            <a href="{{ route('seller.products.index') }}" class="btn btn-light rounded-pill px-4 border shadow-sm">
+                <i class="bi bi-arrow-left me-2"></i>Kembali
             </a>
         </div>
     </div>
-
-    {{-- MAIN CONTENT --}}
-    <div class="flex-grow-1 p-4">
-
-        {{-- HEADER --}}
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h4 class="fw-bold">EDIT PRODUK</h4>
-
-            <a href="/seller/products" class="btn btn-light rounded-pill px-4">
-                ← Kembali
-            </a>
-        </div>
-
-        {{-- FORM CARD --}}
-        <div class="card border-0 shadow-sm p-4" style="border-radius:16px; max-width:1000px;">
-
-            <form action="/seller/products/{{ $product->id }}" method="POST" enctype="multipart/form-data">
-                @csrf
-                @method('PUT')
-
-                <div class="row">
-
-                    {{-- LEFT --}}
-                    <div class="col-md-8">
-
-                        {{-- NAMA PRODUK --}}
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">Nama Produk</label>
-                            <input type="text"
-                                   name="nama_produk"
-                                   value="{{ $product->nama_produk }}"
-                                   class="form-control rounded-3"
-                                   required>
-                        </div>
-
-                        {{-- JENIS PRODUK --}}
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">Jenis Produk</label>
-
-                            <div class="d-flex gap-3 mt-2">
-
-                                {{-- JUAL --}}
-                                <div class="form-check border rounded-3 px-4 py-3 flex-fill">
-                                    <input class="form-check-input"
-                                           type="radio"
-                                           name="jenis_produk"
-                                           id="jual"
-                                           value="jual"
-                                           {{ $product->jenis_produk == 'jual' ? 'checked' : '' }}>
-
-                                    <label class="form-check-label fw-semibold ms-2" for="jual">
-                                        Produk Jual
-                                    </label>
-
-                                    <div class="small text-muted mt-1">
-                                        Untuk penjualan permanen
-                                    </div>
-                                </div>
-
-                                {{-- SEWA --}}
-                                <div class="form-check border rounded-3 px-4 py-3 flex-fill">
-                                    <input class="form-check-input"
-                                           type="radio"
-                                           name="jenis_produk"
-                                           id="sewa"
-                                           value="sewa"
-                                           {{ $product->jenis_produk == 'sewa' ? 'checked' : '' }}>
-
-                                    <label class="form-check-label fw-semibold ms-2" for="sewa">
-                                        Produk Sewa
-                                    </label>
-
-                                    <div class="small text-muted mt-1">
-                                        Untuk penyewaan harian / mingguan
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-
-                        {{-- KATEGORI --}}
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">Kategori Alat Outdoor</label>
-                            <select name="kategori" class="form-select rounded-3">
-                                <option value="tenda" {{ $product->kategori == 'tenda' ? 'selected' : '' }}>Tenda</option>
-                                <option value="carrier" {{ $product->kategori == 'carrier' ? 'selected' : '' }}>Carrier</option>
-                                <option value="sleeping_bag" {{ $product->kategori == 'sleeping_bag' ? 'selected' : '' }}>Sleeping Bag</option>
-                                <option value="kompor" {{ $product->kategori == 'kompor' ? 'selected' : '' }}>Kompor Portable</option>
-                                <option value="matras" {{ $product->kategori == 'matras' ? 'selected' : '' }}>Matras</option>
-                                <option value="sepatu" {{ $product->kategori == 'sepatu' ? 'selected' : '' }}>Sepatu Hiking</option>
-                                <option value="lampu" {{ $product->kategori == 'lampu' ? 'selected' : '' }}>Lampu Camping</option>
-                                <option value="nesting" {{ $product->kategori == 'nesting' ? 'selected' : '' }}>Nesting / Cook Set</option>
-                            </select>
-                        </div>
-
-                        {{-- HARGA --}}
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">Harga</label>
-                            <input type="number"
-                                   name="harga"
-                                   value="{{ $product->harga }}"
-                                   class="form-control rounded-3">
-                        </div>
-
-                        {{-- STOK --}}
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">Stok</label>
-                            <input type="number"
-                                   name="stok"
-                                   value="{{ $product->stok }}"
-                                   class="form-control rounded-3">
-                        </div>
-
-                        {{-- DESKRIPSI --}}
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">Deskripsi Produk</label>
-                            <textarea name="deskripsi"
-                                      class="form-control rounded-3"
-                                      rows="5">{{ $product->deskripsi }}</textarea>
-                        </div>
-
-                    </div>
-
-                    {{-- RIGHT --}}
-                    <div class="col-md-4">
-
-                        <label class="form-label fw-semibold">Foto Produk</label>
-
-                        <div class="border rounded-4 p-4 text-center bg-light"
-                             style="min-height:320px; display:flex; flex-direction:column; justify-content:center;">
-
-                            {{-- GAMBAR LAMA --}}
-                            @if($product->gambar)
-                                <img src="{{ asset('storage/'.$product->gambar) }}"
-                                     class="img-fluid rounded mb-3"
-                                     style="max-height:180px; object-fit:cover;">
-                            @else
-                                <div class="mb-3">
-                                    <span style="font-size:40px;">📷</span>
-                                </div>
-                            @endif
-
-                            <p class="text-muted small mb-3">
-                                Upload gambar baru jika ingin mengganti
-                            </p>
-
-                            <input type="file"
-                                   name="image"
-                                   class="form-control rounded-3">
-
-                            <small class="text-muted mt-3">
-                                Format: JPG, PNG, JPEG
-                            </small>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-                {{-- BUTTON --}}
-                <div class="mt-4 d-flex justify-content-end gap-2">
-
-                    <a href="/products" class="btn btn-light rounded-pill px-4">
-                        Batal
-                    </a>
-
-                    <button type="submit"
-                            class="btn text-white rounded-pill px-4"
-                            style="background:#10B981;">
-                        Update Produk
-                    </button>
-
-                </div>
-
-            </form>
-
-        </div>
-
-    </div>
-
 </div>
 
-@endsection
+<div class="card card-modern border-0 shadow-sm p-5" style="border-radius:16px;">
+    <form action="{{ route('seller.products.update', $product->id) }}" method="POST" enctype="multipart/form-data">
+        @csrf
+        @method('PUT')
+        
+        <div class="row g-5">
+            {{-- DATA PRODUK --}}
+            <div class="col-md-7">
+                <h5 class="fw-bold mb-4 text-dark border-bottom pb-2">Informasi Produk</h5>
+                
+                <div class="mb-4">
+                    <label class="form-label fw-bold text-muted small text-uppercase ls-1">Nama Produk</label>
+                    <input type="text" name="nama_produk" class="form-control border-0 bg-light rounded-3 px-3 py-2 shadow-sm" value="{{ $product->nama_produk }}" required>
+                </div>
 
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold text-muted small text-uppercase ls-1">Kategori</label>
+                        <select name="kategori" class="form-select border-0 bg-light rounded-3 px-3 py-2 shadow-sm" required>
+                            <option value="tenda" {{ $product->kategori == 'tenda' ? 'selected' : '' }}>Tenda</option>
+                            <option value="tas_gunung" {{ $product->kategori == 'tas_gunung' ? 'selected' : '' }}>Tas Gunung (Carrier)</option>
+                            <option value="sepatu" {{ $product->kategori == 'sepatu' ? 'selected' : '' }}>Sepatu Outdoor</option>
+                            <option value="alat_masak" {{ $product->kategori == 'alat_masak' ? 'selected' : '' }}>Alat Masak</option>
+                            <option value="penerangan" {{ $product->kategori == 'penerangan' ? 'selected' : '' }}>Penerangan</option>
+                            <option value="aksesoris" {{ $product->kategori == 'aksesoris' ? 'selected' : '' }}>Aksesoris</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold text-muted small text-uppercase ls-1">Jenis Produk</label>
+                        <select name="jenis_produk" class="form-select border-0 bg-light rounded-3 px-3 py-2 shadow-sm" required>
+                            <option value="jual" {{ $product->jenis_produk == 'jual' ? 'selected' : '' }}>Dijual</option>
+                            <option value="sewa" {{ $product->jenis_produk == 'sewa' ? 'selected' : '' }}>Disewakan</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold text-muted small text-uppercase ls-1">Harga (Rp)</label>
+                        <input type="number" name="harga" class="form-control border-0 bg-light rounded-3 px-3 py-2 shadow-sm" value="{{ $product->harga }}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold text-muted small text-uppercase ls-1">Stok</label>
+                        <input type="number" name="stok" class="form-control border-0 bg-light rounded-3 px-3 py-2 shadow-sm" value="{{ $product->stok }}" required>
+                    </div>
+                </div>
+
+                <div class="mb-0">
+                    <label class="form-label fw-bold text-muted small text-uppercase ls-1">Deskripsi</label>
+                    <textarea name="deskripsi" rows="5" class="form-control border-0 bg-light rounded-3 px-3 py-2 shadow-sm" required>{{ $product->deskripsi }}</textarea>
+                </div>
+            </div>
+
+            {{-- MEDIA PRODUK --}}
+            <div class="col-md-5">
+                <h5 class="fw-bold mb-4 text-dark border-bottom pb-2">Foto Produk</h5>
+                
+                <div class="mb-4 text-center">
+                    <div class="p-2 bg-light rounded-4 mb-3 border dashed shadow-sm mx-auto" style="width: 250px; height: 250px;">
+                        @if($product->gambar && file_exists(public_path('storage/'.$product->gambar)))
+                            <img src="{{ asset('storage/'.$product->gambar) }}" class="w-100 h-100 object-fit-cover rounded-3">
+                        @else
+                            <div class="w-100 h-100 d-flex align-items-center justify-content-center opacity-25 fs-1">🏕️</div>
+                        @endif
+                    </div>
+                    <p class="small text-muted mb-3">Foto Saat Ini</p>
+                    
+                    <div class="p-4 bg-light rounded-4 border-2 border-dashed d-flex flex-column align-items-center justify-content-center" style="border-color: #cbd5e1 !important;">
+                        <i class="bi bi-cloud-arrow-up fs-2 text-emerald mb-2"></i>
+                        <p class="small text-muted mb-2">Pilih foto baru (opsional)</p>
+                        <input type="file" name="gambar" class="form-control form-control-sm border-0 bg-transparent" accept="image/*">
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2 mt-5">
+                    <button type="submit" class="btn btn-emerald py-3 rounded-pill fw-bold shadow-sm">
+                        <i class="bi bi-save me-2"></i>Simpan Perubahan
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<style>
+    .ls-1 { letter-spacing: 1px; }
+    .object-fit-cover { object-fit: cover; }
+    .dashed { border: 2px dashed #e2e8f0 !important; }
+</style>
+@endsection

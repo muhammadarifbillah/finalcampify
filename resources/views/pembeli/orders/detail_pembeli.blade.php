@@ -29,6 +29,23 @@
 <div class="pt-28 pb-20 bg-slate-50">
     <div class="max-w-4xl mx-auto px-4">
 
+        <!-- KYC WARNING FOR BUYER -->
+        @if(!auth()->user()->ktp_verified_at)
+            <div class="mb-6 p-5 bg-amber-50 border-2 border-amber-200 rounded-3xl flex gap-5 items-start">
+                <div class="w-12 h-12 rounded-2xl bg-amber-100 flex items-center justify-center text-amber-600 shrink-0">
+                    <i data-lucide="shield-alert" class="w-6 h-6"></i>
+                </div>
+                <div class="flex-1">
+                    <h3 class="font-black text-amber-900 uppercase tracking-widest text-sm mb-1">Verifikasi Identitas Diperlukan</h3>
+                    <p class="text-xs text-amber-800 leading-relaxed">
+                        Pesanan Anda saat ini <strong>tertahan sementara</strong> karena identitas (KTP) Anda belum diverifikasi. 
+                        Penjual hanya dapat memproses pesanan setelah identitas Anda dikonfirmasi demi keamanan bersama.
+                    </p>
+                    <a href="{{ route('profile') }}" class="mt-3 inline-block text-xs font-bold text-amber-900 border-b-2 border-amber-900 hover:text-amber-700 transition-colors">Cek Status KTP Saya →</a>
+                </div>
+            </div>
+        @endif
+
         <!-- HEADER -->
         <div class="mb-6 flex items-center justify-between">
             <h1 class="text-2xl font-bold text-slate-800">
@@ -218,21 +235,65 @@
                                                 <p class="font-medium">{{ \Carbon\Carbon::parse($item->start_date)->addDays($item->duration)->format('d M Y') }}</p>
                                             </div>
                                             <div>
-                                                <p class="text-xs text-slate-500 uppercase font-semibold">Harga Sewa/Hari</p>
-                                                <p class="font-medium text-emerald-600">Rp {{ number_format($item->harga / ($item->duration ?: 1)) }}</p>
+                                                <p class="text-xs text-slate-500 uppercase font-semibold">Harga Sewa</p>
+                                                <p class="font-medium text-emerald-600">Rp {{ number_format($item->harga) }}</p>
                                             </div>
                                             <div>
-                                                <p class="text-xs text-slate-500 uppercase font-semibold">Subtotal</p>
-                                                <p class="font-bold text-slate-900">Rp {{ number_format($item->harga) }}</p>
+                                                @php
+                                                    $deposit = $produk->buy_price * 0.5;
+                                                @endphp
+                                                <p class="text-xs text-slate-500 uppercase font-semibold">Dana Jaminan (Escrow)</p>
+                                                <p class="font-bold text-blue-600">Rp {{ number_format($deposit) }}</p>
+                                                <p class="text-[8px] text-slate-400 mt-0.5 leading-tight">Akan dikembalikan utuh jika barang kembali aman.</p>
+                                            </div>
+                                            <div>
+                                                <p class="text-xs text-slate-500 uppercase font-semibold">Total Dibayar</p>
+                                                <p class="font-bold text-slate-900">Rp {{ number_format($item->harga + $deposit) }}</p>
                                             </div>
                                         </div>
 
                                         {{-- Return & Review Section for Rental --}}
                                         <div class="mt-4 pt-4 border-t border-slate-200 space-y-4">
-                                            <div class="flex gap-3">
-                                                <a href="{{ route('orders.return', $item->id) }}" class="inline-flex items-center justify-center rounded-xl bg-slate-900 px-4 py-2 text-xs font-bold text-white hover:bg-slate-800 transition">
-                                                    Proses Pengembalian
-                                                </a>
+                                            @php
+                                                $returnInfo = \App\Models\ReturnEscrow::where('order_id', $pesanan->id)->where('type', 'sewa')->first();
+                                            @endphp
+
+                                            <div class="flex flex-col gap-3">
+                                                @if(!$returnInfo)
+                                                    <a href="{{ route('orders.return', $item->id) }}" class="inline-flex items-center justify-center rounded-xl bg-slate-900 px-4 py-2 text-xs font-bold text-white hover:bg-slate-800 transition">
+                                                        Proses Pengembalian
+                                                    </a>
+                                                @else
+                                                    <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-3">
+                                                        <div class="flex items-center justify-between">
+                                                            <div class="flex items-center gap-2">
+                                                                <div class="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></div>
+                                                                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Status Pengembalian</span>
+                                                            </div>
+                                                            <span class="px-2 py-0.5 {{ $returnInfo->status === 'completed' ? 'bg-emerald-100 text-emerald-700' : 'bg-indigo-100 text-indigo-700' }} rounded text-[9px] font-bold uppercase">{{ $returnInfo->status }}</span>
+                                                        </div>
+                                                        
+                                                        @if($returnInfo->status === 'completed')
+                                                            <div class="space-y-2 pt-2 border-t border-dashed border-slate-200">
+                                                                <div class="flex justify-between text-xs">
+                                                                    <span class="text-slate-500">Dana Jaminan Awal</span>
+                                                                    <span class="font-bold text-slate-800">Rp {{ number_format($returnInfo->deposit_amount) }}</span>
+                                                                </div>
+                                                                <div class="flex justify-between text-xs">
+                                                                    <span class="text-slate-500">Total Denda (Telat + Rusak)</span>
+                                                                    <span class="font-bold text-red-600">- Rp {{ number_format($returnInfo->total_fines) }}</span>
+                                                                </div>
+                                                                <div class="flex justify-between items-center pt-2 border-t border-slate-200">
+                                                                    <span class="text-sm font-bold text-emerald-700">Refund Cair ke Anda</span>
+                                                                    <span class="text-lg font-black text-emerald-600">Rp {{ number_format($returnInfo->to_buyer) }}</span>
+                                                                </div>
+                                                                <p class="text-[9px] text-slate-400 text-center italic mt-2">Dana telah dikembalikan ke saldo/rekening Anda.</p>
+                                                            </div>
+                                                        @else
+                                                            <p class="text-[10px] text-slate-500 italic">Barang dalam proses pengecekan oleh Admin & Penjual. Harap tunggu konfirmasi refund.</p>
+                                                        @endif
+                                                    </div>
+                                                @endif
                                             </div>
                                             
                                             @if($pesanan->status == 'selesai')

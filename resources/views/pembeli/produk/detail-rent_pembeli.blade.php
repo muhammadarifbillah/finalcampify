@@ -83,13 +83,26 @@
                             <p class="text-sm text-slate-500 uppercase font-bold tracking-wider mb-1">Harga Sewa</p>
                             <p class="text-3xl font-black text-emerald-600">Rp {{ number_format($produk->rent_price) }}<span class="text-sm font-bold text-slate-400">/hari</span></p>
                         </div>
+                        <div class="rounded-3xl bg-blue-50 p-4 border border-blue-100">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-[10px] text-blue-600 uppercase font-black tracking-wider">Dana Jaminan (Keamanan)</span>
+                                <div class="group relative">
+                                    <span class="cursor-help text-blue-400 text-xs">ⓘ</span>
+                                    <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-48 p-2 bg-slate-900 text-white text-[10px] rounded-lg shadow-xl z-20">
+                                        Dana ini adalah deposit 50% dari harga beli produk (Rp {{ number_format($produk->buy_price) }}) yang akan dikembalikan utuh jika barang kembali aman.
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="text-xl font-black text-blue-700">Rp {{ number_format($produk->buy_price * 0.5) }}</p>
+                            <p class="text-[9px] text-blue-500 italic mt-1">*Dibayarkan sekali di awal, kembali utuh di akhir.</p>
+                        </div>
                     </div>
 
                     <div class="space-y-6">
                         <div class="bg-slate-50 rounded-3xl p-5 border border-slate-200">
                             <h3 class="text-lg font-semibold text-slate-900 mb-4">Sewa Sekarang</h3>
                             <form action="{{ route('sewa.form', $produk->id) }}" method="GET" class="space-y-4">
-                                <p class="text-sm text-slate-500 mb-3 leading-relaxed">Klik tombol di bawah untuk mengisi formulir penyewaan, memilih durasi, dan metode pengiriman.</p>
+                                <p class="text-sm text-slate-500 mb-3 leading-relaxed">Klik tombol di bawah untuk mengisi formulir penyewaan. <strong>Catatan:</strong> Anda wajib mengunggah foto KTP untuk keamanan transaksi.</p>
                                 <button type="submit" class="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-5 py-4 text-base font-bold text-white hover:bg-emerald-700 w-full shadow-lg shadow-emerald-100 transition-all">Lanjutkan ke Formulir Sewa</button>
                             </form>
                         </div>

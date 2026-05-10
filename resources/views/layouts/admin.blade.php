@@ -17,6 +17,15 @@
         ['label' => 'Products', 'icon' => 'package', 'href' => route('admin.products.list'), 'active' => Request::is('admin/products-list*') || Request::is('admin/products/*')],
         ['label' => 'Stores', 'icon' => 'store', 'href' => route('admin.stores.index'), 'active' => Request::is('admin/stores*')],
         ['label' => 'Orders', 'icon' => 'shopping-cart', 'href' => route('admin.orders.index'), 'active' => Request::is('admin/orders*')],
+        [
+            'label' => 'Returns', 
+            'icon' => 'gavel', 
+            'active' => Request::is('admin/returns*'),
+            'submenu' => [
+                ['label' => 'Pengembalian Pembelian', 'href' => route('admin.returns.jual_beli'), 'active' => Request::is('admin/returns/jual-beli')],
+                ['label' => 'Pengembalian Sewa', 'href' => route('admin.returns.sewa'), 'active' => Request::is('admin/returns/sewa')]
+            ]
+        ],
         ['label' => 'Articles', 'icon' => 'newspaper', 'href' => '/admin/articles', 'active' => Request::is('admin/articles*')],
         ['label' => 'Courier', 'icon' => 'truck', 'href' => '/admin/couriers', 'active' => Request::is('admin/couriers*')],
         ['label' => 'Chat', 'icon' => 'messages-square', 'href' => '/admin/chats', 'active' => Request::is('admin/chats*')],
@@ -44,12 +53,38 @@
                 </div>
             </div>
 
+            <style>
+                .admin-nav-group.is-open .admin-nav-submenu { display: block; }
+                .admin-nav-group.is-open .chevron-icon { transform: rotate(180deg); }
+                .admin-nav-submenu { display: none; padding-left: 2.5rem; margin-top: 0.25rem; margin-bottom: 0.5rem; }
+                .admin-nav-submenu .admin-nav-link { padding: 0.5rem 1rem; font-size: 0.875rem; min-height: unset; height: auto; }
+            </style>
+
             <nav class="admin-nav">
                 @foreach($adminNav as $item)
-                    <a href="{{ $item['href'] }}" class="admin-nav-link {{ $item['active'] ? 'is-active' : '' }}">
-                        <i data-lucide="{{ $item['icon'] }}"></i>
-                        <span>{{ $item['label'] }}</span>
-                    </a>
+                    @if(isset($item['submenu']))
+                        <div class="admin-nav-group {{ $item['active'] ? 'is-open' : '' }}">
+                            <button type="button" class="admin-nav-link w-full text-left flex items-center justify-between {{ $item['active'] ? 'is-active' : '' }}" onclick="this.parentElement.classList.toggle('is-open')">
+                                <div class="flex items-center gap-3">
+                                    <i data-lucide="{{ $item['icon'] }}"></i>
+                                    <span>{{ $item['label'] }}</span>
+                                </div>
+                                <i data-lucide="chevron-down" class="chevron-icon transition-transform duration-200" style="width: 16px; height: 16px;"></i>
+                            </button>
+                            <div class="admin-nav-submenu">
+                                @foreach($item['submenu'] as $sub)
+                                    <a href="{{ $sub['href'] }}" class="admin-nav-link {{ $sub['active'] ? 'is-active' : '' }}">
+                                        <span>{{ $sub['label'] }}</span>
+                                    </a>
+                                @endforeach
+                            </div>
+                        </div>
+                    @else
+                        <a href="{{ $item['href'] }}" class="admin-nav-link {{ $item['active'] ? 'is-active' : '' }}">
+                            <i data-lucide="{{ $item['icon'] }}"></i>
+                            <span>{{ $item['label'] }}</span>
+                        </a>
+                    @endif
                 @endforeach
             </nav>
 

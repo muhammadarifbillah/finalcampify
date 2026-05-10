@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\ChatController;
 use App\Http\Controllers\Admin\ChatbotController;
 use App\Http\Controllers\Admin\MonitoringController;
 use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\ReturnEscrowController;
 
 use App\Http\Controllers\Pembeli\PembeliHomeController;
 use App\Http\Controllers\Pembeli\PembeliProductController;
@@ -67,6 +68,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('/users/{id}/activate', [UserController::class, 'activate']);
     Route::get('/users/{id}/deactivate', [UserController::class, 'deactivate']);
     Route::get('/users/{id}/ban', [UserController::class, 'ban']);
+    Route::get('/users/{id}/verify-ktp', [UserController::class, 'verifyKtp'])->name('admin.users.verify_ktp');
     Route::get('/users/delete/{id}', [UserController::class, 'destroy']);
 
     // 📦 PRODUK (VALIDASI)
@@ -103,6 +105,16 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
 
     // ORDERS (UNIFIED)
     Route::get('/orders', [OrderController::class, 'index'])->name('admin.orders.index');
+
+    // RETURNS / ESCROW RESOLUTION
+    Route::get('/returns/jual-beli', [ReturnEscrowController::class, 'jualBeli'])->name('admin.returns.jual_beli');
+    Route::get('/returns/sewa', [ReturnEscrowController::class, 'sewa'])->name('admin.returns.sewa');
+    Route::get('/returns', [ReturnEscrowController::class, 'index'])->name('admin.returns.index');
+    Route::get('/returns/sewa/export', [ReturnEscrowController::class, 'exportSewa'])->name('admin.returns.export.sewa');
+    Route::get('/returns/{returnEscrow}', [ReturnEscrowController::class, 'show'])->name('admin.returns.show');
+    Route::post('/returns/{returnEscrow}', [ReturnEscrowController::class, 'update'])->name('admin.returns.update');
+    Route::post('/returns/{returnEscrow}/message', [ReturnEscrowController::class, 'sendMediationMessage'])->name('admin.returns.message');
+    Route::post('/returns/{returnEscrow}/finalize', [ReturnEscrowController::class, 'finalize'])->name('admin.returns.finalize');
 
     Route::view('/settings', 'admin.settings')->name('admin.settings');
 
@@ -174,6 +186,7 @@ Route::middleware(['auth', 'role:buyer'])->group(function () {
     Route::post('/profile/update', [PembeliProfileController::class, 'updateProfile'])->name('profile.update');
     Route::post('/profile/address', [PembeliProfileController::class, 'updateAddress'])->name('profile.address.update');
     Route::post('/profile/password', [PembeliProfileController::class, 'updatePassword'])->name('profile.password.update');
+    Route::post('/profile/ktp', [PembeliProfileController::class, 'uploadKtp'])->name('profile.ktp.upload');
 
     Route::get('/orders/return/{detail_id}', [PembeliOrderController::class, 'returnForm'])->name('orders.return');
     Route::post('/orders/return/{detail_id}', [PembeliOrderController::class, 'returnStore'])->name('orders.return.store');
@@ -234,6 +247,9 @@ Route::middleware(['auth', 'role:seller'])->prefix('seller')->name('seller.')->g
     Route::get('/reports', [ReportController_seller::class, 'index'])->name('reports.index');
     Route::get('/reports/sales', [ReportController_seller::class, 'salesReport'])->name('reports.sales');
     Route::get('/reports/rentals', [ReportController_seller::class, 'rentalReport'])->name('reports.rentals');
+
+    // User Verification by Seller
+    Route::post('/users/{id}/verify-ktp', [RentalController_seller::class, 'verifyUserKtp'])->name('user.verify');
     Route::get('/reports/export-pdf/{type}', [ReportController_seller::class, 'exportPdf'])->name('reports.exportPdf');
 });
 
