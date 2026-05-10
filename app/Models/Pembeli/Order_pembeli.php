@@ -2,6 +2,7 @@
 namespace App\Models\Pembeli;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Order;
+use App\Models\User;
 
 class Order_pembeli extends Order
 {
@@ -24,8 +25,13 @@ class Order_pembeli extends Order
         'longitude',
     ];
 
-public function details()
-{
-    return $this->hasMany(OrderDetail_pembeli::class, 'order_id', 'id');
-}
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function details()
+    {
+        return $this->hasMany(OrderDetail_pembeli::class, 'order_id', 'id');
+    }
 }
