@@ -25,6 +25,9 @@ class User extends Authenticatable
         'district',
         'postal_code',
         'phone',
+        'ktp_image',
+        'ktp_verified_at',
+        'is_fraud',
     ];
 
     protected $hidden = [
@@ -34,6 +37,8 @@ class User extends Authenticatable
     protected $casts = [
         'password' => 'hashed',
         'last_login' => 'datetime',
+        'ktp_verified_at' => 'datetime',
+        'is_fraud' => 'boolean',
     ];
 
     public function getNameAttribute()

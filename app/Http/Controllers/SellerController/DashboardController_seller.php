@@ -15,23 +15,14 @@ class DashboardController_seller extends Controller
     {
         $userId = Auth::id();
 
-        $rental = Rental_seller::all();
-
-        return view('SellerView.seller.dashboard_seller', compact('rental'));
-
         $products = Product_seller::where('user_id', $userId)->get();
-
         $productIds = $products->pluck('id');
+
+        $rental = Rental_seller::whereIn('product_id', $productIds)->get();
 
         $orders = Order_seller::with(['details.product'])
             ->whereHas('details', fn ($query) => $query->whereIn('product_id', $productIds))
             ->get();
-
-        $pendingOrders = $orders->whereIn('status', ['menunggu', 'diproses'])->count();
-
-        $totalRevenue = $orders
-            ->where('status', 'selesai')
-            ->sum('total');
 
         $avgStoreRating = StoreRating_seller::getAverageRating($userId);
         $storeRatingCount = StoreRating_seller::getRatingCount($userId);
@@ -39,8 +30,7 @@ class DashboardController_seller extends Controller
         return view('SellerView.seller.dashboard_seller', compact(
             'products',
             'orders',
-            'pendingOrders',
-            'totalRevenue',
+            'rental',
             'avgStoreRating',
             'storeRatingCount'
         ));

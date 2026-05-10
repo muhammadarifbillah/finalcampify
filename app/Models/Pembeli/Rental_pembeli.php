@@ -32,9 +32,4 @@ class Rental_pembeli extends Model
     {
         return $this->belongsTo(Order_pembeli::class, 'order_id');
     }
-
-    public function returnRequest()
-    {
-        return $this->hasOne(Return_pembeli::class, 'rental_id');
-    }
 }

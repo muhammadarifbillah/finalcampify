@@ -32,48 +32,39 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-2">Total Denda</label>
-                        <p class="text-lg font-bold text-slate-900">Rp {{ number_format($denda ?? 0) }}</p>
-                        <p class="text-[10px] text-slate-500">Dihitung otomatis jika terlambat mengembalikan.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50 p-6 rounded-[24px] border border-slate-100">
+                    <div class="space-y-1">
+                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Biaya Sewa</label>
+                        <p class="text-sm font-bold text-slate-800">Rp {{ number_format($detail->harga) }}</p>
                     </div>
-                    <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-2">Status Barang</label>
-                        @if(!empty($return))
-                            <span class="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-[10px] font-bold uppercase">Return Terkirim</span>
-                        @elseif(($daysLate ?? 0) > 0)
-                            <span class="px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-[10px] font-bold uppercase">Terlambat</span>
-                        @else
-                            <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-[10px] font-bold uppercase">Dalam Masa Sewa</span>
-                        @endif
+                    <div class="space-y-1">
+                        <label class="block text-[10px] font-black text-emerald-500 uppercase tracking-widest">Dana Jaminan (50%)</label>
+                        <p class="text-sm font-bold text-emerald-600">Rp {{ number_format($detail->product->buy_price * 0.5) }}</p>
+                        <p class="text-[8px] text-slate-400 leading-tight">*Akan dikembalikan utuh jika barang aman.</p>
+                    </div>
+                    <div class="md:col-span-2 pt-3 border-t border-dashed border-slate-200">
+                        <div class="flex justify-between items-center">
+                            <label class="block text-xs font-bold text-slate-700">Estimasi Denda Terlambat</label>
+                            <p class="text-sm font-black text-red-600">Rp {{ number_format($denda ?? 0) }}</p>
+                        </div>
+                        <p class="text-[9px] text-slate-400 mt-1 italic">Denda akan dipotong otomatis dari Dana Jaminan Anda.</p>
                     </div>
                 </div>
 
-                <div>
-                    <label class="block text-sm font-bold text-slate-700 mb-2">Input Resi Pengembalian</label>
-                    <input type="text" name="resi_return" class="w-full rounded-2xl border-slate-200 p-4 focus:ring-emerald-500 focus:border-emerald-500" placeholder="Masukkan nomor resi pengiriman balik" required>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-bold text-slate-700 mb-2">Kondisi Barang</label>
-                    <select name="kondisi_barang" class="w-full rounded-2xl border-slate-200 p-4 focus:ring-emerald-500 focus:border-emerald-500">
-                        <option value="baik">Baik</option>
-                        <option value="rusak">Rusak</option>
-                        <option value="hilang">Hilang</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-bold text-slate-700 mb-2">Bukti Pembayaran Denda (Jika Ada)</label>
-                    <div class="border-2 border-dashed border-slate-200 rounded-2xl p-6 text-center hover:border-emerald-400 transition">
-                        <input type="file" name="bukti_denda" accept="image/*" class="w-full text-sm text-slate-600" />
-                        <p class="mt-2 text-[10px] text-slate-500">Format: JPG/PNG/WEBP (maks 2MB). Wajib jika ada denda.</p>
+                <div class="p-4 bg-blue-50 border border-blue-100 rounded-2xl flex gap-4 items-start">
+                    <div class="shrink-0 text-blue-600">
+                        <i data-lucide="shield-check" style="width: 20px; height: 20px;"></i>
+                    </div>
+                    <div class="space-y-1">
+                        <h4 class="text-xs font-bold text-blue-900 uppercase tracking-wider">Proteksi Penyewa Campify</h4>
+                        <p class="text-[10px] text-blue-700 leading-relaxed">
+                            Dana Jaminan Anda tersimpan aman di escrow Campify. Pastikan Anda <strong>{{ auth()->user()->ktp_verified_at ? 'sudah terverifikasi' : 'segera verifikasi KTP' }}</strong> untuk mempercepat proses pencairan refund setelah barang diterima penjual.
+                        </p>
                     </div>
                 </div>
 
                 <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-4 rounded-2xl font-bold shadow-lg shadow-emerald-200 transition-all transform hover:-translate-y-1">
-                    Submit Pengembalian
+                    Ajukan Pengembalian
                 </button>
             </form>
         </div>

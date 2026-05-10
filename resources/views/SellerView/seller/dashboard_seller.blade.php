@@ -10,14 +10,27 @@ $userId = Auth::id();
 $products = \App\Models\SellerModels\Product_seller::where('user_id', $userId)->get();
 $productIds = $products->pluck('id');
 
-$orders = \App\Models\SellerModels\Order_seller::with(['details.product'])
+$orders = \App\Models\SellerModels\Order_seller::with(['details' => function($q) use ($productIds) {
+        $q->whereIn('product_id', $productIds)->with('product');
+    }])
     ->whereHas('details', fn ($q) => $q->whereIn('product_id', $productIds))
     ->get();
 
 $ordersDone = $orders->where('status','selesai');
+$pendingOrders = $orders->whereIn('status', ['menunggu', 'diproses'])->count();
 
-$pendingOrders = $orders->whereIn('status',['menunggu','diproses'])->count();
-$totalRevenue = $ordersDone->sum('total');
+// Revenue murni (Hanya produk milik seller ini)
+$totalRevenue = $ordersDone->sum(function($o) use ($productIds) {
+    return $o->details->whereIn('product_id', $productIds)->sum('harga');
+});
+
+// Dana Jaminan yang sedang tertahan (Escrow) - Hanya untuk produk seller ini
+$activeEscrow = $orders->whereNotIn('status', ['selesai', 'cancelled', 'rejected'])->sum(function($o) use ($productIds) {
+    $myDetails = $o->details->whereIn('product_id', $productIds);
+    $myRentalFee = $myDetails->where('type', 'rent')->sum('harga');
+    // Deposit dihitung 50% dari harga beli produk sewa milik seller ini
+    return $myDetails->where('type', 'rent')->sum(fn($d) => optional($d->product)->buy_price * 0.5);
+});
 
 /* =========================
    📊 SALES 7 HARI
@@ -32,7 +45,9 @@ for ($i = 6; $i >= 0; $i--) {
 
     $total = $ordersDone->filter(function ($o) use ($date) {
         return Carbon::parse($o->created_at)->format('Y-m-d') == $date;
-    })->sum('total');
+    })->sum(function($o) use ($productIds) {
+        return $o->details->whereIn('product_id', $productIds)->sum('harga');
+    });
 
     $dataSales[] = $total;
 }
@@ -108,15 +123,7 @@ $chatScore = $avgResponse == 0 ? 100 : max(40, 100 - $avgResponse);
 /* =========================
    📥 RENTAL REQUEST
 ========================= */
-$rentalRequests = $orders
-    ->where('status', 'menunggu')
-    ->filter(function ($order) {
-        return $order->details->contains(function ($d) {
-            return optional($d->product)->jenis_produk === 'sewa';
-        });
-    });
-
-$totalRentalRequests = $rentalRequests->count();
+$totalRentalRequests = $rental->where('status', 'pending')->count();
 @endphp
 
 
@@ -246,6 +253,14 @@ $totalRentalRequests = $rentalRequests->count();
             </div>
 
             <div class="col-md-3">
+                <div class="card p-3 shadow-sm border-0 rounded-4 bg-emerald-50 border border-emerald-100">
+                    <small class="text-emerald-700 fw-bold">Escrow Protected</small>
+                    <h5 class="fw-bold text-emerald-600">Rp {{ number_format($activeEscrow,0,',','.') }}</h5>
+                    <small class="text-emerald-500">Dana jaminan aktif</small>
+                </div>
+            </div>
+
+            <div class="col-md-3">
                 <div class="card p-3 shadow-sm border-0 rounded-4">
                     <small>Orders</small>
                     <h5 class="fw-bold">{{ $orders->count() }}</h5>
@@ -308,6 +323,7 @@ $totalRentalRequests = $rentalRequests->count();
                             <tr>
                                 <th>ID</th>
                                 <th>Produk</th>
+                                <th>Tipe</th>
                                 <th>Status</th>
                             </tr>
                         </thead>
@@ -316,20 +332,30 @@ $totalRentalRequests = $rentalRequests->count();
                         @forelse($orders->take(5) as $o)
                         <tr>
                             <td>#{{ $o->id }}</td>
-
                             <td>
                                 {{ optional($o->details->first())->product->nama_produk ?? '-' }}
                             </td>
-
                             <td>
-                                <span class="badge bg-secondary">
-                                    {{ $o->status }}
+                                @if(optional($o->details->first())->type === 'rent')
+                                    <span class="text-primary small fw-bold">Sewa</span>
+                                @else
+                                    <span class="text-success small fw-bold">Beli</span>
+                                @endif
+                            </td>
+                            <td>
+                                <span class="badge 
+                                    @if($o->status == 'menunggu') bg-warning text-dark
+                                    @elseif($o->status == 'selesai') bg-success
+                                    @elseif($o->status == 'dibatalkan') bg-danger
+                                    @else bg-info text-dark
+                                    @endif" style="font-size: 10px;">
+                                    {{ strtoupper($o->status) }}
                                 </span>
                             </td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="3" class="text-center text-muted">
+                            <td colspan="4" class="text-center text-muted">
                                 Belum ada pesanan
                             </td>
                         </tr>

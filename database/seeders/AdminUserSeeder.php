@@ -26,6 +26,18 @@ class AdminUserSeeder extends Seeder
         );
 
         User::updateOrCreate(
+            ['email' => 'arif@campify.com'],
+            [
+                'name' => 'Arif Admin',
+                'nama' => 'Arif Admin',
+                'password' => Hash::make('admin123'),
+                'role' => 'admin',
+                'status' => 'active',
+                'last_login' => now(),
+            ]
+        );
+
+        User::updateOrCreate(
             ['email' => 'buyer@campify.com'],
             [
                 'name' => 'Sample Buyer',

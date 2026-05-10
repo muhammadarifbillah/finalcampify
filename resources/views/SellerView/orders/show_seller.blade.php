@@ -140,33 +140,77 @@
                     </p>
 
                     {{-- STATUS --}}
-                    <span class="badge 
-                        @if ($order->status == 'pending') bg-warning text-dark
-                        @elseif ($order->status == 'processing') bg-primary
-                        @elseif ($order->status == 'shipped') bg-info text-dark
-                        @elseif ($order->status == 'completed') bg-success
-                        @else bg-secondary
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <span class="badge 
+                            @if ($order->status == 'pending') bg-warning text-dark
+                            @elseif ($order->status == 'processing') bg-primary
+                            @elseif ($order->status == 'shipped') bg-info text-dark
+                            @elseif ($order->status == 'completed') bg-success
+                            @else bg-secondary
+                            @endif">
+                            @switch($order->status)
+                                @case('pending') Menunggu @break
+                                @case('processing') Diproses @break
+                                @case('shipped') Dikirim @break
+                                @case('completed') Selesai @break
+                                @default {{ $order->status }}
+                            @endswitch
+                        </span>
+
+                        @if(!$order->buyer->ktp_verified_at)
+                            <span class="badge bg-danger animate-pulse" style="font-size: 10px;">
+                                ⚠️ RISIKO TINGGI: Belum Verifikasi KTP
+                            </span>
                         @endif
-                        mb-3">
+                    </div>
 
-                        @switch($order->status)
-                            @case('pending') Menunggu @break
-                            @case('processing') Diproses @break
-                            @case('shipped') Dikirim @break
-                            @case('completed') Selesai @break
-                            @default {{ $order->status }}
-                        @endswitch
-
-                    </span>
+                    @if(!$order->buyer->ktp_verified_at)
+                        <div class="alert alert-danger border-0 rounded-4 p-3 mb-4">
+                            <h6 class="fw-bold mb-1"><i class="fas fa-exclamation-triangle"></i> Keamanan Escrow Terhambat</h6>
+                            <p class="small mb-2">Penyewa belum memverifikasi identitasnya. Anda <strong>tidak dapat memproses pesanan</strong> sebelum memvalidasi KTP penyewa demi keamanan aset Anda.</p>
+                            
+                            @if($order->buyer->ktp_image)
+                                <div class="mt-3">
+                                    <p class="small fw-bold text-dark mb-2">DOKUMEN KTP PENYEWA:</p>
+                                    <a href="{{ asset($order->buyer->ktp_image) }}" target="_blank">
+                                        <img src="{{ asset($order->buyer->ktp_image) }}" class="img-thumbnail mb-2" style="max-height:120px;">
+                                    </a>
+                                    <form action="{{ route('seller.user.verify', $order->buyer->id) }}" method="POST">
+                                        @csrf
+                                        <button type="submit" class="btn btn-sm btn-primary w-100 fw-bold">Verifikasi & Buka Kunci Pesanan</button>
+                                    </form>
+                                </div>
+                            @else
+                                <p class="small text-danger italic">Penyewa belum mengunggah foto KTP.</p>
+                            @endif
+                        </div>
+                    @endif
 
                     <hr>
 
-                    <p><strong>Harga:</strong><br>
-                        Rp {{ number_format(optional($order->product)->harga ?? 0,0,',','.') }}
-                    </p>
+                    <div class="bg-light p-3 rounded border mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-muted small">Biaya Sewa</span>
+                            <span class="fw-bold">Rp {{ number_format($order->details->first()->harga ?? 0, 0, ',', '.') }}</span>
+                        </div>
+                        @php 
+                            $deposit = $order->total - ($order->details->first()->harga ?? 0);
+                        @endphp
+                        @if($deposit > 0)
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-primary small">Dana Jaminan (Escrow)</span>
+                            <span class="fw-bold text-primary">Rp {{ number_format($deposit, 0, ',', '.') }}</span>
+                        </div>
+                        @endif
+                        <hr class="my-2">
+                        <div class="d-flex justify-content-between">
+                            <span class="fw-bold text-dark">Total Dana Masuk</span>
+                            <span class="fw-bold text-success">Rp {{ number_format($order->total, 0, ',', '.') }}</span>
+                        </div>
+                    </div>
 
                     <p><strong>Deskripsi Produk:</strong><br>
-                        {{ optional($order->product)->deskripsi ?? '-' }}
+                        {{ optional($order->product)->description ?? optional($order->product)->deskripsi ?? '-' }}
                     </p>
 
                     {{-- RESI --}}
@@ -189,11 +233,17 @@
 
                     {{-- ACTION --}}
                     <div class="mt-4">
-                        <a href="/seller/orders/{{ $order->id }}/edit" 
-                           class="btn text-white rounded-pill px-4"
-                           style="background:#10B981;">
-                           Ubah Status
-                        </a>
+                        @if($order->buyer->ktp_verified_at)
+                            <a href="/seller/orders/{{ $order->id }}/edit" 
+                               class="btn text-white rounded-pill px-4"
+                               style="background:#10B981;">
+                               Ubah Status
+                            </a>
+                        @else
+                            <button class="btn btn-secondary rounded-pill px-4" disabled title="Harap verifikasi KTP penyewa terlebih dahulu">
+                                🔒 Status Terkunci
+                            </button>
+                        @endif
                     </div>
 
                 </div>

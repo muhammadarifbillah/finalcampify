@@ -87,6 +87,15 @@
                     <p>{{ $flaggedChats }} chat ditandai sistem atau user.</p>
                 </div>
             </div>
+            @if($pendingKyc > 0)
+                <div class="admin-alert admin-alert-warning">
+                    <i data-lucide="user-check"></i>
+                    <div>
+                        <p class="font-extrabold tracking-wide">PENDING KYC</p>
+                        <p>{{ $pendingKyc }} user menunggu verifikasi KTP. <a href="{{ route('admin.users.index') }}" class="underline font-bold">Verifikasi Sekarang</a></p>
+                    </div>
+                </div>
+            @endif
         </div>
 
         <div class="grid gap-6 xl:grid-cols-2">

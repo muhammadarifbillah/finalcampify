@@ -128,10 +128,20 @@
                         @forelse($rentals as $rental)
                         <tr>
                             <td class="px-4">#RNT-{{ $rental->id }}</td>
-                            <td>{{ $rental->user->name ?? '-' }}</td>
+                            <td>
+                                <div class="fw-bold">{{ $rental->user->name ?? '-' }}</div>
+                                @if($rental->user->ktp_verified_at)
+                                    <small class="text-primary" style="font-size: 9px; font-weight: 800;">[VERIFIED KTP]</small>
+                                @else
+                                    <small class="text-muted" style="font-size: 9px;">[NOT VERIFIED]</small>
+                                @endif
+                            </td>
                             <td>{{ optional($rental->product)->nama_produk ?? '-' }}</td>
                             <td>{{ \Carbon\Carbon::parse($rental->start_date)->format('d/m/Y') }} - {{ \Carbon\Carbon::parse($rental->end_date)->format('d/m/Y') }}</td>
-                            <td>Rp {{ number_format($rental->price,0,',','.') }}</td>
+                            <td>
+                                <div class="fw-bold text-dark">Rp {{ number_format($rental->price,0,',','.') }}</div>
+                                <div class="text-primary" style="font-size: 10px;">Jaminan: Rp {{ number_format($rental->product->buy_price * 0.5, 0, ',', '.') }}</div>
+                            </td>
                             <td>
                                 @switch($rental->status)
                                     @case('pending')

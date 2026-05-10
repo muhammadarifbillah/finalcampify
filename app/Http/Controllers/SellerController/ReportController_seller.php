@@ -96,7 +96,7 @@ class ReportController_seller extends Controller
             ->get();
 
         // Hitung total pendapatan sewa
-        $totalRentalIncome = $rentals->sum('total_harga');
+        $totalRentalIncome = $rentals->sum('price');
         $totalRentals = $rentals->count();
 
         // Produk tersewa terbanyak
@@ -107,13 +107,13 @@ class ReportController_seller extends Controller
                 $existing = $topRentedProducts->firstWhere('id', $product->id);
                 if ($existing) {
                     $existing['count'] += 1;
-                    $existing['total'] += $rental->total_harga;
+                    $existing['total'] += $rental->price;
                 } else {
                     $topRentedProducts->push([
                         'id' => $product->id,
                         'nama_produk' => $product->nama_produk,
                         'count' => 1,
-                        'total' => $rental->total_harga,
+                        'total' => $rental->price,
                     ]);
                 }
             }

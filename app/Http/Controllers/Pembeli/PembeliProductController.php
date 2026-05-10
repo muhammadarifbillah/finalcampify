@@ -25,17 +25,18 @@ class PembeliProductController extends Controller
     {
         $requestData = $request->validate([
             'product_id' => 'required|exists:products,id',
-            'start_date' => 'required|date',
-            'end_date' => 'required|date|after_or_equal:start_date',
-            'duration' => 'required|integer|min:1',
-            'alamat' => 'required|string|max:2000',
-            'kota' => 'required|string|max:255',
-            'kecamatan' => 'required|string|max:255',
-            'kode_pos' => 'required|string|max:20',
-            'telepon' => 'required|string|max:25',
-            'metode_pembayaran' => 'required|string',
-            'metode_pengiriman' => 'required|string',
+            'start_date' => 'required|date|after_or_equal:today',
+            'end_date' => 'required|date|after:start_date',
+            'duration' => 'required|numeric|min:1',
+            'alamat' => 'required|string',
+            'kota' => 'required|string',
+            'kecamatan' => 'required|string',
+            'kode_pos' => 'required|string',
+            'telepon' => 'required|string',
+            'metode_pengiriman' => 'required|in:kurir,standar',
+            'metode_pembayaran' => 'required|in:qris,va,cod',
             'bukti_pembayaran' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'ktp_image' => Auth::user()->ktp_image ? 'nullable|image|max:2048' : 'required|image|max:2048',
         ]);
 
         $user = auth()->user();
@@ -49,8 +50,22 @@ class PembeliProductController extends Controller
             'phone' => $requestData['telepon'],
         ]);
 
+        $user = Auth::user();
         $produk = Product_pembeli::findOrFail($requestData['product_id']);
-        $totalPrice = $produk->rent_price * $requestData['duration'];
+        $rentalFee = $produk->rent_price * $requestData['duration'];
+        $deposit = $produk->buy_price * 0.5;
+        $totalPrice = $rentalFee + $deposit;
+
+        // Handle KTP Upload if provided (Mandatory check handled by Frontend 'required')
+        if ($request->hasFile('ktp_image')) {
+            $file = $request->file('ktp_image');
+            $filename = time() . '_ktp_' . $user->id . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('storage/ktp_uploads'), $filename);
+            $user->update([
+                'ktp_image' => 'storage/ktp_uploads/' . $filename,
+                'ktp_verified_at' => null // Reset verification if new upload
+            ]);
+        }
 
         // 0. Handle Bukti Pembayaran
         $buktiPath = null;
@@ -82,7 +97,7 @@ class PembeliProductController extends Controller
             'order_id' => $pesanan->id,
             'product_id' => $produk->id,
             'qty' => 1,
-            'harga' => $totalPrice,
+            'harga' => $rentalFee, // Simpan harga sewa saja di detail item (breakdown)
             'type' => 'rent',
             'duration' => $request->duration,
             'start_date' => $request->start_date,
@@ -96,7 +111,7 @@ class PembeliProductController extends Controller
             'start_date' => $request->start_date,
             'end_date' => $request->end_date,
             'duration' => $request->duration,
-            'price' => $totalPrice,
+            'price' => $rentalFee, // Hanya biaya sewa
             'status' => 'pending' // Status awal di tabel rentals
         ]);
 

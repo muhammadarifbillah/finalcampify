@@ -88,6 +88,7 @@ class DashboardController extends Controller
             'activeStores' => Store::where('status', 'active')->count(),
             'bannedStores' => Store::where('status', 'banned')->count(),
             'flaggedChats' => Chat::where('is_flagged', true)->count(),
+            'pendingKyc' => User::whereNotNull('ktp_image')->whereNull('ktp_verified_at')->count(),
             'monthlyTransactionCounts' => array_values($monthlyTransactionCounts),
             'monthlyRevenue' => array_values($monthlyRevenue),
             'monthlyUserActivity' => array_values($monthlyUserActivity),

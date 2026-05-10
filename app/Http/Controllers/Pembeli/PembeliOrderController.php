@@ -43,15 +43,13 @@ class PembeliOrderController extends Controller
         $today = now()->startOfDay();
 
         $daysLate = max(0, $endDate->diffInDays($today, false));
-        $denda = $daysLate * 10000;
+        $dailyFine = (int) config('returns.daily_fine', 50000);
+        $denda = $daysLate * $dailyFine;
 
-        $rental = Rental_pembeli::query()
+        $return = Return_pembeli::query()
             ->where('order_id', $pesanan->id)
-            ->where('product_id', $detail->product_id)
-            ->whereDate('start_date', $startDate)
+            ->where('type', 'sewa')
             ->first();
-
-        $return = $rental?->returnRequest;
 
         return view('pembeli.orders.return_pembeli', compact('detail', 'pesanan', 'denda', 'daysLate', 'endDate', 'return'));
     }
@@ -69,24 +67,8 @@ class PembeliOrderController extends Controller
             abort(404);
         }
 
-        $request->validate([
-            'resi_return' => 'required|string|max:255',
-            'kondisi_barang' => 'nullable|string|max:50',
-            'bukti_denda' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-        ]);
-
         $startDate = Carbon::parse($detail->start_date)->startOfDay();
         $endDate = (clone $startDate)->addDays((int) $detail->duration)->startOfDay();
-        $today = now()->startOfDay();
-
-        $daysLate = max(0, $endDate->diffInDays($today, false));
-        $denda = $daysLate * 10000;
-
-        if ($denda > 0 && !$request->hasFile('bukti_denda')) {
-            return back()
-                ->withInput()
-                ->withErrors(['bukti_denda' => 'Bukti pembayaran denda wajib diupload jika ada denda.']);
-        }
 
         $rental = Rental_pembeli::firstOrCreate(
             [
@@ -103,24 +85,31 @@ class PembeliOrderController extends Controller
             ]
         );
 
-        $return = Return_pembeli::firstOrNew(['rental_id' => $rental->id]);
+        $return = Return_pembeli::firstOrNew([
+            'order_id' => $pesanan->id,
+            'type' => 'sewa',
+        ]);
 
         if ($return->exists) {
             return back()->with('error', 'Pengembalian untuk sewa ini sudah pernah disubmit.');
         }
 
-        $buktiPath = null;
-        if ($request->hasFile('bukti_denda')) {
-            $buktiPath = $request->file('bukti_denda')->store('returns', 'public');
-        }
-
+        // Initialize with basic data
         $return->fill([
-            'resi_return' => $request->resi_return,
-            'bukti_denda' => $buktiPath,
-            'kondisi_barang' => $request->kondisi_barang ?: 'baik',
-            'denda' => $denda,
-            'tanggal_pengembalian' => now(),
+            'type' => 'sewa',
+            'status' => 'pending',
+            'escrow_total' => (string) ((int) ($pesanan->total ?? 0)),
+            'expected_date' => $endDate,
+            'late_fee' => '0',
+            'damage_fee' => '0',
+            'to_seller' => '0',
+            'to_buyer' => '0',
         ]);
+
+        // Use settlement service to calculate breakdown (Rental Fee vs Deposit 50%)
+        $settlement = app(\App\Services\ReturnSettlementService::class);
+        $settlement->applyAutoCalculations($return);
+        
         $return->save();
 
         $rental->status = 'returned';

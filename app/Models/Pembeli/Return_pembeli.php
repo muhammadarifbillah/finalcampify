@@ -12,21 +12,29 @@ class Return_pembeli extends Model
     protected $table = 'returns';
 
     protected $fillable = [
-        'rental_id',
-        'resi_return',
-        'bukti_denda',
-        'kondisi_barang',
-        'denda',
-        'tanggal_pengembalian',
+        'order_id',
+        'type',
+        'status',
+        'escrow_total',
+        'expected_date',
+        'actual_date',
+        'late_fee',
+        'damage_fee',
+        'to_seller',
+        'to_buyer',
+        'deposit_amount',
+        'rental_fee_amount',
     ];
 
     protected $casts = [
-        'denda' => 'integer',
-        'tanggal_pengembalian' => 'datetime',
+        'escrow_total' => 'decimal:2',
+        'late_fee' => 'decimal:2',
+        'damage_fee' => 'decimal:2',
+        'to_seller' => 'decimal:2',
+        'to_buyer' => 'decimal:2',
+        'deposit_amount' => 'decimal:2',
+        'rental_fee_amount' => 'decimal:2',
+        'expected_date' => 'datetime',
+        'actual_date' => 'datetime',
     ];
-
-    public function rental()
-    {
-        return $this->belongsTo(Rental_pembeli::class, 'rental_id');
-    }
 }

@@ -122,34 +122,85 @@
                     @endif
                 </div>
                 <div class="col-md-8">
-                    <h5 class="fw-bold mb-1">{{ $rental->user->name ?? '-' }}</h5>
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <h5 class="fw-bold mb-0">{{ $rental->user->name ?? '-' }}</h5>
+                        @if($rental->user->ktp_verified_at)
+                            <span class="badge bg-primary rounded-pill" style="font-size: 10px;" title="User Terverifikasi KTP">
+                                <i class="fas fa-check-circle"></i> Terverifikasi
+                            </span>
+                        @else
+                            <span class="badge bg-secondary rounded-pill" style="font-size: 10px;" title="Belum Verifikasi KTP">
+                                Belum Verifikasi
+                            </span>
+                        @endif
+                    </div>
                     <p class="text-muted small mb-3">{{ optional($rental->product)->nama_produk ?? '-' }}</p>
 
-                    <span class="badge 
-                        @switch($rental->status)
-                            @case('pending') bg-warning text-dark @break
-                            @case('confirmed') bg-info text-dark @break
-                            @case('active') bg-primary @break
-                            @case('completed') bg-success @break
-                            @case('cancelled') bg-danger @break
-                            @default bg-secondary
-                        @endswitch
-                        mb-3">
-                        @switch($rental->status)
-                            @case('pending') Menunggu @break
-                            @case('confirmed') Dikonfirmasi @break
-                            @case('active') Aktif @break
-                            @case('completed') Selesai @break
-                            @case('cancelled') Dibatalkan @break
-                            @default {{ $rental->status }}
-                        @endswitch
-                    </span>
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <span class="badge 
+                            @switch($rental->status)
+                                @case('pending') bg-warning text-dark @break
+                                @case('confirmed') bg-info text-dark @break
+                                @case('active') bg-primary @break
+                                @case('completed') bg-success @break
+                                @case('cancelled') bg-danger @break
+                                @default bg-secondary
+                            @endswitch">
+                            @switch($rental->status)
+                                @case('pending') Menunggu @break
+                                @case('confirmed') Dikonfirmasi @break
+                                @case('active') Aktif @break
+                                @case('completed') Selesai @break
+                                @case('cancelled') Dibatalkan @break
+                                @default {{ $rental->status }}
+                            @endswitch
+                        </span>
+
+                        @if(!$rental->user->ktp_verified_at)
+                            <span class="badge bg-danger animate-pulse" style="font-size: 10px;">
+                                ⚠️ RISIKO TINGGI
+                            </span>
+                        @endif
+                    </div>
+
+                    @if(!$rental->user->ktp_verified_at)
+                        <div class="alert alert-danger border-0 rounded-4 p-3 mb-4">
+                            <h6 class="fw-bold mb-1" style="font-size: 13px;"><i class="fas fa-exclamation-triangle"></i> Verifikasi KTP Diperlukan</h6>
+                            <p class="small mb-2" style="font-size: 11px;">Anda wajib memvalidasi KTP penyewa sebelum mengonfirmasi penyewaan ini.</p>
+                            
+                            @if($rental->user->ktp_image)
+                                <div class="mt-2">
+                                    <a href="{{ asset($rental->user->ktp_image) }}" target="_blank">
+                                        <img src="{{ asset($rental->user->ktp_image) }}" class="img-thumbnail mb-2" style="max-height:100px;">
+                                    </a>
+                                    <form action="{{ route('seller.user.verify', $rental->user->id) }}" method="POST">
+                                        @csrf
+                                        <button type="submit" class="btn btn-sm btn-primary w-100 fw-bold">Verifikasi KTP</button>
+                                    </form>
+                                </div>
+                            @else
+                                <p class="small text-danger italic" style="font-size: 11px;">Penyewa belum mengunggah foto KTP.</p>
+                            @endif
+                        </div>
+                    @endif
 
                     <hr>
 
                     <p><strong>Tanggal Mulai:</strong> {{ \Carbon\Carbon::parse($rental->start_date)->format('d F Y') }}</p>
                     <p><strong>Tanggal Selesai:</strong> {{ \Carbon\Carbon::parse($rental->end_date)->format('d F Y') }}</p>
-                    <p><strong>Total Harga:</strong> Rp {{ number_format($rental->price,0,',','.') }}</p>
+                    
+                    <div class="p-3 bg-light rounded border mt-3">
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <div class="small text-muted font-bold text-uppercase" style="font-size: 10px;">Pendapatan Sewa</div>
+                                <div class="fw-bold">Rp {{ number_format($rental->price, 0, ',', '.') }}</div>
+                            </div>
+                            <div class="col-6 border-start">
+                                <div class="small text-emerald-600 font-bold text-uppercase" style="font-size: 10px;">Dana Jaminan (50%)</div>
+                                <div class="fw-bold">Rp {{ number_format($rental->product->buy_price * 0.5, 0, ',', '.') }}</div>
+                            </div>
+                        </div>
+                    </div>
 
                     @if($rental->catatan)
                         <p><strong>Catatan:</strong> {{ $rental->catatan }}</p>
@@ -169,9 +220,15 @@
                     @endif
 
                     <div class="mt-4">
-                        <a href="/seller/rentals/{{ $rental->id }}/edit" class="btn text-white rounded-pill px-4" style="background:#10B981;">
-                            Ubah Status
-                        </a>
+                        @if($rental->user->ktp_verified_at)
+                            <a href="/seller/rentals/{{ $rental->id }}/edit" class="btn text-white rounded-pill px-4" style="background:#10B981;">
+                                Ubah Status
+                            </a>
+                        @else
+                            <button class="btn btn-secondary rounded-pill px-4" disabled title="Harap verifikasi KTP penyewa terlebih dahulu">
+                                🔒 Status Terkunci
+                            </button>
+                        @endif
                     </div>
                 </div>
             </div>

@@ -23,7 +23,23 @@
                 <div class="mx-auto mb-4 h-24 w-24 rounded-full bg-green-100 flex items-center justify-center text-4xl">👤</div>
                 <h2 class="text-xl font-bold">{{ $user->name }}</h2>
                 <p class="text-sm text-gray-500">{{ $user->email }}</p>
-                <p class="text-sm text-gray-500 mt-2">{{ $user->address ? $user->address : 'Alamat belum diisi' }}</p>
+                
+                <div class="mt-4 px-4 py-2 rounded-2xl border {{ $user->ktp_verified_at ? 'bg-blue-50 border-blue-100' : 'bg-amber-50 border-amber-100' }}">
+                    @if($user->ktp_verified_at)
+                        <div class="flex items-center justify-center gap-2 text-blue-700">
+                            <i data-lucide="shield-check" style="width: 16px; height: 16px;"></i>
+                            <span class="text-[11px] font-bold uppercase tracking-wider">KTP Terverifikasi</span>
+                        </div>
+                    @else
+                        <div class="flex items-center justify-center gap-2 text-amber-700">
+                            <i data-lucide="shield-alert" style="width: 16px; height: 16px;"></i>
+                            <span class="text-[11px] font-bold uppercase tracking-wider">Belum Verifikasi KTP</span>
+                        </div>
+                        <p class="text-[9px] text-amber-600 mt-1 leading-tight">Verifikasi KTP untuk keamanan transaksi sewa & kemudahan refund deposit.</p>
+                    @endif
+                </div>
+
+                <p class="text-sm text-gray-500 mt-4">{{ $user->address ? $user->address : 'Alamat belum diisi' }}</p>
             </div>
 
             <div class="bg-white rounded-3xl p-4 shadow-sm space-y-2">
@@ -62,18 +78,67 @@
                             <p class="font-medium">{{ $user->address ?? '-' }}</p>
                         </div>
                         <div class="space-y-2">
-                            <p class="text-sm text-gray-500">Kota</p>
-                            <p class="font-medium">{{ $user->city ?? '-' }}</p>
-                        </div>
-                        <div class="space-y-2">
-                            <p class="text-sm text-gray-500">Kode Pos</p>
-                            <p class="font-medium">{{ $user->postal_code ?? '-' }}</p>
-                        </div>
-                        <div class="space-y-2">
-                            <p class="text-sm text-gray-500">Telepon</p>
-                            <p class="font-medium">{{ $user->phone ?? '-' }}</p>
+                            <p class="text-sm text-gray-500">Status Verifikasi Identitas</p>
+                            <div class="flex items-center gap-2">
+                                @if($user->ktp_verified_at)
+                                    <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold uppercase tracking-wider">KTP Terverifikasi</span>
+                                @elseif($user->ktp_image)
+                                    <span class="px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-bold uppercase tracking-wider">Menunggu Verifikasi</span>
+                                @else
+                                    <span class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-bold uppercase tracking-wider">Belum Diverifikasi</span>
+                                @endif
+                            </div>
                         </div>
                     </div>
+
+                    {{-- UPLOAD KTP SECTION --}}
+                    @if(!$user->ktp_verified_at)
+                        <div class="mt-8 p-6 bg-slate-50 rounded-3xl border border-slate-100">
+                            <h3 class="text-lg font-bold text-slate-800 mb-2">Unggah Identitas (KTP)</h3>
+                            <p class="text-xs text-slate-500 mb-4 leading-relaxed">
+                                Sesuai kebijakan keamanan Campify, penyewa alat wajib melakukan verifikasi KTP. Data Anda akan terjamin kerahasiaannya dan hanya digunakan untuk keperluan escrow penyewaan.
+                            </p>
+
+                            <form action="{{ route('profile.ktp.upload') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
+                                @csrf
+                                <div class="relative group cursor-pointer">
+                                    <input type="file" name="ktp_image" id="ktp_image" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" onchange="previewKtp(event)" required>
+                                    <div class="border-2 border-dashed border-slate-300 rounded-2xl p-8 text-center group-hover:border-green-500 group-hover:bg-green-50/50 transition-all">
+                                        <div id="ktp-preview-container" class="hidden mb-4">
+                                            <img id="ktp-preview" class="mx-auto max-h-40 rounded-xl shadow-sm">
+                                        </div>
+                                        <div id="ktp-placeholder">
+                                            <div class="text-4xl mb-2 text-slate-300">🪪</div>
+                                            <p class="text-sm font-medium text-slate-600">Klik atau seret foto KTP Anda ke sini</p>
+                                            <p class="text-[10px] text-slate-400 mt-1">Format: JPG, PNG (Maks 2MB)</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="submit" class="w-full bg-green-600 text-white py-3 rounded-2xl font-bold hover:bg-green-700 transition shadow-lg shadow-green-100">
+                                    Unggah Foto KTP
+                                </button>
+                            </form>
+                        </div>
+
+                        <script>
+                            function previewKtp(event) {
+                                const container = document.getElementById('ktp-preview-container');
+                                const preview = document.getElementById('ktp-preview');
+                                const placeholder = document.getElementById('ktp-placeholder');
+                                
+                                const file = event.target.files[0];
+                                if (file) {
+                                    const reader = new FileReader();
+                                    reader.onload = function(e) {
+                                        preview.src = e.target.result;
+                                        container.classList.remove('hidden');
+                                        placeholder.classList.add('hidden');
+                                    }
+                                    reader.readAsDataURL(file);
+                                }
+                            }
+                        </script>
+                    @endif
                 </div>
             @elseif($tab === 'orders')
                 <div class="bg-white rounded-3xl p-8 shadow-sm">

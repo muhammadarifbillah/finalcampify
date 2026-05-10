@@ -136,13 +136,59 @@
                     <p class="text-xs text-red-500 mt-1">*Besaran denda akan disesuaikan dengan kondisi barang atau lamanya keterlambatan.</p>
                 </div>
 
-                <div class="pt-6 border-t border-slate-200 mt-6">
-                    <div class="flex justify-between items-center mb-6 bg-green-50 p-4 rounded-xl border border-green-100">
-                        <span class="text-slate-600 font-bold uppercase tracking-wider text-sm">Subtotal</span>
-                        <span class="text-2xl font-black text-green-700" id="subtotalDisplay">Rp {{ number_format($produk->rent_price ?? 0) }}</span>
+                <div class="p-6 bg-amber-50 border-2 border-amber-200 rounded-3xl space-y-4">
+                    <div class="flex gap-4 items-start">
+                        <div class="shrink-0 w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-amber-600">
+                            <i data-lucide="shield-check" style="width: 20px; height: 20px;"></i>
+                        </div>
+                        <div class="space-y-1">
+                            <h4 class="text-sm font-black text-amber-900 uppercase tracking-widest">Verifikasi Identitas (Wajib)</h4>
+                            <p class="text-[11px] text-amber-800 leading-relaxed">
+                                @if(auth()->user()->ktp_verified_at)
+                                    Identitas Anda telah <strong>Terverifikasi</strong>. Anda dapat melanjutkan penyewaan dengan aman.
+                                @elseif(auth()->user()->ktp_image)
+                                    KTP Anda sudah diunggah dan sedang dalam proses verifikasi oleh Admin.
+                                @else
+                                    Sesuai kebijakan keamanan Campify, Anda <strong>wajib mengunggah foto KTP</strong> untuk dapat menyewa alat camp.
+                                @endif
+                            </p>
+                        </div>
                     </div>
+
+                    @if(!auth()->user()->ktp_image)
+                        <div class="bg-white p-4 rounded-2xl border border-amber-200">
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-2">Unggah Foto KTP Anda</label>
+                            <div class="relative group">
+                                <input type="file" name="ktp_image" accept="image/*" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-100 file:text-amber-700 hover:file:bg-amber-200 cursor-pointer" required />
+                            </div>
+                            <p class="mt-2 text-[9px] text-slate-400 italic">*Pastikan foto KTP terlihat jelas dan terbaca.</p>
+                        </div>
+                    @endif
+                </div>
+
+                <div class="pt-6 border-t border-slate-200 mt-6 space-y-4">
+                    <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100 space-y-3">
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-slate-500 font-medium">Biaya Sewa (<span id="durationLabel">1</span> Hari)</span>
+                            <span class="font-bold text-slate-800" id="rentalFeeDisplay">Rp {{ number_format($produk->rent_price) }}</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm">
+                            <div class="flex flex-col">
+                                <span class="text-slate-500 font-medium">Dana Jaminan (Keamanan 50%)</span>
+                                <span class="text-[9px] text-slate-400 leading-tight">*Dihitung dari 50% harga barang (Rp {{ number_format($produk->buy_price) }})</span>
+                            </div>
+                            @php $deposit = $produk->buy_price * 0.5; @endphp
+                            <span class="font-bold text-blue-600">Rp {{ number_format($deposit) }}</span>
+                        </div>
+                        <div class="pt-3 border-t border-dashed border-slate-200 flex justify-between items-center">
+                            <span class="text-slate-800 font-black uppercase tracking-wider text-sm">Total Dibayar</span>
+                            <span class="text-2xl font-black text-green-700" id="totalPriceDisplay">Rp {{ number_format($produk->rent_price + $deposit) }}</span>
+                        </div>
+                        <p class="text-[10px] text-slate-500 text-center italic pt-2">Dana jaminan akan dikembalikan utuh jika barang kembali tanpa kerusakan.</p>
+                    </div>
+
                     <button type="submit" class="w-full py-4 bg-green-600 hover:bg-green-700 text-white rounded-xl font-bold text-lg transition-all shadow-lg shadow-green-200">
-                        Ajukan Sewa
+                        Ajukan Sewa & Bayar
                     </button>
                 </div>
             </form>
@@ -176,8 +222,14 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Hitung dan update subtotal
             const rentPrice = {{ $produk->rent_price ?? 0 }};
-            const total = rentPrice * durationInput.value;
-            document.getElementById('subtotalDisplay').innerText = 'Rp ' + total.toLocaleString('id-ID');
+            const buyPrice = {{ $produk->buy_price ?? 0 }};
+            const deposit = buyPrice * 0.5;
+            const rentalFee = rentPrice * durationInput.value;
+            const total = rentalFee + deposit;
+
+            document.getElementById('durationLabel').innerText = durationInput.value;
+            document.getElementById('rentalFeeDisplay').innerText = 'Rp ' + rentalFee.toLocaleString('id-ID');
+            document.getElementById('totalPriceDisplay').innerText = 'Rp ' + total.toLocaleString('id-ID');
         }
     }
 

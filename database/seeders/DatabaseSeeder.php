@@ -27,7 +27,14 @@ class DatabaseSeeder extends Seeder
 
     public function run(): void
     {
-        $this->call(AdminUserSeeder::class);
+        $this->call([
+            AdminUserSeeder::class,
+            CourierSeeder::class,
+            ChatbotResponseSeeder::class,
+            ArticleSeeder::class,
+            SellerStoreProductSeeder::class,
+            BuyerOrderChatReportSeeder::class,
+            ReturnComprehensiveSeeder::class,
+        ]);
     }
-}
 }
