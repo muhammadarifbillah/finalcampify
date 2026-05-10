@@ -248,7 +248,7 @@ class ReturnComprehensiveSeeder extends Seeder
                 'created_at' => now()->subDays(6),
             ]);
 
-            $conv2 = Conversation::create([
+            $conv2 = Conversation::firstOrCreate([
                 'buyer_id' => $buyer2->id,
                 'seller_id' => $seller2->id,
                 'product_id' => $product2->id,
