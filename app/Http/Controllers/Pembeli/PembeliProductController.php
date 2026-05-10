@@ -61,10 +61,11 @@ class PembeliProductController extends Controller
         // Handle KTP Upload if provided (Mandatory check handled by Frontend 'required')
         if ($request->hasFile('ktp_image')) {
             $file = $request->file('ktp_image');
-            $filename = time() . '_ktp_' . $user->id . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('storage/ktp_uploads'), $filename);
+            $filename = 'ktp_' . $user->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('ktp_uploads', $filename, 'public');
+            
             $user->update([
-                'ktp_image' => 'storage/ktp_uploads/' . $filename,
+                'ktp_image' => 'storage/' . $path,
                 'ktp_verified_at' => null // Reset verification if new upload
             ]);
         }

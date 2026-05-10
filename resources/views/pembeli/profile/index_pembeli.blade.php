@@ -95,30 +95,41 @@
                     @if(!$user->ktp_verified_at)
                         <div class="mt-8 p-6 bg-slate-50 rounded-3xl border border-slate-100">
                             <h3 class="text-lg font-bold text-slate-800 mb-2">Unggah Identitas (KTP)</h3>
-                            <p class="text-xs text-slate-500 mb-4 leading-relaxed">
-                                Sesuai kebijakan keamanan Campify, penyewa alat wajib melakukan verifikasi KTP. Data Anda akan terjamin kerahasiaannya dan hanya digunakan untuk keperluan escrow penyewaan.
-                            </p>
-
-                            <form action="{{ route('profile.ktp.upload') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
-                                @csrf
-                                <div class="relative group cursor-pointer">
-                                    <input type="file" name="ktp_image" id="ktp_image" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" onchange="previewKtp(event)" required>
-                                    <div class="border-2 border-dashed border-slate-300 rounded-2xl p-8 text-center group-hover:border-green-500 group-hover:bg-green-50/50 transition-all">
-                                        <div id="ktp-preview-container" class="hidden mb-4">
-                                            <img id="ktp-preview" class="mx-auto max-h-40 rounded-xl shadow-sm">
-                                        </div>
-                                        <div id="ktp-placeholder">
-                                            <div class="text-4xl mb-2 text-slate-300">🪪</div>
-                                            <p class="text-sm font-medium text-slate-600">Klik atau seret foto KTP Anda ke sini</p>
-                                            <p class="text-[10px] text-slate-400 mt-1">Format: JPG, PNG (Maks 2MB)</p>
-                                        </div>
+                            
+                            @if(auth()->user()->ktp_image)
+                                <div class="bg-blue-50 p-4 rounded-2xl border border-blue-200 flex items-start gap-3 mt-4">
+                                    <span class="text-blue-600 text-xl">⏳</span>
+                                    <div>
+                                        <p class="text-sm font-bold text-blue-800">KTP Sedang Direview oleh Admin</p>
+                                        <p class="text-xs text-blue-600 mt-1">Anda sudah berhasil mengunggah foto KTP. Saat ini admin sedang memverifikasi data Anda. Anda sudah dapat melakukan penyewaan.</p>
                                     </div>
                                 </div>
-                                <button type="submit" class="w-full bg-green-600 text-white py-3 rounded-2xl font-bold hover:bg-green-700 transition shadow-lg shadow-green-100">
-                                    Unggah Foto KTP
-                                </button>
-                            </form>
+                            @else
+                                <p class="text-xs text-slate-500 mb-4 leading-relaxed">
+                                    Sesuai kebijakan keamanan Campify, penyewa alat wajib melakukan verifikasi KTP. Data Anda akan terjamin kerahasiaannya dan hanya digunakan untuk keperluan escrow penyewaan.
+                                </p>
+                                <form action="{{ route('profile.ktp.upload') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
+                                    @csrf
+                                    <div class="relative group cursor-pointer">
+                                        <input type="file" name="ktp_image" id="ktp_image" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" onchange="previewKtp(event)" required>
+                                        <div class="border-2 border-dashed border-slate-300 rounded-2xl p-8 text-center group-hover:border-green-500 group-hover:bg-green-50/50 transition-all">
+                                            <div id="ktp-preview-container" class="hidden mb-4">
+                                                <img id="ktp-preview" class="mx-auto max-h-40 rounded-xl shadow-sm">
+                                            </div>
+                                            <div id="ktp-placeholder">
+                                                <div class="text-4xl mb-2 text-slate-300">🪪</div>
+                                                <p class="text-sm font-medium text-slate-600">Klik atau seret foto KTP Anda ke sini</p>
+                                                <p class="text-[10px] text-slate-400 mt-1">Format: JPG, PNG (Maks 2MB)</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="w-full bg-green-600 text-white py-3 rounded-2xl font-bold hover:bg-green-700 transition shadow-lg shadow-green-100">
+                                        Unggah Foto KTP
+                                    </button>
+                                </form>
+                            @endif
                         </div>
+                    @endif
 
                         <script>
                             function previewKtp(event) {

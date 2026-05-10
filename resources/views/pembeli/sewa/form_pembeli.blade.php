@@ -161,6 +161,14 @@
                             </div>
                             <p class="mt-2 text-[9px] text-slate-400 italic">*Pastikan foto KTP terlihat jelas dan terbaca.</p>
                         </div>
+                    @else
+                        <div class="bg-emerald-50 p-4 rounded-2xl border border-emerald-200 flex items-center gap-3">
+                            <span class="text-emerald-600 text-lg">✅</span>
+                            <div>
+                                <p class="text-sm font-bold text-emerald-800">Akun Terverifikasi</p>
+                                <p class="text-[10px] text-emerald-600">Identitas KTP Anda sudah tersimpan di sistem. Anda dapat langsung memproses penyewaan.</p>
+                            </div>
+                        </div>
                     @endif
                 </div>
 
