@@ -56,6 +56,20 @@
                         </div>
                     </div>
                     
+                    @if(auth()->user()->bank_account_number)
+                        <div class="mt-8 p-4 bg-emerald-50 border border-emerald-100 rounded-2xl">
+                            <h3 class="text-xs font-bold text-emerald-800 uppercase tracking-widest mb-3 flex items-center gap-2">
+                                <i data-lucide="check-circle" style="width: 14px; height: 14px;"></i>
+                                Rekening Saat Ini
+                            </h3>
+                            <div class="bg-white p-4 rounded-xl shadow-sm border border-emerald-50">
+                                <p class="text-[10px] font-bold text-slate-400 uppercase">{{ auth()->user()->bank_name }}</p>
+                                <p class="text-xl font-black text-slate-800">{{ auth()->user()->bank_account_number }}</p>
+                                <p class="text-xs text-slate-600">a/n {{ auth()->user()->bank_account_name }}</p>
+                            </div>
+                        </div>
+                    @endif
+
                     <div class="mt-5 text-end">
                         <button type="submit" class="admin-button admin-button-primary">
                             <i data-lucide="save" class="me-2" style="width: 18px; height: 18px;"></i>

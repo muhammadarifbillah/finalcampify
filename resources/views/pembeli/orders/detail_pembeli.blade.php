@@ -195,7 +195,7 @@
                                 <!-- FOTO PRODUK -->
                                 <div class="w-full md:w-32 h-32 flex-shrink-0">
                                     <img 
-                                        src="{{ $produk && $produk->image ? asset('storage/' . $produk->image) : 'https://via.placeholder.com/150' }}"
+                                        src="https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?q=80&w=200&auto=format&fit=crop"
                                         class="w-full h-full object-cover rounded-2xl shadow-sm"
                                     >
                                 </div>

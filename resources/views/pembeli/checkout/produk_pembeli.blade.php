@@ -18,7 +18,7 @@
                 <div class="md:col-span-1">
                     <div class="bg-slate-100 rounded-xl overflow-hidden aspect-square">
                         <img 
-                            src="{{ $produk->image ? asset('storage/' . $produk->image) : 'https://via.placeholder.com/400x400' }}"
+                            src="https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?q=80&w=600&auto=format&fit=crop"
                             alt="{{ $produk->name }}"
                             class="w-full h-full object-cover"
                         >

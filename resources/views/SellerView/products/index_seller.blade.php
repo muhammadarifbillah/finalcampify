@@ -42,7 +42,7 @@
             {{-- IMAGE SECTION --}}
             <div class="position-relative" style="height: 240px;">
                 @if($product->gambar && file_exists(public_path('storage/'.$product->gambar)))
-                    <img src="{{ asset('storage/'.$product->gambar) }}" class="w-100 h-100 object-fit-cover" alt="{{ $product->nama_produk }}">
+                    <img src="https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?q=80&w=600&auto=format&fit=crop" class="w-100 h-100 object-fit-cover" alt="{{ $product->nama_produk }}">
                 @else
                     <div class="w-100 h-100 bg-light d-flex flex-column align-items-center justify-content-center">
                         <span class="fs-1 opacity-25">🏕️</span>

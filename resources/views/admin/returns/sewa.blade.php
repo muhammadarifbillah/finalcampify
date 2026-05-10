@@ -197,11 +197,9 @@
                                     $isActualDispute = $item->status === 'dispute' || ($item->status === 'completed' && ($item->damage_fee > 0 || !empty($item->dispute_chat_log)));
                                 @endphp
                                 @if($isActualDispute && $item->status !== 'completed')
-                                    <a href="{{ route('admin.returns.show', $item->id) }}" class="inline-flex items-center gap-1.5 bg-red-600 hover:bg-red-700 hover:-translate-y-0.5 hover:shadow active:translate-y-0 active:scale-95 text-white text-[11px] font-bold px-4 py-2 rounded transition-all duration-200">
-                                        <i data-lucide="alert-circle" style="width: 12px; height: 12px;"></i> Resolusi Sengketa
-                                    </a>
+                                    <a href="{{ route('admin.returns.show', $item->id) }}" class="inline-block bg-red-600 hover:bg-red-700 text-white text-[11px] font-bold w-40 py-2 rounded shadow-sm transition-all duration-200 hover:-translate-y-0.5 active:scale-95">Resolusi Sengketa</a>
                                 @else
-                                    <a href="{{ route('admin.returns.show', $item->id) }}" class="inline-block bg-[#0f6b52] hover:bg-[#0c5843] hover:-translate-y-0.5 hover:shadow active:translate-y-0 active:scale-95 text-white text-[11px] font-bold px-6 py-2 rounded transition-all duration-200">Proses</a>
+                                    <a href="{{ route('admin.returns.show', $item->id) }}" class="inline-block bg-[#0f6b52] hover:bg-[#0c5843] text-white text-[11px] font-bold w-40 py-2 rounded shadow-sm transition-all duration-200 hover:-translate-y-0.5 active:scale-95">Proses</a>
                                 @endif
                             </td>
                         </tr>

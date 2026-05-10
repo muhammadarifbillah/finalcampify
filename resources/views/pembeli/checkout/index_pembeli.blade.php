@@ -148,7 +148,7 @@
                                 $total += $subtotal;
                             @endphp
                             <div class="flex gap-3">
-                                <img src="{{ asset('storage/' . $item->product->image) }}" class="w-12 h-12 object-cover rounded" onerror="this.src='https://images.unsplash.com/photo-1501785888041-af3ef285b470'">
+                                <img src="https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?q=80&w=200&auto=format&fit=crop" class="w-12 h-12 object-cover rounded">
                                 <div class="flex-1 min-w-0 text-sm">
                                     <p class="font-bold truncate">{{ $item->product->name }}</p>
                                     <p class="text-xs text-gray-400">{{ $item->qty }}x | {{ $item->type === 'buy' ? 'Beli' : 'Sewa' }}</p>
