@@ -160,4 +160,31 @@ class Product extends Model
 
         return $reasons;
     }
+
+    /**
+     * Get the image URL for the product
+     * Handles both old paths (with 'products/', 'storage/', 'ktp_uploads/', etc.) and new filename-only format
+     */
+    public function getImageUrlAttribute()
+    {
+        $imageField = $this->image ?: $this->gambar;
+        
+        if (!$imageField) {
+            return null;
+        }
+
+        // If it's already a full URL, return as-is
+        if (filter_var($imageField, FILTER_VALIDATE_URL)) {
+            return $imageField;
+        }
+
+        // If it contains '/', it's the old format - extract filename
+        if (strpos($imageField, '/') !== false) {
+            $filename = basename($imageField);
+            return asset('assets/images/' . $filename);
+        }
+
+        // If it's just a filename (new format), serve from assets/images
+        return asset('assets/images/' . $imageField);
+    }
 }

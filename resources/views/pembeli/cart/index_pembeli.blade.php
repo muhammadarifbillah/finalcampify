@@ -49,7 +49,7 @@
 
                         <!-- Product Image -->
                         <div class="relative h-28 w-28 md:h-36 md:w-36 flex-shrink-0 overflow-hidden rounded-2xl shadow-sm border border-gray-100">
-                            <img src="{{ asset($item->product->image) }}" 
+                            <img src="{{ $item->product->image_url }}" 
                                  alt="{{ $item->product->name }}"
                                  class="h-full w-full object-cover">
                             <div class="absolute bottom-2 left-1/2 -translate-x-1/2 bg-slate-900/90 text-white text-[9px] font-bold px-3 py-1 rounded-full uppercase tracking-tighter shadow-lg">

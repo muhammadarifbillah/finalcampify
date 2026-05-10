@@ -195,7 +195,7 @@
                                 <!-- FOTO PRODUK -->
                                 <div class="w-full md:w-32 h-32 flex-shrink-0">
                                     <img 
-                                        src="{{ asset($produk->image) }}"
+                                        src="{{ $produk->image_url }}"
                                         class="w-full h-full object-cover rounded-2xl shadow-sm"
                                     >
                                 </div>

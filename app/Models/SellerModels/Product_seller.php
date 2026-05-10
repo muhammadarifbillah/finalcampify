@@ -105,4 +105,31 @@ class Product_seller extends Model
     {
         return $this->ratings()->count();
     }
+
+    /**
+     * Get the image URL for the product
+     * Handles both old paths (with 'products/' or 'storage/') and new filename-only format
+     */
+    public function getImageUrlAttribute()
+    {
+        $imageField = $this->image ?: $this->gambar;
+        
+        if (!$imageField) {
+            return null;
+        }
+
+        // If it's already a full URL, return as-is
+        if (filter_var($imageField, FILTER_VALIDATE_URL)) {
+            return $imageField;
+        }
+
+        // If it contains 'products/' or 'storage/', it's the old format - extract filename
+        if (strpos($imageField, 'products/') !== false || strpos($imageField, 'storage/') !== false) {
+            $filename = basename($imageField);
+            return asset('assets/images/' . $filename);
+        }
+
+        // If it's just a filename (new format), serve from assets/images
+        return asset('assets/images/' . $imageField);
+    }
 }

@@ -47,10 +47,7 @@
         <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
             @forelse($products as $product)
                 @php
-                    $image = $product->image ?: $product->gambar;
-                    $imageUrl = $image
-                        ? asset($image)
-                        : null;
+                    $imageUrl = $product->image_url ?: null;
                 @endphp
                 <div class="admin-card overflow-hidden">
                     <div class="h-48 bg-slate-100">
