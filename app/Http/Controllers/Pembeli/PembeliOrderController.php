@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Pembeli\Order_pembeli;
 use App\Models\Pembeli\Rental_pembeli;
 use App\Models\Pembeli\Return_pembeli;
+use App\Services\ReturnSettlementService;
 use Carbon\Carbon;
 
 class PembeliOrderController extends Controller
@@ -60,6 +61,7 @@ class PembeliOrderController extends Controller
 
         $return = Return_pembeli::query()
             ->where('order_id', $pesanan->id)
+            ->where('type', 'sewa')
             ->first();
 
         $rental = Rental_pembeli::where('order_id', $pesanan->id)->first();
@@ -128,8 +130,9 @@ class PembeliOrderController extends Controller
         $return->fill([
             'rental_id' => $rental?->id,
             'resi_return' => $resi,
-            'foto_kondisi' => $fotoKondisiPath,
+            'proof_returned_image' => $fotoKondisiPath,
             'tanggal_pengembalian' => now(),
+            'actual_date' => now(),
             'denda' => 0, 
             'kondisi_barang' => $detail->type === 'buy' ? 'dispute' : 'baik',
             'status' => $detail->type === 'buy' ? 'dispute' : 'pending',
@@ -143,8 +146,10 @@ class PembeliOrderController extends Controller
         ]);
 
         // Use settlement service if exists
-        if (class_exists(\App\Services\ReturnSettlementService::class)) {
-            $settlement = app(\App\Services\ReturnSettlementService::class);
+        $return->setRelation('order', $pesanan->loadMissing('details.product'));
+
+        if (class_exists(ReturnSettlementService::class)) {
+            $settlement = app(ReturnSettlementService::class);
             $settlement->applyAutoCalculations($return);
         }
         

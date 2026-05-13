@@ -17,19 +17,8 @@
 
             <div class="space-y-6">
                 <div class="rounded-[32px] overflow-hidden shadow-lg bg-white">
-                    @php
-                        $imgPath = $produk->image ?? $produk->gambar;
-                        if ($imgPath && !str_starts_with($imgPath, 'assets/images/') && !str_starts_with($imgPath, 'storage/') && !str_starts_with($imgPath, 'http')) {
-                            if (file_exists(public_path('assets/images/' . $imgPath))) {
-                                $imgPath = 'assets/images/' . $imgPath;
-                            } else {
-                                $imgPath = 'storage/' . $imgPath;
-                            }
-                        }
-                    @endphp
-
-                    @if($imgPath && (file_exists(public_path($imgPath)) || str_contains($imgPath, 'http')))
-                        <img src="{{ asset($imgPath) }}"
+                    @if($produk->image_url)
+                        <img src="{{ $produk->image_url }}"
                              alt="{{ $produk->name ?? $produk->nama_produk }}"
                              class="w-full h-[520px] object-cover object-center">
                     @else

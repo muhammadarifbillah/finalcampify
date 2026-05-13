@@ -15,7 +15,11 @@ class OrderController extends Controller
 {
     public function index()
     {
-        $orders = Order::with('orderDetails.product')
+        $orders = Order::with([
+                'orderDetails.product',
+                'orderDetails.product.productRatings' => fn ($query) => $query->where('user_id', Auth::id()),
+                'returns',
+            ])
             ->where('user_id', Auth::id())
             ->orderBy('created_at', 'desc')
             ->get();
@@ -147,7 +151,11 @@ class OrderController extends Controller
 
     public function show($id)
     {
-        $order = Order::with('orderDetails.product')
+        $order = Order::with([
+                'orderDetails.product',
+                'orderDetails.product.productRatings' => fn ($query) => $query->where('user_id', Auth::id()),
+                'returns',
+            ])
             ->where('user_id', Auth::id())
             ->find($id);
 

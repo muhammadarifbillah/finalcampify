@@ -65,6 +65,11 @@ class Product extends Model
         return $this->hasMany(ProductImage::class, 'product_id');
     }
 
+    public function productRatings()
+    {
+        return $this->hasMany(\App\Models\Pembeli\ProductRating_pembeli::class, 'product_id');
+    }
+
     public function getNameAttribute()
     {
         return $this->attributes['name'] ?? $this->attributes['nama_produk'] ?? null;
@@ -159,5 +164,32 @@ class Product extends Model
         }
 
         return $reasons;
+    }
+
+    public function getImageUrlAttribute()
+    {
+        $imageField = $this->image ?: $this->gambar;
+        
+        if (!$imageField) {
+            return null;
+        }
+
+        if (filter_var($imageField, FILTER_VALIDATE_URL)) {
+            return $imageField;
+        }
+
+        $filename = basename($imageField);
+
+        // Check if it exists in storage
+        if (\Illuminate\Support\Facades\Storage::disk('public')->exists('products/' . $filename)) {
+            return asset('storage/products/' . $filename);
+        }
+
+        if (strpos($imageField, 'products/') !== false || strpos($imageField, 'storage/') !== false) {
+             return asset('storage/' . str_replace('public/', '', $imageField));
+        }
+
+        // Default to assets/images
+        return asset('assets/images/' . $filename);
     }
 }

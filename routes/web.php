@@ -263,9 +263,10 @@ Route::middleware(['auth', 'role:seller'])->prefix('seller')->name('seller.')->g
 */
 Route::get('/images/{path}', function ($path) {
     $normalizedPath = ltrim($path, '/');
+    // Check assets/images first (new location), then fall back to storage (old location)
     $candidates = [
-        storage_path('app/public/images/' . $normalizedPath),
         public_path('assets/images/' . $normalizedPath),
+        storage_path('app/public/images/' . $normalizedPath),
     ];
 
     $file = null;

@@ -41,6 +41,11 @@ class Order extends Model
 
     public function orderDetails()
     {
-    return $this->hasMany(OrderDetail::class, 'order_id', 'id');
+        return $this->hasMany(OrderDetail::class, 'order_id', 'id');
+    }
+
+    public function returns()
+    {
+        return $this->hasMany(ReturnEscrow::class, 'order_id');
     }
 }

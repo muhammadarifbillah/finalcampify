@@ -60,9 +60,9 @@ class ProductController_seller extends Controller
         $imagePath = null;
         if ($request->hasFile('gambar')) {
             $file = $request->file('gambar');
-            $filename = time() . '_' . $file->getClientOriginalName();
+            $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
             $file->move(public_path('assets/images'), $filename);
-            $imagePath = 'assets/images/' . $filename;
+            $imagePath = $filename;
         }
 
         $flagReasons = \App\Models\Product::flagReasonsFor($request->only(['nama_produk', 'harga', 'deskripsi']));
@@ -153,19 +153,23 @@ class ProductController_seller extends Controller
         // Jika upload gambar baru
         if ($request->hasFile('gambar')) {
 
-            // Hapus gambar lama dari public/assets/images
-            $oldPath = $product->gambar;
-            if ($oldPath && file_exists(public_path($oldPath))) {
-                unlink(public_path($oldPath));
+            // Hapus gambar lama jika ada
+            if ($product->gambar || $product->image) {
+                $oldFilename = $product->gambar ?: $product->image;
+                // Extract just the filename in case it contains old path format
+                $oldFilename = basename($oldFilename);
+                $oldPath = public_path('assets/images/' . $oldFilename);
+                if (file_exists($oldPath)) {
+                    unlink($oldPath);
+                }
             }
 
-            // Simpan gambar baru ke assets/images
+            // Simpan gambar baru
             $file = $request->file('gambar');
-            $filename = time() . '_' . $file->getClientOriginalName();
+            $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
             $file->move(public_path('assets/images'), $filename);
-            
-            $data['gambar'] = 'assets/images/' . $filename;
-            $data['image'] = $data['gambar'];
+            $data['gambar'] = $filename;
+            $data['image'] = $filename;
         }
 
         $product->update($data);
@@ -182,8 +186,15 @@ class ProductController_seller extends Controller
             abort(403);
         }
 
-        if ($product->gambar && Storage::disk('public')->exists($product->gambar)) {
-            Storage::disk('public')->delete($product->gambar);
+        // Hapus gambar dari public/assets/images
+        if ($product->gambar || $product->image) {
+            $filename = $product->gambar ?: $product->image;
+            // Extract just the filename in case it contains old path format
+            $filename = basename($filename);
+            $path = public_path('assets/images/' . $filename);
+            if (file_exists($path)) {
+                unlink($path);
+            }
         }
 
         $product->delete();

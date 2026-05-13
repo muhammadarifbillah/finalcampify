@@ -8,7 +8,7 @@
         </div>
         <div class="bg-white rounded-3xl shadow-lg p-8">
             <div class="flex items-center gap-4 mb-6 p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                <img src="{{ asset($produk->image) }}" class="w-16 h-16 object-cover rounded-xl shadow-sm">
+                <img src="{{ $produk->image_url }}" class="w-16 h-16 object-cover rounded-xl shadow-sm">
                 <div>
                     <h2 class="text-xl font-bold text-slate-800">{{ $produk->name }}</h2>
                     <p class="text-xs text-slate-500">Harga: Rp {{ number_format($produk->rent_price) }}/hari</p>

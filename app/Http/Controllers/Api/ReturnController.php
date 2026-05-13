@@ -7,6 +7,7 @@ use App\Models\Pembeli\OrderDetail_pembeli;
 use App\Models\Pembeli\Order_pembeli;
 use App\Models\Pembeli\Rental_pembeli;
 use App\Models\Pembeli\Return_pembeli;
+use App\Services\ReturnSettlementService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -31,7 +32,10 @@ class ReturnController extends Controller
         $today = now()->startOfDay();
 
         $daysLate = max(0, $endDate->diffInDays($today, false));
-        $denda = $daysLate * 10000;
+        $denda = $daysLate * (int) config('returns.daily_fine', 50000);
+        $return = Return_pembeli::where('order_id', $pesanan->id)
+            ->where('type', 'sewa')
+            ->first();
 
         return response()->json([
             'success' => true,
@@ -40,6 +44,7 @@ class ReturnController extends Controller
                 'days_late' => $daysLate,
                 'fine_amount' => $denda,
                 'due_date' => $endDate->toDateString(),
+                'return' => $return,
             ]
         ]);
     }
@@ -78,9 +83,9 @@ class ReturnController extends Controller
                 'user_id' => $pesanan->user_id,
                 'product_id' => $detail->product_id,
                 'order_id' => $pesanan->id,
-                'start_date' => $startDate->toDateString(),
             ],
             [
+                'start_date' => $startDate->toDateString(),
                 'end_date' => $endDate->toDateString(),
                 'duration' => (int) $detail->duration,
                 'price' => (int) $detail->harga,
@@ -88,19 +93,37 @@ class ReturnController extends Controller
             ]
         );
 
-        $return = Return_pembeli::firstOrNew(['rental_id' => $rental->id]);
+        $return = Return_pembeli::firstOrNew([
+            'order_id' => $pesanan->id,
+            'type' => 'sewa',
+        ]);
 
         if ($return->exists) {
             return response()->json(['message' => 'Pengembalian sudah pernah diajukan'], 422);
         }
 
         $return->fill([
+            'rental_id' => $rental->id,
+            'type' => 'sewa',
+            'status' => 'checking',
             'resi_return' => $resi,
             'proof_returned_image' => $fotoKondisiPath,
             'tanggal_pengembalian' => now(),
+            'actual_date' => now(),
+            'expected_date' => $endDate,
+            'escrow_total' => (string) ((int) ($pesanan->total ?? 0)),
+            'late_fee' => '0',
+            'damage_fee' => '0',
+            'to_seller' => '0',
+            'to_buyer' => '0',
             'denda' => 0,
             'kondisi_barang' => 'baik',
         ]);
+
+        $return->setRelation('order', $pesanan->loadMissing('details.product'));
+        if (class_exists(ReturnSettlementService::class)) {
+            app(ReturnSettlementService::class)->applyAutoCalculations($return);
+        }
         $return->save();
 
         $rental->status = 'returned';

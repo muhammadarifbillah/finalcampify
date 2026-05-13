@@ -78,8 +78,8 @@
                     <h6 class="fw-bold mb-3 small text-muted text-uppercase ls-1">Item yang dipesan</h6>
                     @foreach($order->details as $detail)
                     <div class="d-flex align-items-center gap-3 mb-3 p-3 bg-light rounded-4">
-                        @if($detail->product->gambar)
-                            <img src="{{ asset('storage/'.$detail->product->gambar) }}" class="rounded-3 shadow-sm" style="width: 60px; height: 60px; object-fit: cover;">
+                        @if($detail->product->image_url)
+                            <img src="{{ $detail->product->image_url }}" class="rounded-3 shadow-sm" style="width: 60px; height: 60px; object-fit: cover;">
                         @else
                             <div class="bg-white rounded-3 d-flex align-items-center justify-content-center border" style="width: 60px; height: 60px;">📦</div>
                         @endif

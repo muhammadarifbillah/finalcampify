@@ -9,8 +9,7 @@
         'rejected' => 'admin-badge-danger',
         default => 'admin-badge-muted',
     };
-    $image = $product->image ?: $product->gambar;
-    $imageUrl = $image ? (\Illuminate\Support\Str::startsWith($image, ['http://', 'https://']) ? $image : asset('storage/'.$image)) : null;
+    $imageUrl = $product->image_url ?: null;
 @endphp
 
 @section('content')
