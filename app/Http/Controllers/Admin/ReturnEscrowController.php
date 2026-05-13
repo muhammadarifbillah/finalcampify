@@ -41,10 +41,19 @@ class ReturnEscrowController extends Controller
 
         $returns = $query->latest()->paginate(10)->withQueryString();
 
-        // Sync late fees for active returns to ensure index data is accurate
+        // Sync calculations and dates for returns to ensure index data is accurate
         foreach ($returns as $item) {
+            $needsSave = false;
             if (!in_array($item->status, ['completed', 'rejected'])) {
                 $settlement->applyAutoCalculations($item);
+                $needsSave = true;
+            } elseif ($item->status === 'completed' && empty($item->actual_date)) {
+                // For legacy completed data, use updated_at as fallback actual_date
+                $item->actual_date = $item->updated_at;
+                $needsSave = true;
+            }
+
+            if ($needsSave) {
                 $item->save();
             }
         }

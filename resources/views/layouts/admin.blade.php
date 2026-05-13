@@ -25,9 +25,15 @@
                 ],
                 [
                     'label'  => 'Dashboard Pembelian',
-                    'icon'   => 'shopping-cart',
-                    'href'   => route('admin.orders.index'),
-                    'active' => Request::is('admin/orders*'),
+                    'icon'   => 'shopping-bag',
+                    'href'   => route('admin.orders.index', ['type' => 'buy']),
+                    'active' => Request::is('admin/orders*') && Request::get('type') === 'buy',
+                ],
+                [
+                    'label'  => 'Dashboard Penyewaan',
+                    'icon'   => 'calendar-days',
+                    'href'   => route('admin.orders.index', ['type' => 'rent']),
+                    'active' => Request::is('admin/orders*') && Request::get('type') === 'rent',
                 ],
                 [
                     'label'  => 'Dashboard Pengembalian',

@@ -59,7 +59,10 @@ class ProductController_seller extends Controller
         // Upload gambar
         $imagePath = null;
         if ($request->hasFile('gambar')) {
-            $imagePath = $request->file('gambar')->store('products', 'public');
+            $file = $request->file('gambar');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('assets/images'), $filename);
+            $imagePath = 'assets/images/' . $filename;
         }
 
         $flagReasons = \App\Models\Product::flagReasonsFor($request->only(['nama_produk', 'harga', 'deskripsi']));
@@ -150,13 +153,18 @@ class ProductController_seller extends Controller
         // Jika upload gambar baru
         if ($request->hasFile('gambar')) {
 
-            // Hapus gambar lama
-            if ($product->gambar && Storage::disk('public')->exists($product->gambar)) {
-                Storage::disk('public')->delete($product->gambar);
+            // Hapus gambar lama dari public/assets/images
+            $oldPath = $product->gambar;
+            if ($oldPath && file_exists(public_path($oldPath))) {
+                unlink(public_path($oldPath));
             }
 
-            // Simpan gambar baru
-            $data['gambar'] = $request->file('gambar')->store('products', 'public');
+            // Simpan gambar baru ke assets/images
+            $file = $request->file('gambar');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('assets/images'), $filename);
+            
+            $data['gambar'] = 'assets/images/' . $filename;
             $data['image'] = $data['gambar'];
         }
 

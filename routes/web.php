@@ -196,6 +196,7 @@ Route::middleware(['auth', 'role:buyer'])->group(function () {
     Route::get('/orders', [PembeliOrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{id}', [PembeliOrderController::class, 'detail'])->name('orders.detail');
     Route::post('/orders/{id}/cancel', [PembeliOrderController::class, 'cancel'])->name('orders.cancel');
+    Route::post('/orders/{id}/confirm', [PembeliOrderController::class, 'confirmReceipt'])->name('orders.confirm');
 
     Route::get('/chat', [PembeliChatController::class, 'index'])->name('chat.index');
     Route::get('/product/{product}/chat', [PembeliChatController::class, 'start'])->name('chat.product.start');

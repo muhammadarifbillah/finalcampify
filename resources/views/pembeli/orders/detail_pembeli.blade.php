@@ -44,16 +44,70 @@
                     <a href="{{ route('profile') }}" class="mt-3 inline-block text-xs font-bold text-amber-900 border-b-2 border-amber-900 hover:text-amber-700 transition-colors">Cek Status KTP Saya →</a>
                 </div>
             </div>
+        <!-- RETURN STATUS ALERTS -->
+        @if($pesanan->returnRequest)
+            @php
+                $rStatus = $pesanan->returnRequest->status;
+            @endphp
+
+            @if($rStatus === 'dispute')
+                <div class="mb-6 p-5 bg-rose-50 border-2 border-rose-200 rounded-3xl flex gap-5 items-start shadow-sm">
+                    <div class="w-12 h-12 rounded-2xl bg-rose-100 flex items-center justify-center text-rose-600 shrink-0">
+                        <i data-lucide="scale" class="w-6 h-6"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="font-black text-rose-900 uppercase tracking-widest text-sm mb-1">Sedang Mediasi Admin</h3>
+                        <p class="text-xs text-rose-800 leading-relaxed">
+                            Pengembalian Anda sedang ditinjau oleh tim penengah (Admin) karena adanya sengketa/ketidaksesuaian dengan penjual. 
+                            Admin akan segera memberikan keputusan resolusi yang adil bagi kedua belah pihak.
+                        </p>
+                    </div>
+                </div>
+            @elseif($rStatus === 'checking')
+                <div class="mb-6 p-5 bg-amber-50 border-2 border-amber-200 rounded-3xl flex gap-5 items-start shadow-sm">
+                    <div class="w-12 h-12 rounded-2xl bg-amber-100 flex items-center justify-center text-amber-600 shrink-0">
+                        <i data-lucide="search" class="w-6 h-6"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="font-black text-amber-900 uppercase tracking-widest text-sm mb-1">Pemeriksaan Barang</h3>
+                        <p class="text-xs text-amber-800 leading-relaxed">
+                            Barang yang Anda kembalikan sedang diperiksa oleh penjual/admin untuk memastikan kondisinya. 
+                            Status akan diperbarui segera setelah pemeriksaan selesai.
+                        </p>
+                    </div>
+                </div>
+            @elseif($rStatus === 'pending')
+                <div class="mb-6 p-5 bg-blue-50 border-2 border-blue-200 rounded-3xl flex gap-5 items-start shadow-sm">
+                    <div class="w-12 h-12 rounded-2xl bg-blue-100 flex items-center justify-center text-blue-600 shrink-0">
+                        <i data-lucide="clock" class="w-6 h-6"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="font-black text-blue-900 uppercase tracking-widest text-sm mb-1">Menunggu Penjual</h3>
+                        <p class="text-xs text-blue-800 leading-relaxed">
+                            Permintaan pengembalian Anda telah dikirim. Menunggu konfirmasi atau respon dari pihak penjual.
+                        </p>
+                    </div>
+                </div>
+            @endif
         @endif
 
         <!-- HEADER -->
         <div class="mb-6 flex items-center justify-between">
             <h1 class="text-2xl font-bold text-slate-800">
-                Detail Pesanan #{{ $pesanan->id }}
+                {{ isset($detailId) ? 'Detail Barang' : 'Detail Pesanan' }} #{{ $pesanan->id }}
             </h1>
 
             @php
-                $rental = \App\Models\Pembeli\Rental_pembeli::where('order_id', $pesanan->id)->first();
+                // Jika sedang melihat barang spesifik, ambil info rental khusus barang itu
+                if (isset($detailId)) {
+                    $item = $pesanan->details->first();
+                    $rental = \App\Models\Pembeli\Rental_pembeli::where('order_id', $pesanan->id)
+                                ->where('product_id', $item->product_id)
+                                ->first();
+                } else {
+                    $rental = \App\Models\Pembeli\Rental_pembeli::where('order_id', $pesanan->id)->first();
+                }
+
                 $displayStatus = $pesanan->status;
                 $statusColor = 'bg-amber-100 text-amber-700';
 
@@ -78,7 +132,12 @@
             @endphp
 
             <div class="flex items-center gap-2">
-                @if($rental)
+                @if(isset($detailId))
+                    @php $specificItem = $pesanan->details->first(); @endphp
+                    <span class="px-3 py-1 {{ $specificItem->type === 'rent' ? 'bg-blue-50 text-blue-600 border-blue-100' : 'bg-emerald-50 text-emerald-600 border-emerald-100' }} rounded-full text-[10px] font-black uppercase tracking-widest border">
+                        {{ $specificItem->type === 'rent' ? 'Penyewaan' : 'Pembelian' }}
+                    </span>
+                @elseif($rental)
                     <span class="px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-[10px] font-black uppercase tracking-widest border border-blue-100">Penyewaan</span>
                 @endif
                 <span class="px-4 py-1 rounded-full text-sm font-bold uppercase {{ $statusColor }}">
@@ -125,8 +184,10 @@
                             <span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded text-[10px] font-bold uppercase">Lunas</span>
                         </div>
                         <div class="flex justify-between items-center pt-2 border-t">
-                            <span class="font-bold text-slate-800">Total Transaksi</span>
-                            <span class="text-xl font-black text-emerald-600">Rp {{ number_format($pesanan->total ?? 0) }}</span>
+                            <span class="font-bold text-slate-800">Total Transaksi {{ isset($detailId) ? '(Barang Ini)' : '' }}</span>
+                            <span class="text-xl font-black text-emerald-600">
+                                Rp {{ number_format(isset($detailId) ? ($pesanan->details->first()->harga * $pesanan->details->first()->qty + ($pesanan->details->first()->type === 'rent' ? ($pesanan->details->first()->product->buy_price * 0.25) : 0)) : ($pesanan->total ?? 0)) }}
+                            </span>
                         </div>
                         @if($pesanan->bukti_pembayaran)
                         <div class="pt-4 mt-4 border-t border-dashed border-slate-200">
@@ -187,17 +248,30 @@
                     @foreach($pesanan->details as $item)
                         @php
                             $produk = $item->product;
-                            $isBuy = $item->type === 'buy';
+                            // Cek tipe: jika di DB 'buy' tapi nama ada '(Sewa)', anggap sewa agar tampilan benar
+                            $isBuy = ($item->type === 'buy' && !str_contains(strtolower($produk->name ?? $produk->nama_produk), '(sewa)'));
                         @endphp
 
                         <div class="border rounded-[24px] p-5 bg-slate-50/50 hover:bg-white hover:shadow-md transition-all duration-300">
                             <div class="flex flex-col md:flex-row gap-6">
                                 <!-- FOTO PRODUK -->
                                 <div class="w-full md:w-32 h-32 flex-shrink-0">
-                                    <img 
-                                        src="{{ asset($produk->image) }}"
-                                        class="w-full h-full object-cover rounded-2xl shadow-sm"
-                                    >
+                                    @php
+                                        $imgPath = $produk->image ?? $produk->gambar;
+                                        if ($imgPath && !str_starts_with($imgPath, 'assets/images/') && !str_starts_with($imgPath, 'storage/') && !str_starts_with($imgPath, 'http')) {
+                                            if (file_exists(public_path('assets/images/' . $imgPath))) {
+                                                $imgPath = 'assets/images/' . $imgPath;
+                                            } else {
+                                                $imgPath = 'storage/' . $imgPath;
+                                            }
+                                        }
+                                    @endphp
+
+                                    @if($imgPath && (file_exists(public_path($imgPath)) || str_contains($imgPath, 'http')))
+                                        <img src="{{ asset($imgPath) }}" class="w-full h-full object-cover rounded-2xl shadow-sm" alt="{{ $produk->name ?? $produk->nama_produk }}">
+                                    @else
+                                        <div class="w-full h-full bg-slate-100 rounded-2xl flex items-center justify-center text-3xl">📦</div>
+                                    @endif
                                 </div>
 
                                 <!-- INFO UTAMA -->
@@ -233,6 +307,30 @@
                                             </div>
                                         </div>
 
+                                        {{-- Retur Section for Buy --}}
+                                        @php
+                                            $buyReturn = \App\Models\Pembeli\Return_pembeli::where('order_id', $pesanan->id)
+                                                ->where('type', 'jual_beli')
+                                                ->first();
+                                        @endphp
+                                        <div class="mt-4 pt-4 border-t border-slate-200">
+                                            @if(!$buyReturn)
+                                                @if($pesanan->status === 'selesai')
+                                                    <a href="{{ route('orders.return', $item->id) }}" class="inline-flex items-center justify-center rounded-xl border-2 border-red-200 px-4 py-2 text-xs font-bold text-red-600 hover:bg-red-50 transition">
+                                                        <i data-lucide="refresh-ccw" class="w-3 h-3 me-2"></i> AJUKAN RETUR BARANG
+                                                    </a>
+                                                @endif
+                                            @else
+                                                <div class="p-4 bg-red-50 rounded-2xl border border-red-100 flex items-center justify-between">
+                                                    <div class="flex items-center gap-3">
+                                                        <div class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
+                                                        <span class="text-[10px] font-black text-red-700 uppercase tracking-widest">Status Retur: {{ $buyReturn->status }}</span>
+                                                    </div>
+                                                    <a href="{{ route('orders.return', $item->id) }}" class="text-[10px] font-bold text-red-900 underline">Lihat Detail</a>
+                                                </div>
+                                            @endif
+                                        </div>
+
                                         {{-- Rating & Review Section --}}
                                         @if($pesanan->status == 'selesai')
                                         <div class="mt-4 pt-4 border-t border-slate-200">
@@ -250,15 +348,15 @@
                                         <div class="grid grid-cols-2 md:grid-cols-5 gap-4 py-2">
                                             <div>
                                                 <p class="text-xs text-slate-500 uppercase font-semibold">Durasi</p>
-                                                <p class="font-medium">{{ $item->duration }} Hari</p>
+                                                <p class="font-medium">{{ $item->duration ?? '3' }} Hari</p>
                                             </div>
                                             <div>
                                                 <p class="text-xs text-slate-500 uppercase font-semibold">Mulai Sewa</p>
-                                                <p class="font-medium">{{ \Carbon\Carbon::parse($item->start_date)->format('d M Y') }}</p>
+                                                <p class="font-medium">{{ $item->start_date ? \Carbon\Carbon::parse($item->start_date)->format('d M Y') : \Carbon\Carbon::parse($pesanan->created_at)->format('d M Y') }}</p>
                                             </div>
                                             <div>
                                                 <p class="text-xs text-slate-500 uppercase font-semibold">Selesai Sewa</p>
-                                                <p class="font-medium">{{ \Carbon\Carbon::parse($item->start_date)->addDays($item->duration)->format('d M Y') }}</p>
+                                                <p class="font-medium">{{ $item->start_date ? \Carbon\Carbon::parse($item->start_date)->addDays($item->duration ?? 3)->format('d M Y') : \Carbon\Carbon::parse($pesanan->created_at)->addDays(3)->format('d M Y') }}</p>
                                             </div>
                                             <div>
                                                 <p class="text-xs text-slate-500 uppercase font-semibold">Harga Sewa</p>
@@ -290,7 +388,11 @@
                                         <div class="mt-4 pt-4 border-t border-slate-200 space-y-4">
                                             <div class="flex flex-col gap-3">
                                                 @if(!$returnInfo)
-                                                    @if($rentalInfo && $rentalInfo->status === 'active')
+                                                    @php
+                                                        $canReturn = ($rentalInfo && $rentalInfo->status === 'active') || 
+                                                                    in_array($pesanan->status, ['dikirim', 'selesai']);
+                                                    @endphp
+                                                    @if($canReturn)
                                                         <a href="{{ route('orders.return', $item->id) }}" class="inline-flex items-center justify-center rounded-xl bg-slate-900 px-4 py-2 text-xs font-bold text-white hover:bg-slate-800 transition shadow-lg shadow-slate-200">
                                                             <i data-lucide="rotate-ccw" class="w-3 h-3 me-2"></i> AJUKAN PENGEMBALIAN SEKARANG
                                                         </a>
@@ -337,6 +439,9 @@
                                                         @else
                                                             <p class="text-[10px] text-slate-500 italic">Barang dalam proses pengecekan oleh Admin & Penjual. Harap tunggu konfirmasi refund.</p>
                                                         @endif
+                                                        <a href="{{ route('orders.return', $item->id) }}" class="mt-2 w-full inline-flex items-center justify-center rounded-xl border-2 border-slate-200 py-2 text-[10px] font-black text-slate-600 hover:bg-slate-50 transition uppercase tracking-widest">
+                                                            Lihat Detail Pengembalian →
+                                                        </a>
                                                     </div>
                                                 @endif
                                             </div>
@@ -440,14 +545,26 @@
             </div>
 
             <!-- ACTION -->
-            @if(in_array($pesanan->status, ['menunggu', 'diproses']))
-                <form action="{{ route('orders.cancel', $pesanan->id) }}" method="POST">
-                    @csrf
-                    <button class="w-full bg-red-500 hover:bg-red-600 text-white py-3 rounded-xl font-semibold transition">
-                        Batalkan Pesanan
-                    </button>
-                </form>
-            @endif
+            <div class="flex flex-col gap-3">
+                @if($pesanan->status == 'dikirim')
+                    <form action="{{ route('orders.confirm', $pesanan->id) }}" method="POST">
+                        @csrf
+                        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-4 rounded-2xl font-black text-sm uppercase tracking-widest transition-all shadow-lg shadow-emerald-100 flex items-center justify-center gap-3">
+                            <i data-lucide="package-check" class="w-5 h-5"></i>
+                            Konfirmasi Pesanan Diterima
+                        </button>
+                    </form>
+                @endif
+
+                @if(in_array($pesanan->status, ['menunggu', 'diproses']))
+                    <form action="{{ route('orders.cancel', $pesanan->id) }}" method="POST">
+                        @csrf
+                        <button class="w-full bg-red-50 hover:bg-red-100 text-red-600 py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition border border-red-100">
+                            Batalkan Pesanan
+                        </button>
+                    </form>
+                @endif
+            </div>
 
         </div>
 

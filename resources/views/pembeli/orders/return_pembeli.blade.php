@@ -20,8 +20,10 @@
                     <div class="w-16 h-16 bg-slate-200 rounded-xl flex items-center justify-center">🏕️</div>
                 @endif
                 <div>
-                    <h3 class="font-bold text-slate-800">{{ $detail->product->nama_produk }}</h3>
-                    <p class="text-xs text-slate-500">Durasi Sewa: {{ $detail->duration }} Hari</p>
+                    <h3 class="font-bold text-slate-800">{{ $detail->product->name ?? $detail->product->nama_produk }}</h3>
+                    <p class="text-xs text-slate-500">
+                        {{ $detail->type === 'rent' ? 'Durasi Sewa: ' . ($detail->duration ?? 3) . ' Hari' : 'Jumlah Beli: ' . ($detail->qty ?? 1) . ' Item' }}
+                    </p>
                 </div>
             </div>
 
@@ -39,16 +41,33 @@
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50 p-6 rounded-[24px] border border-slate-100">
-                        <div class="space-y-1">
-                            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Biaya Sewa</label>
-                            <p class="text-sm font-bold text-slate-800">Rp {{ number_format($detail->harga) }}</p>
-                        </div>
-                        <div class="space-y-1">
-                            <label class="block text-[10px] font-black text-emerald-500 uppercase tracking-widest">Dana Jaminan (25%)</label>
-                            <p class="text-sm font-bold text-emerald-600">Rp {{ number_format($detail->product->buy_price * 0.25) }}</p>
-                            <p class="text-[8px] text-slate-400 leading-tight">*Akan dikembalikan utuh jika barang aman.</p>
-                        </div>
+                        @if($detail->type === 'rent')
+                            <div class="space-y-1">
+                                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Biaya Sewa</label>
+                                <p class="text-sm font-bold text-slate-800">Rp {{ number_format($detail->harga) }}</p>
+                            </div>
+                            <div class="space-y-1">
+                                <label class="block text-[10px] font-black text-emerald-500 uppercase tracking-widest">Dana Jaminan (25%)</label>
+                                <p class="text-sm font-bold text-emerald-600">Rp {{ number_format($detail->product->buy_price * 0.25) }}</p>
+                            </div>
+                        @else
+                            <div class="space-y-1">
+                                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Harga Barang</label>
+                                <p class="text-sm font-bold text-slate-800">Rp {{ number_format($detail->harga * $detail->qty) }}</p>
+                            </div>
+                            <div class="space-y-1">
+                                <label class="block text-[10px] font-black text-emerald-500 uppercase tracking-widest">Estimasi Refund</label>
+                                <p class="text-sm font-bold text-emerald-600">100% (Rp {{ number_format($detail->harga * $detail->qty) }})</p>
+                            </div>
+                        @endif
                     </div>
+
+                    @if($detail->type === 'buy')
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">Alasan Retur / Masalah Barang</label>
+                        <textarea name="alasan_return" rows="3" class="w-full rounded-2xl border-slate-200 p-4 focus:ring-red-500 focus:border-red-500 text-sm" placeholder="Jelaskan detail masalah barang (misal: rusak, tidak sesuai deskripsi, dll)" required></textarea>
+                    </div>
+                    @endif
 
                     <div>
                         <label class="block text-sm font-bold text-slate-700 mb-2">Metode Pengembalian</label>
@@ -181,10 +200,19 @@
                                 <span class="font-bold text-emerald-600 uppercase">{{ $return->kondisi_barang }}</span>
                             </div>
                             <div class="flex justify-between text-sm pt-3 border-t border-slate-200">
-                                <span class="text-slate-500">Total Denda</span>
-                                <span class="font-bold text-slate-900">Rp {{ number_format($return->denda) }}</span>
+                                <span class="text-slate-500">Dana Jaminan</span>
+                                <span class="font-bold text-slate-900">Rp {{ number_format($return->deposit_amount) }}</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-slate-500 text-red-500">Total Denda (-)</span>
+                                <span class="font-bold text-red-600">- Rp {{ number_format($return->total_fines) }}</span>
+                            </div>
+                            <div class="flex justify-between items-center pt-4 mt-2 border-t-2 border-slate-200 border-dashed">
+                                <span class="text-md font-black text-slate-800 uppercase tracking-widest">Total Refund</span>
+                                <span class="text-2xl font-black text-emerald-600">Rp {{ number_format($return->to_buyer) }}</span>
                             </div>
                         </div>
+                        <p class="text-[10px] text-slate-400 text-center italic mt-6">Dana refund telah dicairkan oleh Admin Campify.</p>
                     </div>
                 </div>
 
@@ -200,6 +228,9 @@
                     @else
                         <p class="text-slate-500">Seller sedang mengecek kondisi barang yang Anda kembalikan.</p>
                     @endif
+                    <p class="mt-6 text-[11px] text-slate-400 bg-slate-50 p-4 rounded-2xl border border-slate-100 italic">
+                        Harap tunggu konfirmasi dari pihak Penjual dan Admin untuk penyelesaian dana jaminan (escrow).
+                    </p>
                 </div>
             @endif
         </div>

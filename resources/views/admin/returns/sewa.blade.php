@@ -184,11 +184,16 @@
                                 @endif
                             </td>
                             <td class="py-4 px-4">
-                                <div class="font-semibold text-gray-700 {{ $isOverdue ? 'text-red-500' : '' }}">{{ $item->expected_date ? $item->expected_date->format('d M Y, H:i') : '-' }}</div>
-                                @if($isOverdue)
-                                    <div class="text-[10px] font-bold text-red-500 uppercase mt-0.5">⚠️ TERLAMBAT {{ $lateString }}</div>
-                                @elseif($item->expected_date && $item->expected_date->isToday())
-                                    <div class="text-[10px] font-bold text-[#0f6b52] uppercase mt-0.5">⏰ HARI INI</div>
+                                @if($item->actual_date)
+                                    <div class="font-semibold text-blue-600">{{ $item->actual_date->format('d M Y, H:i') }}</div>
+                                    <div class="text-[9px] font-bold text-gray-400 uppercase mt-0.5">SLA: {{ $item->expected_date ? $item->expected_date->format('d M Y, H:i') : '-' }}</div>
+                                @else
+                                    <div class="font-semibold text-gray-700 {{ $isOverdue ? 'text-red-500' : '' }}">{{ $item->expected_date ? $item->expected_date->format('d M Y, H:i') : '-' }}</div>
+                                    @if($isOverdue)
+                                        <div class="text-[10px] font-bold text-red-500 uppercase mt-0.5">⚠️ TERLAMBAT {{ $lateString }}</div>
+                                    @elseif($item->expected_date && $item->expected_date->isToday())
+                                        <div class="text-[10px] font-bold text-[#0f6b52] uppercase mt-0.5">⏰ HARI INI</div>
+                                    @endif
                                 @endif
                             </td>
                             <td class="py-4 px-4 text-center">

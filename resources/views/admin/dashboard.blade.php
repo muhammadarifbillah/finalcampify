@@ -62,7 +62,17 @@
                             <i data-lucide="banknote" class="w-4 h-4"></i>
                         </div>
                     </div>
-                    <h2 class="text-[48px] font-black text-slate-800 leading-none tracking-tighter">Rp {{ number_format($revenue / 1000000, 1) }}M</h2>
+                    <h2 class="text-[48px] font-black text-slate-800 leading-none tracking-tighter">{{ $transactions }}</h2>
+                </div>
+                <div class="mt-6 space-y-1 border-t border-slate-100 pt-4">
+                    <div class="flex justify-between text-[11px] font-bold text-slate-500 uppercase tracking-tight">
+                        <span>Penyewaan:</span>
+                        <span class="text-[#059669] font-black">{{ $rentalCount }} Transaksi</span>
+                    </div>
+                    <div class="flex justify-between text-[11px] font-bold text-slate-500 uppercase tracking-tight">
+                        <span>Pembelian:</span>
+                        <span class="text-[#2563eb] font-black">{{ $buyCount }} Transaksi</span>
+                    </div>
                 </div>
                 <p class="text-xs font-black text-[#059669] uppercase mt-3 tracking-tight">TOTAL SUKSES: RP {{ number_format($revenue, 0, ',', '.') }}</p>
             </div>
@@ -91,7 +101,7 @@
         </div>
 
         {{-- Row 2: Secondary Metrics --}}
-        <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
             <div class="bg-white border border-slate-100 rounded-xl p-5 flex items-center gap-4 shadow-sm">
                 <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-100 text-slate-500"><i data-lucide="wallet" class="w-5 h-5"></i></div>
                 <div>
@@ -111,6 +121,13 @@
                 <div>
                     <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Avg. Durasi Resolusi</p>
                     <p class="text-lg font-black text-slate-800 leading-none">{{ $avgResolutionTime }}d</p>
+                </div>
+            </div>
+            <div class="bg-white border border-slate-100 rounded-xl p-5 flex items-center gap-4 shadow-sm">
+                <div class="p-2.5 bg-emerald-50 rounded-lg border border-emerald-100 text-emerald-600"><i data-lucide="hand-coins" class="w-5 h-5"></i></div>
+                <div>
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Pendapatan Admin (Fee)</p>
+                    <p class="text-lg font-black text-slate-800 leading-none">Rp {{ number_format($adminRentalRevenue, 0, ',', '.') }}</p>
                 </div>
             </div>
             <div class="bg-white border border-slate-100 rounded-xl p-5 flex items-center gap-4 shadow-sm">

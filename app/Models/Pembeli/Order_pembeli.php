@@ -34,4 +34,9 @@ class Order_pembeli extends Order
     {
         return $this->hasMany(OrderDetail_pembeli::class, 'order_id', 'id');
     }
+
+    public function returnRequest()
+    {
+        return $this->hasOne(\App\Models\ReturnEscrow::class, 'order_id');
+    }
 }

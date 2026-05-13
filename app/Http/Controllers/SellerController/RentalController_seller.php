@@ -43,8 +43,10 @@ class RentalController_seller extends Controller
             'catatan' => $request->catatan ?? $rental->catatan
         ]);
 
-        // Jika ada data return (pengembalian), update denda dan kondisi
-        if ($rental->returnRequest) {
+        // Ambil data return (pengembalian)
+        $returnRequest = $rental->returnRequest ?: \App\Models\ReturnEscrow::where('order_id', $rental->order_id)->first();
+
+        if ($returnRequest) {
             // Hitung ulang denda telat
             $endDate = \Carbon\Carbon::parse($rental->end_date)->startOfDay();
             $today = now()->startOfDay();
@@ -54,10 +56,20 @@ class RentalController_seller extends Controller
             $dendaKerusakan = $request->denda_kerusakan ?? 0;
             $totalDenda = $dendaTelat + $dendaKerusakan;
 
-            $rental->returnRequest->update([
+            $returnRequest->update([
                 'denda' => $totalDenda,
                 'kondisi_barang' => $request->kondisi_barang ?? 'baik',
+                'damage_fee' => (string) $dendaKerusakan,
+                'status' => in_array($request->status, ['completed', 'denda_pending']) ? 'checking' : $returnRequest->status,
+                'actual_date' => in_array($request->status, ['completed', 'denda_pending']) ? now() : $returnRequest->actual_date
             ]);
+
+            // Gunakan settlement service untuk update kalkulasi (to_seller, to_buyer)
+            if (class_exists(\App\Services\ReturnSettlementService::class)) {
+                $settlement = app(\App\Services\ReturnSettlementService::class);
+                $settlement->applyAutoCalculations($returnRequest);
+                $returnRequest->save();
+            }
 
             // Jika status diset ke denda_pending, pastikan denda > 0
             if ($request->status === 'denda_pending' && $totalDenda <= 0) {

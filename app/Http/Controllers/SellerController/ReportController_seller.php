@@ -25,12 +25,19 @@ class ReportController_seller extends Controller
             ->whereDoesntHave('details', fn($q) => $q->where('type', 'rent'))
             ->sum('total');
 
-        $totalRentals = Rental_seller::where('status', 'completed')
-            ->whereHas('product', fn($q) => $q->where('user_id', $sellerId))
-            ->get()
-            ->sum(fn($r) => $r->price * $r->duration);
+        $productIds = Product_seller::where('user_id', $sellerId)->pluck('id');
+        $rentalData = \Illuminate\Support\Facades\DB::table('returns')
+            ->join('rentals', 'returns.rental_id', '=', 'rentals.id')
+            ->whereIn('rentals.product_id', $productIds)
+            ->where('returns.type', 'sewa')
+            ->where('returns.status', 'completed')
+            ->select('returns.to_seller', 'returns.rental_fee_amount')
+            ->get();
 
-        return view('SellerView.reports.index_seller', compact('totalSales', 'totalRentals'));
+        $totalRentals = $rentalData->sum('to_seller');
+        $totalAdminFees = $rentalData->sum(fn($r) => $r->rental_fee_amount * 0.1);
+
+        return view('SellerView.reports.index_seller', compact('totalSales', 'totalRentals', 'totalAdminFees'));
     }
 
     /**
@@ -147,9 +154,20 @@ class ReportController_seller extends Controller
             ->latest()
             ->get();
 
-        // Hitung total pendapatan sewa
-        $totalRentalIncome = $rentals->sum(fn($r) => $r->price * $r->duration);
-        $totalRentals = $rentals->count();
+        // Hitung total pendapatan sewa murni (Dana yang dicairkan Admin)
+        $productIds = Product_seller::where('user_id', $sellerId)->pluck('id');
+        $rentalReturns = \Illuminate\Support\Facades\DB::table('returns')
+            ->join('rentals', 'returns.rental_id', '=', 'rentals.id')
+            ->whereIn('rentals.product_id', $productIds)
+            ->where('returns.type', 'sewa')
+            ->where('returns.status', 'completed')
+            ->whereBetween('returns.created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+            ->select('returns.to_seller', 'returns.rental_fee_amount')
+            ->get();
+
+        $totalRentalIncome = $rentalReturns->sum('to_seller');
+        $totalAdminFees = $rentalReturns->sum(fn($r) => $r->rental_fee_amount * 0.1);
+        $totalRentals = $rentalReturns->count();
 
         // Produk tersewa terbanyak
         $topRentedProducts = collect();
@@ -175,6 +193,7 @@ class ReportController_seller extends Controller
         return view('SellerView.reports.rentals', compact(
             'rentals',
             'totalRentalIncome',
+            'totalAdminFees',
             'totalRentals',
             'topRentedProducts',
             'startDate',

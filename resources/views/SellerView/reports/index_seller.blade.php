@@ -53,8 +53,16 @@
                 <p class="text-muted mb-4">Ringkasan transaksi penyewaan alat camping dan perlengkapan outdoor.</p>
                 
                 <div class="bg-light p-4 rounded-4 mb-5">
-                    <small class="text-muted text-uppercase fw-bold ls-1 d-block mb-1">Total Pendapatan Sewa</small>
-                    <span class="h2 fw-bold text-dark">Rp {{ number_format($totalRentals, 0, ',', '.') }}</span>
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <small class="text-muted text-uppercase fw-bold ls-1 d-block mb-1" style="font-size: 0.65rem;">Pendapatan Bersih</small>
+                            <span class="h4 fw-bold text-dark d-block">Rp {{ number_format($totalRentals, 0, ',', '.') }}</span>
+                        </div>
+                        <div class="col-6 border-start">
+                            <small class="text-muted text-uppercase fw-bold ls-1 d-block mb-1" style="font-size: 0.65rem;">Potongan Admin</small>
+                            <span class="h4 fw-bold text-danger d-block">Rp {{ number_format($totalAdminFees, 0, ',', '.') }}</span>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="d-flex gap-3">

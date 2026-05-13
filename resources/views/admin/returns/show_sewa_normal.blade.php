@@ -36,8 +36,14 @@
                         <span class="text-sm font-bold text-gray-900">{{ $return->order->created_at->format('d M Y') }}</span>
                     </div>
                     <div class="flex justify-between items-center py-3 border-b border-gray-50">
-                        <span class="text-sm text-gray-500 font-medium">Durasi Sewa</span>
-                        <span class="text-sm font-bold text-gray-900">{{ $return->order->details->first()->duration ?? '-' }} Hari</span>
+                        <span class="text-sm text-gray-500 font-medium">SLA Pengembalian</span>
+                        <span class="text-sm font-bold text-gray-900">{{ $return->expected_date ? $return->expected_date->format('d M Y, H:i') : '-' }}</span>
+                    </div>
+                    <div class="flex justify-between items-center py-3 border-b border-gray-50">
+                        <span class="text-sm text-gray-500 font-medium">Tanggal Kembali Nyata</span>
+                        <span class="text-sm font-bold {{ $return->actual_date ? 'text-blue-600' : 'text-gray-400 italic' }}">
+                            {{ $return->actual_date ? $return->actual_date->format('d M Y, H:i') : 'Belum Kembali' }}
+                        </span>
                     </div>
                     <div class="flex justify-between items-center py-3">
                         <span class="text-sm text-gray-500 font-medium">Status Saat Ini</span>

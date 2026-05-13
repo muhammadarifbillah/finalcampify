@@ -81,10 +81,22 @@
     <div class="col">
         <div class="card card-modern p-4 h-100 border-0 shadow-sm position-relative overflow-hidden">
             <div class="position-absolute top-0 end-0 p-3 opacity-10 fs-1 text-success">🏕️</div>
-            <small class="text-muted text-uppercase fw-bold ls-1 mb-2 d-block" style="font-size: 0.7rem;">Dana Sewa Selesai</small>
+            <small class="text-muted text-uppercase fw-bold ls-1 mb-2 d-block" style="font-size: 0.7rem;">Dana Sewa Bersih</small>
             <h3 class="fw-bold mb-2 text-dark">Rp {{ number_format($completedRentalFunds,0,',','.') }}</h3>
             <span class="text-success small fw-semibold">
                 Diterima dari Admin
+            </span>
+        </div>
+    </div>
+
+    {{-- Admin Fee Funds --}}
+    <div class="col">
+        <div class="card card-modern p-4 h-100 border-0 shadow-sm position-relative overflow-hidden">
+            <div class="position-absolute top-0 end-0 p-3 opacity-10 fs-1 text-danger">🛡️</div>
+            <small class="text-muted text-uppercase fw-bold ls-1 mb-2 d-block" style="font-size: 0.7rem;">Potongan Admin</small>
+            <h3 class="fw-bold mb-2 text-dark">Rp {{ number_format($totalAdminFunds,0,',','.') }}</h3>
+            <span class="text-danger small fw-semibold">
+                Fee Platform (10%)
             </span>
         </div>
     </div>
@@ -209,25 +221,50 @@
                     <td class="px-4 py-4 fw-bold text-dark">#{{ $o->id }}</td>
                     <td class="px-4 py-4">
                         <div class="d-flex align-items-center gap-3">
-                            <div class="p-2 bg-emerald-soft rounded-3 text-emerald"><i class="bi bi-box-seam"></i></div>
+                            @php
+                                $firstDetail = $o->details->first();
+                                $p = $firstDetail ? $firstDetail->product : null;
+                                $imgPath = $p ? ($p->image ?? $p->gambar) : null;
+                                if ($imgPath && !str_starts_with($imgPath, 'assets/images/') && !str_starts_with($imgPath, 'storage/') && !str_starts_with($imgPath, 'http')) {
+                                    if (file_exists(public_path('assets/images/' . $imgPath))) {
+                                        $imgPath = 'assets/images/' . $imgPath;
+                                    } else {
+                                        $imgPath = 'storage/' . $imgPath;
+                                    }
+                                }
+                            @endphp
+                            
+                            <div class="p-1 bg-light rounded-3 overflow-hidden" style="width: 45px; height: 45px;">
+                                @if($imgPath && (file_exists(public_path($imgPath)) || str_contains($imgPath, 'http')))
+                                    <img src="{{ asset($imgPath) }}" class="w-100 h-100 object-cover rounded">
+                                @else
+                                    <div class="w-100 h-100 bg-emerald-soft rounded d-flex align-items-center justify-center text-emerald">
+                                        <i class="bi bi-box-seam"></i>
+                                    </div>
+                                @endif
+                            </div>
                             <div>
-                                <div class="fw-bold text-dark small">{{ Str::limit(optional($o->details->first())->product->nama_produk ?? '-', 35) }}</div>
-                                <small class="text-muted">{{ optional($o->details->first())->qty ?? 0 }} unit</small>
+                                <div class="fw-bold text-dark small">{{ Str::limit($p->nama_produk ?? '-', 35) }}</div>
+                                <small class="text-muted">{{ $firstDetail->qty ?? 0 }} unit</small>
                             </div>
                         </div>
                     </td>
                     <td class="px-4 py-4 text-dark small fw-semibold">{{ $o->buyer->name ?? $o->buyer_name }}</td>
                     <td class="px-4 py-4 text-center">
                         @php
-                            $statusLabelClass = match($o->status) {
-                                'selesai' => 'bg-emerald-soft text-emerald',
-                                'diproses' => 'bg-info-subtle text-info',
+                            $isRental = optional($o->details->first())->type === 'rent';
+                            $displayStatus = $isRental && $o->rental ? $o->rental->status : $o->status;
+                            
+                            $statusLabelClass = match($displayStatus) {
+                                'selesai', 'completed', 'active', 'aktif' => 'bg-emerald-soft text-emerald',
+                                'diproses', 'processing', 'pending' => 'bg-info-subtle text-info',
                                 'menunggu' => 'bg-warning-subtle text-warning',
+                                'dibatalkan', 'cancelled' => 'bg-danger-subtle text-danger',
                                 default => 'bg-light text-muted'
                             };
                         @endphp
                         <span class="badge rounded-pill px-3 py-2 fw-bold text-uppercase ls-1 {{ $statusLabelClass }}" style="font-size: 0.65rem;">
-                            {{ $o->status }}
+                            {{ $displayStatus }}
                         </span>
                     </td>
                 </tr>
@@ -247,41 +284,74 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        console.log('Dashboard Init');
+        const labels = @json($labels);
+        const salesData = @json($dataSales);
+        
+        console.log('Chart Labels:', labels);
+        console.log('Chart Data:', salesData);
+
         const ctx = document.getElementById('salesChart');
         if(ctx) {
             new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: @json($labels),
+                    labels: labels,
                     datasets: [{
-                        label: 'Pendapatan',
-                        data: @json($dataSales),
+                        label: 'Pendapatan (Rp)',
+                        data: salesData,
                         fill: true,
-                        backgroundColor: 'rgba(16, 185, 129, 0.05)',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
                         borderColor: '#10B981',
-                        borderWidth: 4,
+                        borderWidth: 3,
                         pointBackgroundColor: '#ffffff',
                         pointBorderColor: '#10B981',
                         pointBorderWidth: 2,
-                        pointRadius: 5,
-                        pointHoverRadius: 7,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
                         tension: 0.4
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index',
+                    },
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#111827',
+                            titleFont: { size: 13 },
+                            bodyFont: { size: 13 },
+                            padding: 12,
+                            cornerRadius: 10,
+                            callbacks: {
+                                label: function(context) {
+                                    return 'Rp ' + context.parsed.y.toLocaleString('id-ID');
+                                }
+                            }
+                        }
+                    },
                     scales: {
                         y: { 
                             beginAtZero: true, 
-                            grid: { borderDash: [5, 5], color: '#f1f5f9' },
+                            grid: { borderDash: [5, 5], color: '#f1f5f9', drawBorder: false },
                             ticks: { 
                                 color: '#94a3b8',
-                                callback: function(value) { return 'Rp ' + (value/1000) + 'k'; }
+                                font: { size: 11 },
+                                callback: function(value) { 
+                                    if (value >= 1000000) return 'Rp ' + (value/1000000).toFixed(1) + 'jt';
+                                    if (value >= 1000) return 'Rp ' + (value/1000) + 'rb';
+                                    return 'Rp ' + value;
+                                }
                             }
                         },
-                        x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+                        x: { 
+                            grid: { display: false, drawBorder: false }, 
+                            ticks: { color: '#94a3b8', font: { size: 11 } } 
+                        }
                     }
                 }
             });

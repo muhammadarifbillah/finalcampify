@@ -66,6 +66,10 @@ class DashboardController extends Controller
 
         $orderCount = Order::count();
         $orderRevenue = Order::sum('total');
+        
+        $rentalCount = Order::whereHas('details', fn($q) => $q->where('type', 'rent'))->count();
+        $buyCount = Order::whereHas('details', fn($q) => $q->where('type', 'buy'))->count();
+
         $legacyTransactionCount = Transaction::count();
         $legacyRevenue = Transaction::sum('total');
         $marketplaceTransactions = $orderCount ?: $legacyTransactionCount;
@@ -104,6 +108,9 @@ class DashboardController extends Controller
             ->count();
 
         $totalLateFees = \App\Models\ReturnEscrow::sum('late_fee');
+        
+        $adminRentalRevenue = \App\Models\ReturnEscrow::where('status', 'completed')
+            ->sum(\Illuminate\Support\Facades\DB::raw('rental_fee_amount * 0.1'));
 
         // Combined Issues List (for the tabbed table)
         $filter = request('filter', 'all');
@@ -127,8 +134,10 @@ class DashboardController extends Controller
         $allIssues = $issuesQuery->latest()->limit(10)->get();
 
         // Activity Feed (Orders + Returns + Reports)
-        $recentOrders = Order::with('buyer')->latest()->limit(5)->get()->map(function($o) {
-            return ['type' => 'order', 'title' => $o->buyer->name . ' melakukan pemesanan', 'meta' => '#' . $o->id, 'time' => $o->created_at];
+        $recentOrders = Order::with(['buyer', 'details'])->latest()->limit(5)->get()->map(function($o) {
+            $isRental = $o->details->where('type', 'rent')->isNotEmpty();
+            $typeLabel = $isRental ? 'menyewa alat' : 'melakukan pembelian';
+            return ['type' => 'order', 'title' => ($o->buyer->name ?? 'User') . ' ' . $typeLabel, 'meta' => '#' . $o->id, 'time' => $o->created_at];
         });
         $recentReturns = \App\Models\ReturnEscrow::with('order.buyer')->latest()->limit(5)->get()->map(function($r) {
             return ['type' => 'return', 'title' => ($r->order->buyer->name ?? 'User') . ' mengajukan retur', 'meta' => '#RT-' . $r->id, 'time' => $r->created_at];
@@ -151,6 +160,8 @@ class DashboardController extends Controller
             'rejectedProducts' => Product::where('status', 'rejected')->count(),
             'transactions' => $marketplaceTransactions,
             'orders' => $orderCount,
+            'rentalCount' => $rentalCount,
+            'buyCount' => $buyCount,
             'revenue' => $marketplaceRevenue,
             'stores' => Store::count(),
             'activeStores' => Store::where('status', 'active')->count(),
@@ -169,6 +180,7 @@ class DashboardController extends Controller
             'danaReturEscrow' => $danaReturEscrow,
             'avgResolutionTime' => number_format($avgResolutionTime, 1),
             'totalLateFees' => $totalLateFees,
+            'adminRentalRevenue' => $adminRentalRevenue,
             'allIssues' => $allIssues,
             'filter' => $filter,
             'activityFeed' => $activityFeed,

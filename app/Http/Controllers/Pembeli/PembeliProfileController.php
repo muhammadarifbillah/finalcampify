@@ -15,12 +15,27 @@ class PembeliProfileController extends Controller
     {
         $user = auth()->user();
         $tab = $request->query('tab', 'profile');
-        $validTabs = ['profile', 'orders', 'address', 'security', 'edit', 'chat', 'reports'];
+        $validTabs = ['profile', 'rentals', 'purchases', 'address', 'security', 'edit', 'chat', 'reports'];
         if (!in_array($tab, $validTabs)) {
             $tab = 'profile';
         }
 
-        $orders = Order_pembeli::where('user_id', $user->id)->latest()->get();
+        $allOrders = Order_pembeli::with(['details.product.store', 'returnRequest'])->where('user_id', $user->id)->latest()->get();
+        
+        // Pesanan yang mengandung setidaknya satu item sewa
+        $rentalOrders = $allOrders->filter(function($order) {
+            return $order->details->contains(function($d) {
+                return $d->type === 'rent' || str_contains(strtolower($d->product->name ?? ''), '(sewa)');
+            });
+        });
+        
+        // Pesanan yang mengandung setidaknya satu item beli
+        $purchaseOrders = $allOrders->filter(function($order) {
+            return $order->details->contains(function($d) {
+                return $d->type === 'buy' && !str_contains(strtolower($d->product->name ?? ''), '(sewa)');
+            });
+        });
+
         $wishlists = [];
         $reports = [];
 
@@ -32,7 +47,7 @@ class PembeliProfileController extends Controller
             $reports = \App\Models\Report::with(['product', 'store'])->where('reporter_id', $user->id)->latest()->get();
         }
 
-        return view('pembeli.profile.index_pembeli', compact('user', 'tab', 'orders', 'wishlists', 'reports'));
+        return view('pembeli.profile.index_pembeli', compact('user', 'tab', 'rentalOrders', 'purchaseOrders', 'wishlists', 'reports'));
     }
 
     public function updateProfile(Request $request)
@@ -93,12 +108,17 @@ class PembeliProfileController extends Controller
         ]);
 
         if ($request->hasFile('ktp_image')) {
+            // Hapus KTP lama jika ada
+            if ($user->ktp_image && file_exists(public_path($user->ktp_image))) {
+                unlink(public_path($user->ktp_image));
+            }
+
             $file = $request->file('ktp_image');
             $filename = 'ktp_' . $user->id . '_' . time() . '.' . $file->getClientOriginalExtension();
-            $path = $file->storeAs('ktp_uploads', $filename, 'public');
+            $file->move(public_path('assets/images'), $filename);
             
             $user->update([
-                'ktp_image' => 'storage/' . $path,
+                'ktp_image' => 'assets/images/' . $filename,
             ]);
             
             return back()->with('success', 'Foto KTP berhasil diunggah. Mohon tunggu verifikasi admin.');

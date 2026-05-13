@@ -10,11 +10,26 @@
         ? route('produk.detail.buy', $product->id) 
         : route('produk.detail.rent', $product->id) }}">
         
-      <img
-  src="{{ asset($product->image) }}"
-  alt="{{ $product->name }}"
-  class="w-full h-full object-cover transition duration-500 group-hover:scale-110"
->
+      @php
+        $imgPath = $product->image ?? $product->gambar;
+        if ($imgPath && !str_starts_with($imgPath, 'assets/images/') && !str_starts_with($imgPath, 'storage/') && !str_starts_with($imgPath, 'http')) {
+            if (file_exists(public_path('assets/images/' . $imgPath))) {
+                $imgPath = 'assets/images/' . $imgPath;
+            } else {
+                $imgPath = 'storage/' . $imgPath;
+            }
+        }
+      @endphp
+
+      @if($imgPath && (file_exists(public_path($imgPath)) || str_contains($imgPath, 'http')))
+          <img
+            src="{{ asset($imgPath) }}"
+            alt="{{ $product->name ?? $product->nama_produk }}"
+            class="w-full h-full object-cover transition duration-500 group-hover:scale-110"
+          >
+      @else
+          <div class="w-full h-full bg-slate-100 flex items-center justify-center text-3xl">📦</div>
+      @endif
     </a>
 
     <!-- TOP -->

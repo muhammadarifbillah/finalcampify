@@ -27,6 +27,11 @@ class Order_seller extends Order
         return $this->hasMany(OrderDetail::class, 'order_id', 'id');
     }
 
+    public function rental()
+    {
+        return $this->hasOne(Rental_seller::class, 'order_id');
+    }
+
     public function product()
     {
         return $this->hasOneThrough(

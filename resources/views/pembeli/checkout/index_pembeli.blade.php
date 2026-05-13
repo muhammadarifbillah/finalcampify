@@ -140,7 +140,24 @@
                                 $total += $subtotal;
                             @endphp
                             <div class="flex gap-3">
-                                <img src="{{ asset($item->product->image) }}" class="w-12 h-12 object-cover rounded">
+                                @php
+                                    $produk = $item->product;
+                                    $imgPath = $produk->image ?? $produk->gambar;
+                                    if ($imgPath && !str_starts_with($imgPath, 'assets/images/') && !str_starts_with($imgPath, 'storage/') && !str_starts_with($imgPath, 'http')) {
+                                        if (file_exists(public_path('assets/images/' . $imgPath))) {
+                                            $imgPath = 'assets/images/' . $imgPath;
+                                        } else {
+                                            $imgPath = 'storage/' . $imgPath;
+                                        }
+                                    }
+                                @endphp
+
+                                @if($imgPath && (file_exists(public_path($imgPath)) || str_contains($imgPath, 'http')))
+                                    <img src="{{ asset($imgPath) }}" class="w-12 h-12 object-cover rounded shadow-sm">
+                                @else
+                                    <div class="w-12 h-12 bg-gray-700 rounded flex items-center justify-center text-xl">📦</div>
+                                @endif
+                                
                                 <div class="flex-1 min-w-0 text-sm">
                                     <p class="font-bold truncate">{{ $item->product->name }}</p>
                                     <p class="text-xs text-gray-400">{{ $item->qty }}x | {{ $item->type === 'buy' ? 'Beli' : 'Sewa' }}</p>

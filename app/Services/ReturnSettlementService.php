@@ -153,9 +153,12 @@ class ReturnSettlementService
             $totalFines = $lateFee + $damageFee;
             $return->total_fines = (string) $totalFines;
             
-            // Penjual dapat: Sewa + (Denda yang tercover deposit)
+            // Fee Admin Platform (10% dari Rental Fee)
+            $adminFee = $return->rental_fee_amount * 0.1;
+            
+            // Penjual dapat: (Sewa - Fee Admin) + (Denda yang tercover deposit)
             $fineCoveredByDeposit = min($totalFines, $return->deposit_amount);
-            $return->to_seller = (string) ($return->rental_fee_amount + $fineCoveredByDeposit);
+            $return->to_seller = (string) (($return->rental_fee_amount - $adminFee) + $fineCoveredByDeposit);
             
             // Pembeli dapat: Sisa deposit
             $return->to_buyer = (string) max(0, $return->deposit_amount - $totalFines);
@@ -176,7 +179,11 @@ class ReturnSettlementService
             $return->deficit = '0'; // Jual beli biasanya tidak ada defisit karena potong dari escrow 100%
         }
 
-        return $return;
+            if (empty($return->actual_date) && in_array($return->status, [ReturnEscrow::STATUS_CHECKING, ReturnEscrow::STATUS_COMPLETED])) {
+                $return->actual_date = now();
+            }
+
+            return $return;
     }
 
     public function finalize($return, string $finalStatus)
@@ -187,6 +194,9 @@ class ReturnSettlementService
         }
 
         $return->status = $finalStatus;
+        if (empty($return->actual_date) && $finalStatus === ReturnEscrow::STATUS_COMPLETED) {
+            $return->actual_date = now();
+        }
         $this->applyAutoCalculations($return);
 
         if ($finalStatus === ReturnEscrow::STATUS_REJECTED) {

@@ -25,7 +25,9 @@ class PembeliCheckoutController extends Controller
                 ->with('error', 'Keranjang masih kosong.');
         }
 
-        return view('pembeli.checkout.index_pembeli', compact('cart'));
+        $couriers = \App\Models\Courier::where('status', 'aktif')->get();
+
+        return view('pembeli.checkout.index_pembeli', compact('cart', 'couriers'));
     }
 
     public function produk($id)
