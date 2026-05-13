@@ -74,8 +74,24 @@
                 
                 <div class="mb-4 text-center">
                     <div class="p-2 bg-light rounded-4 mb-3 border dashed shadow-sm mx-auto" style="width: 250px; height: 250px;">
+<<<<<<< HEAD
+                        @php
+                            $imgPath = $product->gambar;
+                            if ($imgPath && !str_starts_with($imgPath, 'assets/images/') && !str_starts_with($imgPath, 'storage/') && !str_starts_with($imgPath, 'http')) {
+                                if (file_exists(public_path('assets/images/' . $imgPath))) {
+                                    $imgPath = 'assets/images/' . $imgPath;
+                                } else {
+                                    $imgPath = 'storage/' . $imgPath;
+                                }
+                            }
+                        @endphp
+                        
+                        @if($imgPath && (file_exists(public_path($imgPath)) || str_contains($imgPath, 'http')))
+                            <img src="{{ asset($imgPath) }}" class="w-100 h-100 object-fit-cover rounded-3">
+=======
                         @if($product->image_url)
                             <img src="{{ $product->image_url }}" class="w-100 h-100 object-fit-cover rounded-3">
+>>>>>>> e24353f58e6091604773e271772369e5c95c3d17
                         @else
                             <div class="w-100 h-100 d-flex align-items-center justify-content-center opacity-25 fs-1">🏕️</div>
                         @endif

@@ -160,9 +160,168 @@
                             Belum ada riwayat penyewaan.
                         </div>
                     @else
+<<<<<<< HEAD
+                        <div class="space-y-6">
+                            @foreach($rentalOrders as $order)
+                                <div class="rounded-3xl border p-6 shadow-sm bg-blue-50/30">
+                                    <div class="flex justify-between items-center mb-4 border-b border-blue-100 pb-3">
+                                        <p class="font-bold text-slate-800">Pesanan #{{ $order->id }}</p>
+                                        <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-[10px] font-bold uppercase">{{ $order->status }}</span>
+                                        @if($order->returnRequest)
+                                            @php
+                                                $retStatus = $order->returnRequest->status;
+                                                $retColor = match($retStatus) {
+                                                    'dispute' => 'bg-rose-100 text-rose-700',
+                                                    'checking' => 'bg-amber-100 text-amber-700',
+                                                    'pending' => 'bg-blue-100 text-blue-700',
+                                                    'completed' => 'bg-emerald-100 text-emerald-700',
+                                                    'rejected' => 'bg-gray-100 text-gray-700',
+                                                    default => 'bg-gray-100 text-gray-700'
+                                                };
+                                                $retLabel = match($retStatus) {
+                                                    'dispute' => 'Mediasi Admin',
+                                                    'checking' => 'Sedang Dicek',
+                                                    'pending' => 'Menunggu Seller',
+                                                    'completed' => 'Selesai',
+                                                    'rejected' => 'Ditolak',
+                                                    default => ucfirst($retStatus)
+                                                };
+                                            @endphp
+                                            <span class="px-3 py-1 {{ $retColor }} rounded-full text-[10px] font-bold uppercase ml-2">{{ $retLabel }}</span>
+                                        @endif
+                                    </div>
+                                    <div class="space-y-3">
+                                        @foreach($order->details as $item)
+                                            @if($item->type === 'rent' || str_contains(strtolower($item->product->name ?? ''), '(sewa)'))
+                                                <div class="flex items-center gap-4 p-4 bg-white rounded-2xl border border-blue-50 shadow-sm">
+                                                    @php
+                                                        $imgPath = $item->product->image ?? $item->product->gambar;
+                                                        if ($imgPath && !str_starts_with($imgPath, 'assets/images/') && !str_starts_with($imgPath, 'storage/') && !str_starts_with($imgPath, 'http')) {
+                                                            if (file_exists(public_path('assets/images/' . $imgPath))) {
+                                                                $imgPath = 'assets/images/' . $imgPath;
+                                                            } else {
+                                                                $imgPath = 'storage/' . $imgPath;
+                                                            }
+                                                        }
+                                                    @endphp
+                                                    <div class="w-12 h-12 flex-shrink-0">
+                                                        @if($imgPath && (file_exists(public_path($imgPath)) || str_contains($imgPath, 'http')))
+                                                            <img src="{{ asset($imgPath) }}" class="w-full h-full object-cover rounded-xl shadow-sm">
+                                                        @else
+                                                            <div class="w-full h-full bg-slate-100 rounded-xl flex items-center justify-center text-xl">📦</div>
+                                                        @endif
+                                                    </div>
+                                                    <div class="flex-1">
+                                                        <p class="text-xs font-bold text-slate-800">{{ $item->product->name ?? $item->product->nama_produk }}</p>
+                                                        <p class="text-[10px] text-slate-500">{{ $item->duration ?? 3 }} Hari &bull; Rp {{ number_format($item->harga) }}</p>
+                                                    </div>
+                                                    <a href="{{ route('orders.detail', ['id' => $order->id, 'detail_id' => $item->id]) }}" 
+                                                       class="px-4 py-2 bg-blue-600 text-white text-[10px] font-bold rounded-xl hover:bg-blue-700 transition">
+                                                        DETAIL SEWA
+                                                    </a>
                                                 </div>
                                             @endif
                                         @endforeach
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
+                </div>
+
+            @elseif($tab === 'purchases')
+                <div class="bg-white rounded-3xl p-8 shadow-sm">
+                    <h2 class="text-2xl font-bold mb-4">Pembelian Saya</h2>
+                    @if($purchaseOrders->isEmpty())
+                        <div class="rounded-3xl border border-dashed border-gray-300 p-8 text-center text-gray-500">
+                            Belum ada riwayat pembelian.
+                        </div>
+                    @else
+                        <div class="space-y-6">
+                            @foreach($purchaseOrders as $order)
+                                <div class="rounded-3xl border p-6 shadow-sm bg-emerald-50/30">
+                                    <div class="flex justify-between items-center mb-4 border-b border-emerald-100 pb-3">
+                                        <p class="font-bold text-slate-800">Pesanan #{{ $order->id }}</p>
+                                        <span class="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-[10px] font-bold uppercase">{{ $order->status }}</span>
+                                        @if($order->returnRequest)
+                                            @php
+                                                $retStatus = $order->returnRequest->status;
+                                                $retColor = match($retStatus) {
+                                                    'dispute' => 'bg-rose-100 text-rose-700',
+                                                    'checking' => 'bg-amber-100 text-amber-700',
+                                                    'pending' => 'bg-blue-100 text-blue-700',
+                                                    'completed' => 'bg-emerald-100 text-emerald-700',
+                                                    'rejected' => 'bg-gray-100 text-gray-700',
+                                                    default => 'bg-gray-100 text-gray-700'
+                                                };
+                                                $retLabel = match($retStatus) {
+                                                    'dispute' => 'Mediasi Admin',
+                                                    'checking' => 'Sedang Dicek',
+                                                    'pending' => 'Menunggu Seller',
+                                                    'completed' => 'Selesai',
+                                                    'rejected' => 'Ditolak',
+                                                    default => ucfirst($retStatus)
+                                                };
+                                            @endphp
+                                            <span class="px-3 py-1 {{ $retColor }} rounded-full text-[10px] font-bold uppercase ml-2">{{ $retLabel }}</span>
+                                        @endif
+                                    </div>
+                                    <div class="space-y-3">
+                                        @foreach($order->details as $item)
+                                            @if($item->type === 'buy' && !str_contains(strtolower($item->product->name ?? ''), '(sewa)'))
+                                                <div class="flex items-center gap-4 p-4 bg-white rounded-2xl border border-emerald-50 shadow-sm">
+                                                    @php
+                                                        $imgPath = $item->product->image ?? $item->product->gambar;
+                                                        if ($imgPath && !str_starts_with($imgPath, 'assets/images/') && !str_starts_with($imgPath, 'storage/') && !str_starts_with($imgPath, 'http')) {
+                                                            if (file_exists(public_path('assets/images/' . $imgPath))) {
+                                                                $imgPath = 'assets/images/' . $imgPath;
+                                                            } else {
+                                                                $imgPath = 'storage/' . $imgPath;
+                                                            }
+                                                        }
+                                                    @endphp
+                                                    <div class="w-12 h-12 flex-shrink-0">
+                                                        @if($imgPath && (file_exists(public_path($imgPath)) || str_contains($imgPath, 'http')))
+                                                            <img src="{{ asset($imgPath) }}" class="w-full h-full object-cover rounded-xl shadow-sm">
+                                                        @else
+                                                            <div class="w-full h-full bg-slate-100 rounded-xl flex items-center justify-center text-xl">📦</div>
+                                                        @endif
+                                                    </div>
+                                                    <div class="flex-1">
+                                                        <p class="text-xs font-bold text-slate-800">{{ $item->product->name ?? $item->product->nama_produk }}</p>
+                                                        <p class="text-[10px] text-slate-500">{{ $item->qty }} Item &bull; Rp {{ number_format($item->harga) }}</p>
+                                                    </div>
+                                                    <a href="{{ route('orders.detail', ['id' => $order->id, 'detail_id' => $item->id]) }}" 
+                                                       class="px-4 py-2 bg-emerald-600 text-white text-[10px] font-bold rounded-xl hover:bg-emerald-700 transition">
+                                                        DETAIL BELI
+                                                    </a>
+                                                </div>
+                                            @endif
+                                        @endforeach
+=======
+                        <div class="space-y-4">
+                            @foreach($orders as $order)
+                                <div class="rounded-3xl border p-6 shadow-sm">
+                                    <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                                        <div>
+                                            <p class="text-sm text-gray-500">No. Pesanan</p>
+                                            <p class="font-bold">#{{ $order->id }}</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm text-gray-500">Status</p>
+                                            <p class="font-medium capitalize">{{ $order->status }}</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm text-gray-500">Total</p>
+                                            <p class="font-medium">Rp {{ number_format($order->total, 0, ',', '.') }}</p>
+                                        </div>
+                                        <div class="text-right">
+                                            @if($order->status == 'selesai')
+                                                <a href="{{ route('orders.detail', $order->id) }}#review-section" class="inline-block bg-emerald-600 text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-emerald-700 transition mr-2 mb-2 md:mb-0">Beri Ulasan</a>
+                                            @endif
+                                            <a href="{{ route('orders.detail', $order->id) }}" class="text-green-600 hover:underline font-medium">Lihat Detail</a>
+                                        </div>
+>>>>>>> e24353f58e6091604773e271772369e5c95c3d17
                                     </div>
                                 </div>
                             @endforeach

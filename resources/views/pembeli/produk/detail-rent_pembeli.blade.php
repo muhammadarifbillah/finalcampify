@@ -17,13 +17,30 @@
 
             <div class="space-y-6">
                 <div class="rounded-[32px] overflow-hidden shadow-lg bg-white">
-                    @if($produk->image_url)
-                        <img src="{{ $produk->image_url }}"
+<<<<<<< HEAD
+                    @php
+                        $imgPath = $produk->image ?? $produk->gambar;
+                        if ($imgPath && !str_starts_with($imgPath, 'assets/images/') && !str_starts_with($imgPath, 'storage/') && !str_starts_with($imgPath, 'http')) {
+                            if (file_exists(public_path('assets/images/' . $imgPath))) {
+                                $imgPath = 'assets/images/' . $imgPath;
+                            } else {
+                                $imgPath = 'storage/' . $imgPath;
+                            }
+                        }
+                    @endphp
+
+                    @if($imgPath && (file_exists(public_path($imgPath)) || str_contains($imgPath, 'http')))
+                        <img src="{{ asset($imgPath) }}"
                              alt="{{ $produk->name ?? $produk->nama_produk }}"
                              class="w-full h-[520px] object-cover object-center">
                     @else
                         <div class="w-full h-[520px] bg-slate-100 flex items-center justify-center text-6xl">📦</div>
                     @endif
+=======
+                    <img src="{{ $produk->image_url }}"
+                         alt="{{ $produk->name }}"
+                         class="w-full h-[520px] object-cover object-center">
+>>>>>>> e24353f58e6091604773e271772369e5c95c3d17
                 </div>
 
                 <div class="grid gap-6 lg:grid-cols-2">

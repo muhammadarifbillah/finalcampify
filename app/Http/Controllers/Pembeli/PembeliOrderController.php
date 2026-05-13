@@ -128,16 +128,29 @@ class PembeliOrderController extends Controller
         }
 
         $return->fill([
+<<<<<<< HEAD
             'rental_id' => $rental?->id,
+=======
+            'order_id' => $pesanan->id,
+            'rental_id' => $rental->id,
+            'type' => 'sewa',
+>>>>>>> e24353f58e6091604773e271772369e5c95c3d17
             'resi_return' => $resi,
             'proof_returned_image' => $fotoKondisiPath,
             'tanggal_pengembalian' => now(),
             'actual_date' => now(),
             'denda' => 0, 
+<<<<<<< HEAD
             'kondisi_barang' => $detail->type === 'buy' ? 'dispute' : 'baik',
             'status' => $detail->type === 'buy' ? 'dispute' : 'pending',
             'escrow_total' => (string) ($detail->type === 'buy' ? ($detail->harga * $detail->qty) : ($pesanan->total ?? 0)),
             'expected_date' => $detail->type === 'rent' ? (isset($endDate) ? $endDate : null) : null,
+=======
+            'kondisi_barang' => 'baik',
+            'status' => 'checking',
+            'escrow_total' => (string) ((int) ($pesanan->total ?? 0)),
+            'expected_date' => $endDate,
+>>>>>>> e24353f58e6091604773e271772369e5c95c3d17
             'late_fee' => '0',
             'damage_fee' => '0',
             'to_seller' => '0',

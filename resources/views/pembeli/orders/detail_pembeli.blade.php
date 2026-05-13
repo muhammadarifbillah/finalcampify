@@ -256,11 +256,29 @@
                             <div class="flex flex-col md:flex-row gap-6">
                                 <!-- FOTO PRODUK -->
                                 <div class="w-full md:w-32 h-32 flex-shrink-0">
-                                    @if($produk->image_url)
-                                        <img src="{{ $produk->image_url }}" class="w-full h-full object-cover rounded-2xl shadow-sm" alt="{{ $produk->name ?? $produk->nama_produk }}">
+<<<<<<< HEAD
+                                    @php
+                                        $imgPath = $produk->image ?? $produk->gambar;
+                                        if ($imgPath && !str_starts_with($imgPath, 'assets/images/') && !str_starts_with($imgPath, 'storage/') && !str_starts_with($imgPath, 'http')) {
+                                            if (file_exists(public_path('assets/images/' . $imgPath))) {
+                                                $imgPath = 'assets/images/' . $imgPath;
+                                            } else {
+                                                $imgPath = 'storage/' . $imgPath;
+                                            }
+                                        }
+                                    @endphp
+
+                                    @if($imgPath && (file_exists(public_path($imgPath)) || str_contains($imgPath, 'http')))
+                                        <img src="{{ asset($imgPath) }}" class="w-full h-full object-cover rounded-2xl shadow-sm" alt="{{ $produk->name ?? $produk->nama_produk }}">
                                     @else
                                         <div class="w-full h-full bg-slate-100 rounded-2xl flex items-center justify-center text-3xl">📦</div>
                                     @endif
+=======
+                                    <img 
+                                        src="{{ $produk->image_url }}"
+                                        class="w-full h-full object-cover rounded-2xl shadow-sm"
+                                    >
+>>>>>>> e24353f58e6091604773e271772369e5c95c3d17
                                 </div>
 
                                 <!-- INFO UTAMA -->
@@ -378,7 +396,15 @@
                                         <div class="mt-4 pt-4 border-t border-slate-200 space-y-4">
                                             <div class="flex flex-col gap-3">
                                                 @if(!$returnInfo)
+<<<<<<< HEAD
+                                                    @php
+                                                        $canReturn = ($rentalInfo && $rentalInfo->status === 'active') || 
+                                                                    in_array($pesanan->status, ['dikirim', 'selesai']);
+                                                    @endphp
+                                                    @if($canReturn)
+=======
                                                     @if($canReturnRental)
+>>>>>>> e24353f58e6091604773e271772369e5c95c3d17
                                                         <a href="{{ route('orders.return', $item->id) }}" class="inline-flex items-center justify-center rounded-xl bg-slate-900 px-4 py-2 text-xs font-bold text-white hover:bg-slate-800 transition shadow-lg shadow-slate-200">
                                                             <i data-lucide="rotate-ccw" class="w-3 h-3 me-2"></i> AJUKAN PENGEMBALIAN SEKARANG
                                                         </a>

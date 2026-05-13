@@ -60,9 +60,15 @@ class ProductController_seller extends Controller
         $imagePath = null;
         if ($request->hasFile('gambar')) {
             $file = $request->file('gambar');
+<<<<<<< HEAD
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('assets/images'), $filename);
+            $imagePath = 'assets/images/' . $filename;
+=======
             $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
             $file->move(public_path('assets/images'), $filename);
             $imagePath = $filename;
+>>>>>>> e24353f58e6091604773e271772369e5c95c3d17
         }
 
         $flagReasons = \App\Models\Product::flagReasonsFor($request->only(['nama_produk', 'harga', 'deskripsi']));
@@ -153,6 +159,21 @@ class ProductController_seller extends Controller
         // Jika upload gambar baru
         if ($request->hasFile('gambar')) {
 
+<<<<<<< HEAD
+            // Hapus gambar lama dari public/assets/images
+            $oldPath = $product->gambar;
+            if ($oldPath && file_exists(public_path($oldPath))) {
+                unlink(public_path($oldPath));
+            }
+
+            // Simpan gambar baru ke assets/images
+            $file = $request->file('gambar');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('assets/images'), $filename);
+            
+            $data['gambar'] = 'assets/images/' . $filename;
+            $data['image'] = $data['gambar'];
+=======
             // Hapus gambar lama jika ada
             if ($product->gambar || $product->image) {
                 $oldFilename = $product->gambar ?: $product->image;
@@ -170,6 +191,7 @@ class ProductController_seller extends Controller
             $file->move(public_path('assets/images'), $filename);
             $data['gambar'] = $filename;
             $data['image'] = $filename;
+>>>>>>> e24353f58e6091604773e271772369e5c95c3d17
         }
 
         $product->update($data);
