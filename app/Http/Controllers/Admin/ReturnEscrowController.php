@@ -247,13 +247,28 @@ class ReturnEscrowController extends Controller
         $returnEscrow->load(['order.details']);
 
         $settlement->finalize($returnEscrow, $data['final_status']);
+        
+        if ($data['final_status'] === ReturnEscrow::STATUS_COMPLETED) {
+            $returnEscrow->refund_disbursed_at = now();
+        }
+        
         $returnEscrow->save();
+
+        // Update rental & order status
+        $rental = \App\Models\SellerModels\Rental_seller::where('order_id', $returnEscrow->order_id)->first();
+        if ($rental) {
+            $rentalStatus = $data['final_status'];
+            $rental->update(['status' => $rentalStatus]);
+            if ($rental->order) {
+                $rental->order->update(['status' => $data['final_status'] === 'completed' ? 'selesai' : 'dibatalkan']);
+            }
+        }
 
         $redirectRoute = $returnEscrow->type === 'jual_beli' ? 'admin.returns.jual_beli' : 'admin.returns.sewa';
 
         return redirect()
             ->route($redirectRoute)
-            ->with('success', 'Settlement berhasil disimpan dan transaksi diselesaikan.');
+            ->with('success', 'Settlement berhasil disimpan, dana refund berhasil dicairkan, dan transaksi diselesaikan.');
     }
 
     public function disburseRefund(ReturnEscrow $returnEscrow)

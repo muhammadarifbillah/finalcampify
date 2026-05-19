@@ -10,6 +10,7 @@
         'pending' => 'bg-blue-100 text-blue-600',
         'dispute' => 'bg-red-100 text-red-600',
         'checking' => 'bg-indigo-100 text-indigo-600',
+        'waiting_refund' => 'bg-amber-100 text-amber-600',
         'completed' => 'bg-green-100 text-green-600',
         'rejected' => 'bg-gray-200 text-gray-600',
     ];
@@ -92,8 +93,8 @@
                 <i data-lucide="filter" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" style="width: 14px; height: 14px;"></i>
                 <select class="admin-form-control text-sm py-2 pl-9 rounded-md bg-white border border-gray-200 w-[150px]" name="status" onchange="this.form.submit()">
                     <option value="">Filter Status</option>
-                    @foreach(['pending', 'dispute', 'checking', 'completed', 'rejected'] as $st)
-                        <option value="{{ $st }}" @selected(request('status') === $st)>{{ ucfirst($st) }}</option>
+                    @foreach(['pending', 'dispute', 'checking', 'waiting_refund', 'completed', 'rejected'] as $st)
+                        <option value="{{ $st }}" @selected(request('status') === $st)>{{ ucfirst(str_replace('_', ' ', $st)) }}</option>
                     @endforeach
                 </select>
             </div>
@@ -154,6 +155,7 @@
                                 'dispute' => ['text' => 'SENGKETA', 'class' => 'bg-red-100 text-red-600'],
                                 'pending' => ['text' => $isOverdue ? 'TERLAMBAT' : 'AKTIF', 'class' => $isOverdue ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'],
                                 'checking' => ['text' => 'PEMERIKSAAN', 'class' => 'bg-indigo-100 text-indigo-600'],
+                                'waiting_refund' => ['text' => 'MENUNGGU REFUND', 'class' => 'bg-amber-100 text-amber-600'],
                                 'completed' => ['text' => 'SELESAI', 'class' => 'bg-gray-100 text-gray-600'],
                                 'rejected' => ['text' => 'DITOLAK', 'class' => 'bg-gray-100 text-gray-600'],
                             ];

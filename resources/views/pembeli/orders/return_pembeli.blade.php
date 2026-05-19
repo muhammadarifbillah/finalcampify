@@ -28,8 +28,10 @@
                     if ($status === 'pending') $step = 2;
                     if ($status === 'approved') $step = 3;
                     if ($status === 'shipping') $step = 4;
+                    if ($status === 'checking') $step = 4;
                     if (in_array($status, ['denda_pending', 'denda_submitted'])) $step = 5;
-                    if ($status === 'completed') $step = 6;
+                    if ($status === 'waiting_refund') $step = 6;
+                    if ($status === 'completed') $step = 7;
                 @endphp
 
                 <!-- Step 1: Ajukan -->
@@ -44,7 +46,7 @@
                     <span class="text-[9px] font-bold text-slate-500 mt-2">Persetujuan</span>
                 </div>
 
-                <!-- Step 3: Resi/Kirim -->
+                <!-- Step 3: Kirim -->
                 <div class="z-10 flex flex-col items-center">
                     <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs {{ $step >= 3 ? 'bg-emerald-600 text-white shadow-md shadow-emerald-200' : 'bg-slate-100 text-slate-400' }}">3</div>
                     <span class="text-[9px] font-bold text-slate-500 mt-2">Kirim</span>
@@ -62,9 +64,15 @@
                     <span class="text-[9px] font-bold text-slate-500 mt-2">Denda</span>
                 </div>
 
-                <!-- Step 6: Selesai -->
+                <!-- Step 6: Refund -->
                 <div class="z-10 flex flex-col items-center">
                     <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs {{ $step >= 6 ? 'bg-emerald-600 text-white shadow-md shadow-emerald-200' : 'bg-slate-100 text-slate-400' }}">6</div>
+                    <span class="text-[9px] font-bold text-slate-500 mt-2">Refund</span>
+                </div>
+
+                <!-- Step 7: Selesai -->
+                <div class="z-10 flex flex-col items-center">
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs {{ $step >= 7 ? 'bg-emerald-600 text-white shadow-md shadow-emerald-200' : 'bg-slate-100 text-slate-400' }}">7</div>
                     <span class="text-[9px] font-bold text-slate-500 mt-2">Selesai</span>
                 </div>
             </div>
@@ -121,8 +129,8 @@
                                 <p class="text-sm font-bold text-slate-800">Rp {{ number_format($detail->harga) }}</p>
                             </div>
                             <div class="space-y-1">
-                                <label class="block text-[10px] font-black text-emerald-500 uppercase tracking-widest">Dana Jaminan (25% Tersegel)</label>
-                                <p class="text-sm font-bold text-emerald-600">Rp {{ number_format($detail->product->buy_price * 0.25) }}</p>
+                                <label class="block text-[10px] font-black text-emerald-500 uppercase tracking-widest">Dana Jaminan</label>
+                                <p class="text-sm font-bold text-emerald-600">Rp {{ number_format($detail->product->escrow_amount > 0 ? $detail->product->escrow_amount : ($detail->product->buy_price * 0.25)) }}</p>
                             </div>
                         @else
                             <div class="space-y-1">
@@ -370,6 +378,30 @@
                         <img src="{{ asset($return->bukti_denda) }}" class="w-full max-h-60 object-cover rounded-2xl shadow-sm border border-slate-200">
                     </div>
                     @endif
+                </div>
+
+            <!-- ------------------ STAGE 6.5: WAITING REFUND (MENUNGGU TRANSFER REFUND DARI ADMIN) ------------------ -->
+            @elseif($return && $return->status === 'waiting_refund')
+                <div class="text-center py-10">
+                    <div class="w-20 h-20 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-10 h-10 animate-bounce text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-2">Menunggu Refund Dana dari Admin</h3>
+                    <p class="text-slate-500 max-w-md mx-auto text-sm">
+                        Barang sewa telah diterima kembali oleh Penjual. Saat ini Admin sedang memproses pengembalian dana jaminan Anda sebesar <strong>Rp {{ number_format($return->to_buyer) }}</strong> ke rekening terdaftar Anda.
+                    </p>
+                    
+                    <div class="mt-8 bg-slate-50 p-6 rounded-2xl text-left border border-slate-100 space-y-3">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400">Detail Rekening Tujuan Refund</h4>
+                        <div class="grid grid-cols-3 gap-2 text-xs">
+                            <span class="text-slate-400">Bank:</span>
+                            <span class="col-span-2 font-bold text-slate-800">{{ $return->buyer_refund_bank_name }}</span>
+                            <span class="text-slate-400">No. Rekening:</span>
+                            <span class="col-span-2 font-bold text-slate-800">{{ $return->buyer_refund_bank_account }}</span>
+                            <span class="text-slate-400">Atas Nama:</span>
+                            <span class="col-span-2 font-bold text-slate-800">{{ $return->buyer_refund_bank_name_owner }}</span>
+                        </div>
+                    </div>
                 </div>
 
             <!-- ------------------ STAGE 7: COMPLETED (SELESAI TRANSAKSI) ------------------ -->

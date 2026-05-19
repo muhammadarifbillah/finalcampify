@@ -264,7 +264,7 @@
                 <h3 class="text-xl font-black text-slate-800 mb-10">Umpan Aktivitas Terbaru</h3>
                 <div class="flex-1 space-y-10 relative before:absolute before:left-[19px] before:top-2 before:bottom-2 before:w-px before:bg-slate-100">
                     @foreach($activityFeed as $act)
-                    <div class="relative pl-14">
+                    <div class="relative" style="padding-left: 3.5rem;">
                         <div class="absolute left-0 top-0 w-10 h-10 rounded-full border-4 border-white shadow flex items-center justify-center
                             {{ $act['type'] == 'return' ? 'bg-[#fef2f2] text-[#ef4444]' : ($act['type'] == 'report' ? 'bg-[#fffbeb] text-[#f59e0b]' : 'bg-[#ecfdf5] text-[#10b981]') }}">
                             @if($act['type'] == 'return')

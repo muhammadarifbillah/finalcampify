@@ -86,7 +86,7 @@ class PembeliOrderController extends Controller
                 'buyer_refund_bank_name_owner' => 'required|string|max:255',
             ]);
 
-            $depositAmount = ($detail->product->buy_price ?? 0) * 0.25;
+            $depositAmount = ($detail->product->escrow_amount > 0) ? $detail->product->escrow_amount : (($detail->product->buy_price ?? 0) * 0.25);
             $rentalFeeAmount = $detail->harga;
             $escrowTotal = $depositAmount + $rentalFeeAmount;
 

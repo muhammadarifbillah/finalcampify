@@ -392,9 +392,12 @@
                 <span class="text-muted small">Pendapatan Sewa</span>
                 <span class="fw-bold text-dark">Rp {{ number_format($rental->price, 0, ',', '.') }}</span>
             </div>
+            @php 
+                $deposit = $rental->product->escrow_amount > 0 ? $rental->product->escrow_amount : ($rental->product->buy_price * 0.25);
+            @endphp
             <div class="d-flex justify-content-between mb-4 pb-3 border-bottom">
-                <span class="text-emerald-600 small fw-bold">Escrow (Dana Jaminan 25%)</span>
-                <span class="fw-bold text-emerald-600">Rp {{ number_format($rental->product->buy_price * 0.25, 0, ',', '.') }}</span>
+                <span class="text-emerald-600 small fw-bold">Escrow (Dana Jaminan)</span>
+                <span class="fw-bold text-emerald-600">Rp {{ number_format($deposit, 0, ',', '.') }}</span>
             </div>
             
             <div class="d-flex justify-content-between align-items-center mb-5">
@@ -402,7 +405,7 @@
                     <span class="h6 fw-bold m-0 text-dark">Total Transaksi</span>
                     <small class="text-muted" style="font-size: 10px;">Sudah dibayar pembeli</small>
                 </div>
-                <span class="h4 fw-bold m-0 text-primary">Rp {{ number_format($rental->price + ($rental->product->buy_price * 0.25), 0, ',', '.') }}</span>
+                <span class="h4 fw-bold m-0 text-primary">Rp {{ number_format($rental->price + $deposit, 0, ',', '.') }}</span>
             </div>
 
             <div class="d-grid gap-3">

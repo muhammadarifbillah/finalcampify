@@ -24,6 +24,16 @@ class ProductController_seller extends Controller
             $query->where('jenis_produk', $request->jenis);
         }
 
+        // search keyword
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('nama_produk', 'like', '%' . $search . '%')
+                  ->orWhere('description', 'like', '%' . $search . '%')
+                  ->orWhere('category', 'like', '%' . $search . '%');
+            });
+        }
+
         $products = $query->latest()->get();
 
         return view('SellerView.products.index_seller', compact('products'));
@@ -54,6 +64,7 @@ class ProductController_seller extends Controller
             'stok'          => 'required|integer|min:0',
             'deskripsi'     => 'nullable|string',
             'gambar'         => 'required|image|mimes:jpg,jpeg,png,gif|max:2048',
+            'escrow_amount'  => 'nullable|numeric|min:0',
         ]);
 
         // Upload gambar
@@ -84,6 +95,7 @@ class ProductController_seller extends Controller
             'kategori'      => $request->kategori,
             'jenis_produk'  => $request->jenis_produk, // jual / sewa
             'is_rental'     => $request->jenis_produk === 'sewa',
+            'escrow_amount' => $request->jenis_produk === 'sewa' ? ($request->escrow_amount ?? 0) : 0,
             'stock'         => $request->stok,
             'stok'          => $request->stok,
             'image'         => $imagePath,
@@ -126,6 +138,7 @@ class ProductController_seller extends Controller
             'stok'          => 'required|integer|min:0',
             'deskripsi'     => 'nullable|string',
             'gambar'        => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
+            'escrow_amount'  => 'nullable|numeric|min:0',
         ]);
 
         $data = [
@@ -140,6 +153,7 @@ class ProductController_seller extends Controller
             'kategori'      => $request->kategori,
             'jenis_produk'  => $request->jenis_produk,
             'is_rental'     => $request->jenis_produk === 'sewa',
+            'escrow_amount' => $request->jenis_produk === 'sewa' ? ($request->escrow_amount ?? 0) : 0,
             'stock'         => $request->stok,
             'stok'          => $request->stok,
             'description'   => $request->deskripsi,

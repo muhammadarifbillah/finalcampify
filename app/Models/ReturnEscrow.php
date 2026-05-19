@@ -18,6 +18,7 @@ class ReturnEscrow extends Model
     public const STATUS_PENDING = 'pending';
     public const STATUS_DISPUTE = 'dispute';
     public const STATUS_CHECKING = 'checking';
+    public const STATUS_WAITING_REFUND = 'waiting_refund';
     public const STATUS_COMPLETED = 'completed';
     public const STATUS_REJECTED = 'rejected';
 
@@ -30,6 +31,7 @@ class ReturnEscrow extends Model
         self::STATUS_PENDING,
         self::STATUS_DISPUTE,
         self::STATUS_CHECKING,
+        self::STATUS_WAITING_REFUND,
         self::STATUS_COMPLETED,
         self::STATUS_REJECTED,
     ];

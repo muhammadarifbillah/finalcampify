@@ -9,9 +9,28 @@ use Illuminate\Http\Request;
 
 class RentalController_seller extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $rentals = $this->sellerRentals()->latest()->get();
+        $query = $this->sellerRentals();
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('id', 'like', '%' . $search . '%')
+                  ->orWhereHas('user', function ($uq) use ($search) {
+                      $uq->where('name', 'like', '%' . $search . '%');
+                  })
+                  ->orWhereHas('product', function ($pq) use ($search) {
+                      $pq->where('nama_produk', 'like', '%' . $search . '%');
+                  });
+            });
+        }
+
+        $rentals = $query->latest()->get();
         return view('SellerView.rentals.index_seller', compact('rentals'));
     }
 
@@ -38,10 +57,39 @@ class RentalController_seller extends Controller
     {
         $rental = $this->sellerRentals()->findOrFail($id);
 
-        $rental->update([
+        $request->validate([
+            'status' => 'required|string',
+            'catatan' => 'nullable|string',
+            'foto_kondisi' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+        ]);
+
+        $data = [
             'status' => $request->status,
             'catatan' => $request->catatan ?? $rental->catatan
-        ]);
+        ];
+
+        // Jika mengubah ke aktif dan belum ada foto, wajib upload foto kondisi
+        if ($request->status === 'active' && !$rental->condition_photo_handover) {
+            $request->validate([
+                'foto_kondisi' => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
+            ]);
+        }
+
+        if ($request->hasFile('foto_kondisi')) {
+            if ($rental->condition_photo_handover) {
+                $oldPath = public_path($rental->condition_photo_handover);
+                if (file_exists($oldPath)) {
+                    unlink($oldPath);
+                }
+            }
+
+            $file = $request->file('foto_kondisi');
+            $filename = 'handover_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('assets/images'), $filename);
+            $data['condition_photo_handover'] = 'assets/images/' . $filename;
+        }
+
+        $rental->update($data);
 
         return redirect('/seller/rentals')->with('success', 'Penyewaan berhasil diupdate');
     }
@@ -94,17 +142,13 @@ class RentalController_seller extends Controller
 
             return back()->with('success', 'Barang diterima. Denda melebihi deposit jaminan. Menunggu pembeli mentransfer sisa denda sebesar Rp ' . number_format($returnRequest->deficit, 0, ',', '.'));
         } else {
-            $returnRequest->status = 'completed';
+            $returnRequest->status = 'waiting_refund';
             $returnRequest->save();
 
-            $rental->status = 'completed';
+            $rental->status = 'waiting_refund';
             $rental->save();
 
-            if ($rental->order) {
-                $rental->order->update(['status' => 'selesai']);
-            }
-
-            return back()->with('success', 'Barang diterima dalam kondisi baik / tercover deposit. Pengembalian sewa selesai otomatis.');
+            return back()->with('success', 'Barang diterima dalam kondisi baik / tercover deposit. Menunggu Admin mentransfer dana refund.');
         }
     }
 
@@ -117,14 +161,10 @@ class RentalController_seller extends Controller
             return back()->with('error', 'Data pengembalian tidak ditemukan.');
         }
 
-        $returnRequest->update(['status' => 'completed']);
-        $rental->update(['status' => 'completed']);
+        $returnRequest->update(['status' => 'waiting_refund']);
+        $rental->update(['status' => 'waiting_refund']);
 
-        if ($rental->order) {
-            $rental->order->update(['status' => 'selesai']);
-        }
-
-        return back()->with('success', 'Pembayaran sisa denda berhasil diverifikasi. Transaksi sewa selesai.');
+        return back()->with('success', 'Pembayaran sisa denda berhasil diverifikasi. Menunggu Admin mentransfer dana refund.');
     }
 
     public function verifyUserKtp($userId)

@@ -39,7 +39,7 @@
 
 {{-- SUMMARY CARDS --}}
 <div class="row g-4 mb-5">
-    <div class="col-md-4">
+    <div class="col-md-6">
         <div class="card card-modern p-4 border-0">
             <small class="text-muted text-uppercase fw-bold ls-1 d-block mb-1">Pendapatan Sewa Bersih</small>
             <h3 class="fw-bold m-0 text-success">Rp {{ number_format($totalRentalIncome, 0, ',', '.') }}</h3>
@@ -48,16 +48,7 @@
             </span>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card card-modern p-4 border-0">
-            <small class="text-muted text-uppercase fw-bold ls-1 d-block mb-1">Potongan Admin Platform</small>
-            <h3 class="fw-bold m-0 text-danger">Rp {{ number_format($totalAdminFees, 0, ',', '.') }}</h3>
-            <span class="text-danger small fw-semibold mt-2 d-block">
-                <i class="bi bi-shield-check me-1"></i> Fee 10% per transaksi
-            </span>
-        </div>
-    </div>
-    <div class="col-md-4">
+    <div class="col-md-6">
         <div class="card card-modern p-4 border-0 text-white" style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);">
             <small class="text-white-50 text-uppercase fw-bold ls-1 d-block mb-1">Produk Terfavorit</small>
             <h4 class="fw-bold m-0 text-truncate">{{ $topRentedProducts->first()['nama_produk'] ?? '-' }}</h4>
@@ -98,11 +89,9 @@
                                 <th width="5%">No</th>
                                 <th width="15%">Tanggal</th>
                                 <th width="20%">Penyewa</th>
-                                <th width="30%">Produk</th>
+                                <th width="35%">Produk</th>
                                 <th width="10%">Durasi</th>
-                                <th width="15%">Sewa Kotor</th>
-                                <th width="15%">Admin (10%)</th>
-                                <th width="20%">Bersih</th>
+                                <th width="15%">Pendapatan</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -114,17 +103,11 @@
                                 <td>{{ $rental->user->name ?? '-' }}</td>
                                 <td>{{ $rental->product->nama_produk ?? '-' }}</td>
                                 <td class="text-center">{{ $rental->duration }} Hari</td>
-                                <td class="text-end">Rp {{ number_format($rental->price * $rental->duration, 0, ',', '.') }}</td>
-                                <td class="text-end text-danger">-Rp {{ number_format(($rental->price * $rental->duration) * 0.1, 0, ',', '.') }}</td>
                                 <td class="text-end fw-bold">Rp {{ number_format(($rental->price * $rental->duration) * 0.9, 0, ',', '.') }}</td>
                             </tr>
                             @endforeach
                         </tbody>
                         <tfoot class="bg-light">
-                            <tr>
-                                <th colspan="5" class="text-end py-2">TOTAL POTONGAN ADMIN</th>
-                                <th class="text-end py-2 text-danger">Rp {{ number_format($totalAdminFees, 0, ',', '.') }}</th>
-                            </tr>
                             <tr>
                                 <th colspan="5" class="text-end py-2 text-primary">TOTAL PENDAPATAN BERSIH</th>
                                 <th class="text-end py-2 text-primary">Rp {{ number_format($totalRentalIncome, 0, ',', '.') }}</th>

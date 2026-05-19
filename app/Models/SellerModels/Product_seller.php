@@ -29,6 +29,7 @@ class Product_seller extends Model
         'is_rental',
         'buy_price',
         'rent_price',
+        'escrow_amount',
         'stock',
         'stok',
         'image',

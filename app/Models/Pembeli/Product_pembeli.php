@@ -10,7 +10,7 @@ class Product_pembeli extends Model
 {
     use HasFactory;
     protected $table = 'products';
-    protected $fillable = ['name','category','description','buy_price','rent_price','rating','reviews_count','image','stock','status'];
+    protected $fillable = ['name','category','description','buy_price','rent_price','escrow_amount','rating','reviews_count','image','stock','status'];
 
     protected static function booted(): void
     {
