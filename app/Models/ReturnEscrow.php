@@ -16,8 +16,8 @@ class ReturnEscrow extends Model
     public const TYPE_SEWA = 'sewa';
 
     public const STATUS_PENDING = 'pending';
-    public const STATUS_DISPUTE = 'dispute';
     public const STATUS_CHECKING = 'checking';
+    public const STATUS_WAITING_REFUND = 'waiting_refund';
     public const STATUS_COMPLETED = 'completed';
     public const STATUS_REJECTED = 'rejected';
 
@@ -28,8 +28,8 @@ class ReturnEscrow extends Model
 
     public const STATUSES = [
         self::STATUS_PENDING,
-        self::STATUS_DISPUTE,
         self::STATUS_CHECKING,
+        self::STATUS_WAITING_REFUND,
         self::STATUS_COMPLETED,
         self::STATUS_REJECTED,
     ];
@@ -49,7 +49,6 @@ class ReturnEscrow extends Model
         'proof_returned_image',
         'owner_notes',
         'renter_notes',
-        'dispute_chat_log',
         'total_fines',
         'deficit',
         'deposit_amount',
@@ -74,7 +73,6 @@ class ReturnEscrow extends Model
         'expected_date' => 'datetime',
         'actual_date' => 'datetime',
         'refund_disbursed_at' => 'datetime',
-        'dispute_chat_log' => 'array',
     ];
 
     public function order(): BelongsTo

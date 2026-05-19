@@ -84,6 +84,7 @@ class BuyerOrderChatReportSeeder extends Seeder
                 'district' => $spec['district'],
                 'postal_code' => (string) (10000 + (crc32($spec['city']) % 80000)),
                 'phone' => '08' . $phoneTail,
+                'ktp_verified_at' => now()->subDays((int) (crc32($spec['email']) % 30) + 1),
             ]
         );
     }

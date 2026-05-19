@@ -77,14 +77,12 @@ class DashboardController extends Controller
         $waitingStatuses = ['waiting', 'pending'];
 
         // Return Statistics
-        $totalReturns = \App\Models\ReturnEscrow::count();
-        $disputeReturns = \App\Models\ReturnEscrow::where('status', 'dispute')->count();
-        $pendingReturnsCount = \App\Models\ReturnEscrow::whereIn('status', ['pending', 'checking'])->count();
-        $completedReturns = \App\Models\ReturnEscrow::where('status', 'completed')->count();
+        $checkingReturns = \App\Models\ReturnEscrow::where('status', 'checking')->count();
+        $pendingReturns = \App\Models\ReturnEscrow::where('status', 'pending')->count();
         
-        // Escrow Logic
-        $jaminanSewaEscrow = \App\Models\ReturnEscrow::where('type', 'sewa')->whereIn('status', ['pending', 'checking', 'dispute'])->sum('deposit_amount');
-        $danaReturEscrow = \App\Models\ReturnEscrow::whereIn('status', ['pending', 'checking', 'dispute'])->sum('to_buyer');
+        $jaminanSewaEscrow = \App\Models\ReturnEscrow::where('type', 'sewa')->whereIn('status', ['pending', 'checking'])->sum('deposit_amount');
+        $danaReturEscrow = \App\Models\ReturnEscrow::whereIn('status', ['pending', 'checking'])->sum('to_buyer');
+        $sellerEscrow = \App\Models\ReturnEscrow::whereIn('status', ['pending', 'checking'])->sum('to_seller');
         $totalEscrow = $jaminanSewaEscrow + $danaReturEscrow;
 
         // Resolution Time (Avg days)
@@ -116,19 +114,16 @@ class DashboardController extends Controller
         $filter = request('filter', 'all');
         $issuesQuery = \App\Models\ReturnEscrow::with(['order.buyer', 'order.details.product']);
 
-        if ($filter === 'dispute') {
-            $issuesQuery->where('status', 'dispute');
-        } elseif ($filter === 'overdue') {
+        if ($filter === 'checking') {
+            $issuesQuery->where('status', 'checking');
+        } elseif ($filter === 'pending') {
+            $issuesQuery->where('status', 'pending');
+        } elseif ($filter === 'late') {
             $issuesQuery->where('type', 'sewa')
-                ->whereNull('actual_date')
-                ->where('expected_date', '<', now());
+                ->where('expected_date', '<', today())
+                ->whereIn('status', ['pending', 'checking']);
         } else {
-            $issuesQuery->where(function ($q) {
-                $q->whereIn('status', ['dispute', 'pending', 'checking'])
-                  ->orWhere(function($q2) {
-                      $q2->where('type', 'sewa')->whereNull('actual_date')->where('expected_date', '<', now());
-                  });
-            });
+            $issuesQuery->whereIn('status', ['pending', 'checking']);
         }
         
         $allIssues = $issuesQuery->latest()->limit(10)->get();
@@ -170,9 +165,8 @@ class DashboardController extends Controller
             'pendingKyc' => User::whereNotNull('ktp_image')->whereNull('ktp_verified_at')->count(),
             
             // Returns & Escrow
-            'totalReturns' => $totalReturns,
-            'disputeReturns' => $disputeReturns,
-            'pendingReturnsCount' => $pendingReturnsCount,
+            'checkingReturns' => $checkingReturns,
+            'pendingReturns' => $pendingReturns,
             'overdueReturns' => $overdueReturns,
             'todayDueRentals' => $todayDueRentals,
             'totalEscrow' => $totalEscrow,

@@ -72,6 +72,16 @@
                         <input type="number" name="stok" class="form-control form-control-lg border-0 bg-light rounded-3 px-4" placeholder="0" required>
                     </div>
                 </div>
+                <div class="row mt-4" id="escrow_row" style="display: none;">
+                    <div class="col-md-12">
+                        <label class="form-label fw-bold text-muted small text-uppercase ls-1">Escrow / Jaminan Sewa (Rp)</label>
+                        <div class="input-group">
+                            <span class="input-group-text border-0 bg-light rounded-start-3 px-3 fw-bold">Rp</span>
+                            <input type="number" name="escrow_amount" id="escrow_amount" class="form-control form-control-lg border-0 bg-light rounded-end-3 px-4" placeholder="0">
+                        </div>
+                        <small class="text-muted mt-2 d-block" id="escrow_recommendation">Rekomendasi jaminan: <strong class="text-emerald">Rp 0</strong>. <br>Anda bebas menentukan nominal ini. Jaminan akan dikembalikan ke penyewa jika barang kembali tanpa kerusakan.</small>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -109,4 +119,44 @@
     .ls-1 { letter-spacing: 1px; }
     .text-emerald { color: #10B981; }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const jenisProdukSelect = document.querySelector('select[name="jenis_produk"]');
+    const escrowRow = document.getElementById('escrow_row');
+    const hargaInput = document.querySelector('input[name="harga"]');
+    const escrowInput = document.getElementById('escrow_amount');
+    const escrowRecommendation = document.getElementById('escrow_recommendation');
+
+    let userEditedEscrow = false;
+    escrowInput.addEventListener('input', () => { userEditedEscrow = true; });
+
+    function updateEscrowVisibility() {
+        if (jenisProdukSelect.value === 'sewa') {
+            escrowRow.style.display = 'flex';
+            updateEscrowRecommendation();
+        } else {
+            escrowRow.style.display = 'none';
+        }
+    }
+
+    function updateEscrowRecommendation() {
+        const harga = parseFloat(hargaInput.value) || 0;
+        const rekomendasi = Math.round(harga * 0.25);
+        
+        escrowRecommendation.innerHTML = `Rekomendasi jaminan (25% dari harga): <strong class="text-emerald">Rp ${rekomendasi.toLocaleString('id-ID')}</strong>. <br>Anda bebas menentukan nominal jaminan ini.`;
+        
+        // Auto-fill jika belum diedit user
+        if (!userEditedEscrow && harga > 0) {
+            escrowInput.value = rekomendasi;
+        }
+    }
+
+    jenisProdukSelect.addEventListener('change', updateEscrowVisibility);
+    hargaInput.addEventListener('input', updateEscrowRecommendation);
+    
+    // Initial check
+    updateEscrowVisibility();
+});
+</script>
 @endsection

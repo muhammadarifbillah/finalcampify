@@ -23,7 +23,7 @@
                 <p class="text-muted small mb-0">Produk: <strong class="text-primary">{{ $rental->product->nama_produk ?? '-' }}</strong></p>
             </div>
 
-            <form action="{{ route('seller.rentals.update', $rental->id) }}" method="POST">
+            <form action="{{ route('seller.rentals.update', $rental->id) }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
                 
@@ -35,6 +35,18 @@
                         <option value="completed" {{ $rental->status == 'completed' ? 'selected' : '' }}>Selesai (Sudah Dikembalikan)</option>
                         <option value="cancelled" {{ $rental->status == 'cancelled' ? 'selected' : '' }}>Batalkan Sewa</option>
                     </select>
+                </div>
+                
+                <div class="mb-4" id="photo_handover_container" style="display: none;">
+                    <label class="form-label fw-bold text-muted small text-uppercase ls-1">Foto Kondisi Realtime Barang (Wajib jika Aktif)</label>
+                    <input type="file" name="foto_kondisi" id="foto_kondisi" class="form-control border-0 bg-light rounded-3 px-3 py-2 shadow-sm" accept="image/*">
+                    <small class="text-muted mt-2 d-block">Unggah foto kondisi terkini barang sebelum diserahkan ke penyewa.</small>
+                    @if($rental->condition_photo_handover)
+                        <div class="mt-2">
+                            <small class="text-success d-block mb-1">Foto saat ini:</small>
+                            <img src="{{ asset($rental->condition_photo_handover) }}" class="img-fluid rounded-3 border" style="max-height: 150px;">
+                        </div>
+                    @endif
                 </div>
 
                 <div class="p-3 bg-primary bg-opacity-10 rounded-4 mb-4 border border-primary border-opacity-10">
@@ -81,4 +93,28 @@
 <style>
     .ls-1 { letter-spacing: 1px; }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const statusSelect = document.querySelector('select[name="status"]');
+    const photoContainer = document.getElementById('photo_handover_container');
+    const photoInput = document.getElementById('foto_kondisi');
+    const hasPhoto = {{ $rental->condition_photo_handover ? 'true' : 'false' }};
+
+    function togglePhotoInput() {
+        if (statusSelect.value === 'active') {
+            photoContainer.style.display = 'block';
+            if (!hasPhoto) {
+                photoInput.setAttribute('required', 'required');
+            }
+        } else {
+            photoContainer.style.display = 'none';
+            photoInput.removeAttribute('required');
+        }
+    }
+
+    statusSelect.addEventListener('change', togglePhotoInput);
+    togglePhotoInput(); // Initial run
+});
+</script>
 @endsection

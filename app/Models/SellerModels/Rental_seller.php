@@ -23,6 +23,7 @@ class Rental_seller extends Model
         'price',
         'status',
         'catatan',
+        'condition_photo_handover',
     ];
 
     protected $casts = [

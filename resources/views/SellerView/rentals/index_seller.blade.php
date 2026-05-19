@@ -39,9 +39,12 @@
 </div>
 
 {{-- RENTALS LIST --}}
-<div class="rentals-container">
+<div class="rentals-container" id="rentals-list-container">
     @forelse($rentals as $rental)
-    <div class="card card-modern border-0 mb-4 overflow-hidden shadow-sm">
+    <div class="card card-modern border-0 mb-4 overflow-hidden shadow-sm rental-card-row"
+         data-id="{{ $rental->id }}"
+         data-user="{{ strtolower($rental->user->name ?? 'user') }}"
+         data-product="{{ strtolower($rental->product->nama_produk ?? '') }}">
         <div class="card-header bg-white p-4 border-bottom d-flex justify-content-between align-items-center">
             <div class="d-flex align-items-center gap-3">
                 <div class="icon-box bg-primary bg-opacity-10 rounded-3 p-3 text-primary">
@@ -104,7 +107,10 @@
                         <div>
                             <small class="text-muted text-uppercase fw-bold ls-1 d-block mb-1">Total Biaya Sewa</small>
                             <h4 class="fw-bold text-primary mb-1">Rp {{ number_format($rental->price, 0, ',', '.') }}</h4>
-                            <div class="text-muted small mb-3">Escrow: Rp {{ number_format($rental->product->buy_price * 0.25, 0, ',', '.') }}</div>
+                            @php
+                                $escrow = ($rental->product->escrow_amount > 0) ? $rental->product->escrow_amount : (($rental->product->buy_price ?? 0) * 0.25);
+                            @endphp
+                            <div class="text-muted small mb-3">Escrow: Rp {{ number_format($escrow, 0, ',', '.') }}</div>
                         </div>
                         
                         <div class="d-grid gap-2">

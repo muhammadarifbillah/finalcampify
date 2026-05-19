@@ -10,7 +10,7 @@ class Product_pembeli extends Model
 {
     use HasFactory;
     protected $table = 'products';
-    protected $fillable = ['name','category','description','buy_price','rent_price','rating','reviews_count','image','stock','status'];
+    protected $fillable = ['name','category','description','buy_price','rent_price','escrow_amount','rating','reviews_count','image','stock','status'];
 
     protected static function booted(): void
     {
@@ -74,8 +74,9 @@ class Product_pembeli extends Model
      */
     public function getImageUrlAttribute()
     {
-        $imageField = $this->image ?: $this->gambar;
-        
+        $imageField = $this->attributes['image'] ?? $this->attributes['gambar'] ?? null;
+
+
         if (!$imageField) {
             return null;
         }
@@ -85,7 +86,24 @@ class Product_pembeli extends Model
             return $imageField;
         }
 
+        $imageField = str_replace('\\', '/', $imageField);
         $filename = basename($imageField);
+
+        if (str_starts_with($imageField, 'assets/images/')) {
+            return asset($imageField);
+        }
+
+        if (str_starts_with($imageField, 'storage/')) {
+            return asset($imageField);
+        }
+
+        if (str_starts_with($imageField, 'public/')) {
+            return asset('storage/' . substr($imageField, strlen('public/')));
+        }
+
+        if (\Illuminate\Support\Facades\Storage::disk('public')->exists($imageField)) {
+            return asset('storage/' . $imageField);
+        }
 
         // Check if it exists in storage products folder
         if (\Illuminate\Support\Facades\Storage::disk('public')->exists('products/' . $filename)) {

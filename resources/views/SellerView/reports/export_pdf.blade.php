@@ -95,15 +95,11 @@
                     <th>ID</th>
                     <th>PENYEWA</th>
                     <th>PRODUK</th>
-                    <th>SEWA KOTOR</th>
-                    <th>ADMIN (10%)</th>
-                    <th>BERSIH</th>
+                    <th>PENDAPATAN</th>
                 </tr>
             </thead>
             <tbody>
                 @php 
-                    $totalGross = 0; 
-                    $totalAdmin = 0;
                     $totalNet = 0;
                 @endphp
                 @foreach($data as $rental)
@@ -112,8 +108,6 @@
                         $admin = $gross * 0.1;
                         $net = $gross - $admin;
                         
-                        $totalGross += $gross; 
-                        $totalAdmin += $admin;
                         $totalNet += $net;
                     @endphp
                     <tr>
@@ -121,19 +115,13 @@
                         <td>#{{ $rental->id }}</td>
                         <td>{{ $rental->user->name ?? 'User' }}</td>
                         <td>{{ $rental->product->nama_produk ?? 'Produk' }}</td>
-                        <td>Rp {{ number_format($gross) }}</td>
-                        <td style="color: #dc2626;">-Rp {{ number_format($admin) }}</td>
                         <td style="font-weight: bold;">Rp {{ number_format($net) }}</td>
                     </tr>
                 @endforeach
             </tbody>
             <tfoot>
                 <tr>
-                    <th colspan="6" style="text-align: right;">TOTAL POTONGAN ADMIN</th>
-                    <th style="color: #dc2626;">Rp {{ number_format($totalAdmin) }}</th>
-                </tr>
-                <tr>
-                    <th colspan="6" style="text-align: right; font-size: 14px;">TOTAL PENDAPATAN BERSIH</th>
+                    <th colspan="4" style="text-align: right; font-size: 14px;">TOTAL PENDAPATAN BERSIH</th>
                     <th style="font-size: 14px; background: #ecfdf5; color: #065f46;">Rp {{ number_format($totalNet) }}</th>
                 </tr>
             </tfoot>

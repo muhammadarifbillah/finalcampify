@@ -42,9 +42,12 @@
 </div>
 
 {{-- ORDERS LIST --}}
-<div class="orders-container">
+<div class="orders-container" id="orders-list-container">
     @forelse($orders as $order)
-    <div class="card card-modern border-0 mb-4 overflow-hidden">
+    <div class="card card-modern border-0 mb-4 overflow-hidden order-card-row"
+         data-id="{{ $order->id }}"
+         data-buyer="{{ strtolower($order->buyer->name ?? 'user') }}"
+         data-products="{{ strtolower($order->details->pluck('product.nama_produk')->implode(' ')) }}">
         <div class="card-header bg-white p-4 border-bottom d-flex justify-content-between align-items-center">
             <div class="d-flex align-items-center gap-3">
                 <div class="icon-box bg-light rounded-3 p-3">

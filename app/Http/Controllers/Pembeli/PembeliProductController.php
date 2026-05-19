@@ -55,7 +55,8 @@ class PembeliProductController extends Controller
         $user = Auth::user();
         $produk = Product_pembeli::findOrFail($requestData['product_id']);
         $rentalFee = $produk->rent_price * $requestData['duration'];
-        $deposit = $produk->buy_price * 0.25;
+        // Gunakan escrow_amount jika ada (> 0), jika 0 maka fallback ke 25% buy_price untuk produk lama
+        $deposit = $produk->escrow_amount > 0 ? $produk->escrow_amount : ($produk->buy_price * 0.25);
         $totalPrice = $rentalFee + $deposit;
 
         // Handle KTP Upload if provided (Mandatory check handled by Frontend 'required')

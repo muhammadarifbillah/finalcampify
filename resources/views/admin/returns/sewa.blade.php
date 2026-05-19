@@ -8,8 +8,8 @@
 @php
     $badgeMap = [
         'pending' => 'bg-blue-100 text-blue-600',
-        'dispute' => 'bg-red-100 text-red-600',
         'checking' => 'bg-indigo-100 text-indigo-600',
+        'waiting_refund' => 'bg-amber-100 text-amber-600',
         'completed' => 'bg-green-100 text-green-600',
         'rejected' => 'bg-gray-200 text-gray-600',
     ];
@@ -151,9 +151,9 @@
                             $liveTotalLateFee = ($item->late_fee > 0) ? (int)$item->late_fee : ($liveLateFeeDays * $liveFinePerDay);
                             
                             $statusMap = [
-                                'dispute' => ['text' => 'SENGKETA', 'class' => 'bg-red-100 text-red-600'],
                                 'pending' => ['text' => $isOverdue ? 'TERLAMBAT' : 'AKTIF', 'class' => $isOverdue ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'],
                                 'checking' => ['text' => 'PEMERIKSAAN', 'class' => 'bg-indigo-100 text-indigo-600'],
+                                'waiting_refund' => ['text' => 'MENUNGGU REFUND', 'class' => 'bg-amber-100 text-amber-600'],
                                 'completed' => ['text' => 'SELESAI', 'class' => 'bg-gray-100 text-gray-600'],
                                 'rejected' => ['text' => 'DITOLAK', 'class' => 'bg-gray-100 text-gray-600'],
                             ];
@@ -221,20 +221,10 @@
                                 <span class="inline-block px-2.5 py-1 text-[9px] font-bold tracking-wider rounded-full {{ $statusInfo['class'] }}">{{ $statusInfo['text'] }}</span>
                             </td>
                             <td class="py-4 px-4 text-center">
-                                @php
-                                    $isActualDispute = $item->status === 'dispute' || ($item->status === 'completed' && ($item->damage_fee > 0 || !empty($item->dispute_chat_log)));
-                                @endphp
-                                @if($isActualDispute && $item->status !== 'completed')
-                                    <a href="{{ route('admin.returns.show', $item->id) }}"
-                                       class="inline-flex items-center justify-center w-36 h-9 bg-red-600 hover:bg-red-700 text-white text-[9.5px] font-bold rounded-lg shadow-sm transition-all duration-200 hover:-translate-y-0.5 active:scale-95 whitespace-nowrap px-2">
-                                        Resolusi Sengketa
-                                    </a>
-                                @else
                                     <a href="{{ route('admin.returns.show', $item->id) }}"
                                        class="inline-flex items-center justify-center w-36 h-9 bg-[#0f6b52] hover:bg-[#0c5843] text-white text-[9.5px] font-bold rounded-lg shadow-sm transition-all duration-200 hover:-translate-y-0.5 active:scale-95 whitespace-nowrap px-2">
                                         Proses
                                     </a>
-                                @endif
                             </td>
                         </tr>
                     @empty

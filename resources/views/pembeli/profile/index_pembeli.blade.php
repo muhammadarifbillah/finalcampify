@@ -170,7 +170,6 @@
                                             @php
                                                 $retStatus = $order->returnRequest->status;
                                                 $retColor = match($retStatus) {
-                                                    'dispute' => 'bg-rose-100 text-rose-700',
                                                     'checking' => 'bg-amber-100 text-amber-700',
                                                     'pending' => 'bg-blue-100 text-blue-700',
                                                     'completed' => 'bg-emerald-100 text-emerald-700',
@@ -178,7 +177,6 @@
                                                     default => 'bg-gray-100 text-gray-700'
                                                 };
                                                 $retLabel = match($retStatus) {
-                                                    'dispute' => 'Mediasi Admin',
                                                     'checking' => 'Sedang Dicek',
                                                     'pending' => 'Menunggu Seller',
                                                     'completed' => 'Selesai',
@@ -194,7 +192,7 @@
                                             @if($item->type === 'rent' || str_contains(strtolower($item->product->name ?? ''), '(sewa)'))
                                                 <div class="flex items-center gap-4 p-4 bg-white rounded-2xl border border-blue-50 shadow-sm">
                                                     @php
-                                                        $imgPath = $item->product->image ?? $item->product->gambar;
+                                                        $imgPath = $item->product?->image ?? $item->product?->gambar;
                                                         if ($imgPath && !str_starts_with($imgPath, 'assets/images/') && !str_starts_with($imgPath, 'storage/') && !str_starts_with($imgPath, 'http')) {
                                                             if (file_exists(public_path('assets/images/' . $imgPath))) {
                                                                 $imgPath = 'assets/images/' . $imgPath;
@@ -211,7 +209,7 @@
                                                         @endif
                                                     </div>
                                                     <div class="flex-1">
-                                                        <p class="text-xs font-bold text-slate-800">{{ $item->product->name ?? $item->product->nama_produk }}</p>
+                                                        <p class="text-xs font-bold text-slate-800">{{ $item->product?->name ?? $item->product?->nama_produk }}</p>
                                                         <p class="text-[10px] text-slate-500">{{ $item->duration ?? 3 }} Hari &bull; Rp {{ number_format($item->harga) }}</p>
                                                     </div>
                                                     <a href="{{ route('orders.detail', ['id' => $order->id, 'detail_id' => $item->id]) }}" 
@@ -246,7 +244,6 @@
                                             @php
                                                 $retStatus = $order->returnRequest->status;
                                                 $retColor = match($retStatus) {
-                                                    'dispute' => 'bg-rose-100 text-rose-700',
                                                     'checking' => 'bg-amber-100 text-amber-700',
                                                     'pending' => 'bg-blue-100 text-blue-700',
                                                     'completed' => 'bg-emerald-100 text-emerald-700',
@@ -254,7 +251,6 @@
                                                     default => 'bg-gray-100 text-gray-700'
                                                 };
                                                 $retLabel = match($retStatus) {
-                                                    'dispute' => 'Mediasi Admin',
                                                     'checking' => 'Sedang Dicek',
                                                     'pending' => 'Menunggu Seller',
                                                     'completed' => 'Selesai',
@@ -270,7 +266,7 @@
                                             @if($item->type === 'buy' && !str_contains(strtolower($item->product->name ?? ''), '(sewa)'))
                                                 <div class="flex items-center gap-4 p-4 bg-white rounded-2xl border border-emerald-50 shadow-sm">
                                                     @php
-                                                        $imgPath = $item->product->image ?? $item->product->gambar;
+                                                        $imgPath = $item->product?->image ?? $item->product?->gambar;
                                                         if ($imgPath && !str_starts_with($imgPath, 'assets/images/') && !str_starts_with($imgPath, 'storage/') && !str_starts_with($imgPath, 'http')) {
                                                             if (file_exists(public_path('assets/images/' . $imgPath))) {
                                                                 $imgPath = 'assets/images/' . $imgPath;
@@ -287,7 +283,7 @@
                                                         @endif
                                                     </div>
                                                     <div class="flex-1">
-                                                        <p class="text-xs font-bold text-slate-800">{{ $item->product->name ?? $item->product->nama_produk }}</p>
+                                                        <p class="text-xs font-bold text-slate-800">{{ $item->product?->name ?? $item->product?->nama_produk }}</p>
                                                         <p class="text-[10px] text-slate-500">{{ $item->qty }} Item &bull; Rp {{ number_format($item->harga) }}</p>
                                                     </div>
                                                     <a href="{{ route('orders.detail', ['id' => $order->id, 'detail_id' => $item->id]) }}" 

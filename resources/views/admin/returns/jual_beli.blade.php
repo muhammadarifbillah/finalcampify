@@ -6,7 +6,6 @@
 @php
     $badgeMap = [
         'pending' => 'admin-badge-warning',
-        'dispute' => 'admin-badge-danger',
         'checking' => 'admin-badge-info',
         'completed' => 'admin-badge-success',
         'rejected' => 'admin-badge-muted',
@@ -31,13 +30,6 @@
             <div class="flex items-end gap-2">
                 <span class="text-4xl font-extrabold text-gray-800">{{ number_format($totalPermintaan, 0, ',', '.') }}</span>
                 <span class="text-sm font-bold text-[#0f6b52] mb-1 flex items-center"><i data-lucide="trending-up" style="width:16px; height:16px;" class="mr-1"></i>12%</span>
-            </div>
-        </div>
-        <div class="admin-card p-5 border border-red-100 shadow-sm flex flex-col justify-between rounded-xl">
-            <div class="text-[10px] font-bold text-gray-400 tracking-wider uppercase mb-3">Butuh Mediasi</div>
-            <div class="flex items-end justify-between">
-                <span class="text-4xl font-extrabold text-red-500">{{ number_format($butuhMediasi, 0, ',', '.') }}</span>
-                <span class="text-[10px] font-bold bg-red-100 text-red-500 px-2.5 py-1 rounded-md uppercase tracking-wider mb-1">Urgent</span>
             </div>
         </div>
         <div class="admin-card p-5 border border-green-100 shadow-sm flex flex-col justify-between rounded-xl">
@@ -65,7 +57,7 @@
                     <div class="relative">
                         <select class="w-48 text-[13px] font-medium text-gray-700 py-2.5 px-3 pr-8 rounded-md bg-white border border-[#dcebe5] appearance-none focus:outline-none focus:border-[#0f6b52]" id="status" name="status" onchange="this.form.submit()">
                             <option value="">Semua Status</option>
-                            @foreach(['pending', 'dispute', 'checking', 'completed', 'rejected'] as $st)
+                            @foreach(['pending', 'checking', 'completed', 'rejected'] as $st)
                                 <option value="{{ $st }}" @selected(request('status') === $st)>{{ ucfirst($st) }}</option>
                             @endforeach
                         </select>
@@ -140,7 +132,6 @@
                                     $statusClass = $badgeMap[$item->status] ?? 'admin-badge-muted';
                                     $statusLabel = [
                                         'pending' => 'Pending',
-                                        'dispute' => 'Sengketa',
                                         'checking' => 'Checking',
                                         'completed' => 'Selesai',
                                         'rejected' => 'Ditolak',
@@ -151,17 +142,10 @@
                                 </span>
                             </td>
                             <td class="py-4 px-4 text-center">
-                                @if($item->status == 'dispute')
-                                    <a href="{{ route('admin.returns.show', $item->id) }}"
-                                       class="inline-flex items-center justify-center w-36 h-9 bg-red-600 hover:bg-red-700 text-white text-[9.5px] font-bold rounded-lg shadow-sm transition-all duration-200 hover:-translate-y-0.5 active:scale-95 whitespace-nowrap px-2">
-                                        Resolusi Sengketa
-                                    </a>
-                                @else
                                     <a href="{{ route('admin.returns.show', $item->id) }}"
                                        class="inline-flex items-center justify-center w-36 h-9 bg-[#0f6b52] hover:bg-[#0c5843] text-white text-[9.5px] font-bold rounded-lg shadow-sm transition-all duration-200 hover:-translate-y-0.5 active:scale-95 whitespace-nowrap px-2">
                                         Kelola
                                     </a>
-                                @endif
                             </td>
                         </tr>
                     @empty
@@ -184,18 +168,7 @@
 
     <!-- Bottom Cards -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-        <div class="admin-card bg-[#e6f4ea] border-none p-6 flex gap-4">
-            <div class="w-10 h-10 rounded-full bg-[#0f6b52] text-white flex items-center justify-center shrink-0">
-                <i data-lucide="scale" style="width:20px; height:20px;"></i>
-            </div>
-            <div>
-                <h3 class="font-bold text-[#0f6b52] mb-2">Panduan Mediasi Hakim</h3>
-                <p class="text-xs text-[#0f6b52]/80 leading-relaxed mb-4">Pastikan untuk meninjau bukti foto dan video dari kedua belah pihak sebelum memberikan keputusan akhir pengembalian dana.</p>
-                <a href="#" class="text-sm font-bold text-[#0f6b52] hover:underline flex items-center gap-1">
-                    Buka Knowledge Base <i data-lucide="external-link" style="width:14px; height:14px;"></i>
-                </a>
-            </div>
-        </div>
+
         <div class="admin-card bg-gray-900 border-none p-6 text-white relative overflow-hidden flex flex-col justify-end min-h-[140px]">
             <!-- Decorative background or image could go here -->
             <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent z-10"></div>
