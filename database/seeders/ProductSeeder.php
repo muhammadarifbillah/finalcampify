@@ -150,6 +150,8 @@ class ProductSeeder extends Seeder
         ];
 
         foreach ($products as $product) {
+            $product['buy_price'] = $product['price'];
+            $product['jenis_produk'] = 'sewa';
             Product::create($product);
         }
     }

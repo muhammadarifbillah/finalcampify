@@ -60,9 +60,9 @@ class ProductController_seller extends Controller
         $imagePath = null;
         if ($request->hasFile('gambar')) {
             $file = $request->file('gambar');
-            $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $filename = time() . '_' . $file->getClientOriginalName();
             $file->move(public_path('assets/images'), $filename);
-            $imagePath = $filename;
+            $imagePath = 'assets/images/' . $filename;
         }
 
         $flagReasons = \App\Models\Product::flagReasonsFor($request->only(['nama_produk', 'harga', 'deskripsi']));
@@ -152,23 +152,20 @@ class ProductController_seller extends Controller
 
         // Jika upload gambar baru
         if ($request->hasFile('gambar')) {
-            // Hapus gambar lama jika ada
-            if ($product->gambar || $product->image) {
-                $oldFilename = $product->gambar ?: $product->image;
-                // Extract just the filename in case it contains old path format
-                $oldFilename = basename($oldFilename);
-                $oldPath = public_path('assets/images/' . $oldFilename);
-                if (file_exists($oldPath)) {
-                    unlink($oldPath);
-                }
+
+            // Hapus gambar lama dari public/assets/images
+            $oldPath = $product->gambar;
+            if ($oldPath && file_exists(public_path($oldPath))) {
+                unlink(public_path($oldPath));
             }
 
-            // Simpan gambar baru
+            // Simpan gambar baru ke assets/images
             $file = $request->file('gambar');
-            $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $filename = time() . '_' . $file->getClientOriginalName();
             $file->move(public_path('assets/images'), $filename);
-            $data['gambar'] = $filename;
-            $data['image'] = $filename;
+            
+            $data['gambar'] = 'assets/images/' . $filename;
+            $data['image'] = $data['gambar'];
         }
 
         $product->update($data);
