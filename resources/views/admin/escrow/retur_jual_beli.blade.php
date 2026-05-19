@@ -132,7 +132,6 @@
 
     $statusLabel = function ($status) {
         return match ($status) {
-            'dispute' => 'MEDIATION',
             'pending' => 'PENDING',
             'checking' => 'APPROVED',
             'completed' => 'COMPLETED',
@@ -262,13 +261,6 @@
                     </div>
                 </div>
                 <div class="bg-surface p-lg rounded-xl shadow-sm border border-outline-variant">
-                    <p class="text-label-bold text-on-surface-variant uppercase tracking-wider mb-sm">Butuh Mediasi</p>
-                    <div class="flex items-end justify-between">
-                        <span class="font-stats-number text-stats-number text-tertiary">{{ number_format($summary['mediation'] ?? 0) }}</span>
-                        <span class="bg-tertiary-fixed text-on-tertiary-fixed-variant px-sm py-xs rounded-full text-[10px] font-bold">URGENT</span>
-                    </div>
-                </div>
-                <div class="bg-surface p-lg rounded-xl shadow-sm border border-outline-variant">
                     <p class="text-label-bold text-on-surface-variant uppercase tracking-wider mb-sm">Escrow Tertahan</p>
                     <div class="flex items-end justify-between">
                         <span class="font-stats-number text-stats-number text-on-surface">Rp{{ number_format((int) ($summary['escrow_held'] ?? 0)) }}</span>
@@ -292,7 +284,6 @@
                         <select class="bg-surface border-outline-variant rounded-lg py-sm px-md text-body-sm focus:ring-primary focus:border-primary w-full">
                             <option>Semua Status</option>
                             <option>Pending Approval</option>
-                            <option>Dalam Mediasi</option>
                             <option>Disetujui</option>
                             <option>Ditolak</option>
                             <option>Selesai</option>
@@ -343,7 +334,6 @@
                                     $storeName = $order?->details?->first()?->product?->store?->nama_toko ?? '-';
 
                                     $badgeClass = match ($item->status) {
-                                        'dispute' => 'bg-tertiary-container/10 text-tertiary border-tertiary/20',
                                         'pending' => 'bg-secondary-container/10 text-secondary border-secondary/20',
                                         'checking' => 'bg-primary-container/10 text-primary border-primary/20',
                                         'rejected' => 'bg-error-container text-error border-error/20',
@@ -398,21 +388,6 @@
 
             <!-- Contextual Help / Insights Card -->
             <div class="mt-xl grid grid-cols-1 md:grid-cols-2 gap-gutter">
-                <div class="bg-primary/5 border border-primary/20 p-lg rounded-xl flex gap-lg">
-                    <div class="w-12 h-12 rounded-full bg-primary-container flex items-center justify-center text-on-primary shrink-0">
-                        <span class="material-symbols-outlined">gavel</span>
-                    </div>
-                    <div>
-                        <h4 class="font-h3 text-on-primary-fixed-variant mb-xs">Panduan Mediasi Hakim</h4>
-                        <p class="text-body-sm text-on-primary-fixed-variant/80 mb-md">
-                            Pastikan untuk meninjau bukti foto dan video dari kedua belah pihak sebelum memberikan keputusan akhir pengembalian dana.
-                        </p>
-                        <a class="text-primary font-label-bold flex items-center gap-xs" href="#">
-                            Buka Knowledge Base
-                            <span class="material-symbols-outlined text-sm">open_in_new</span>
-                        </a>
-                    </div>
-                </div>
                 <div class="relative overflow-hidden group rounded-xl">
                     <img class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                         src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXCJ7E_VAbxUpENyxgakXTPrEfZAogFGsSdkv1Ke3mYhGZZPGm39NHOKNSxU0MumW-pJPyPmfI0JoLk1BLPUWgqvaA3xPfW7qW13_s71r3K1AWMhzrbJ6rH--cWtG357b8XfVM4y17Y3scMWbeV3Cm23J-96BSE2xsKN0zNgkJM_JxszX4RMsiX5YFqwt49dg7XaPLGKxOB0VtHJ_vaPI1Bui_UeNgn33TYmcU4aGlj_VnU9MXqBLfL1FSOKVT9BbCnOO-xq5WqhQa" />

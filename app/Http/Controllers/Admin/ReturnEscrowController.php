@@ -25,10 +25,9 @@ class ReturnEscrowController extends Controller
 
         // Calculate stats
         $totalPermintaan = ReturnEscrow::where('type', 'jual_beli')->count();
-        $butuhMediasi = ReturnEscrow::where('type', 'jual_beli')->where('status', 'dispute')->count();
-        $escrowTertahan = ReturnEscrow::where('type', 'jual_beli')->whereIn('status', ['pending', 'dispute', 'checking'])->sum('escrow_total');
+        $escrowTertahan = ReturnEscrow::where('type', 'jual_beli')->whereIn('status', ['pending', 'checking'])->sum('escrow_total');
         
-        return view('admin.returns.jual_beli', compact('returns', 'totalPermintaan', 'butuhMediasi', 'escrowTertahan'));
+        return view('admin.returns.jual_beli', compact('returns', 'totalPermintaan', 'escrowTertahan'));
     }
 
     public function sewa(Request $request, ReturnSettlementService $settlement)
@@ -144,28 +143,6 @@ class ReturnEscrowController extends Controller
         $returnEscrow = $settlement->applyAutoCalculations($returnEscrow);
 
         if ($returnEscrow->type === 'sewa') {
-            // Fetch live conversation if it exists
-            $conversation = null;
-            $order = $returnEscrow->order;
-            $product = $order->details->first()->product ?? null;
-            
-            if ($product) {
-                $sellerId = $product->store?->user_id ?? $product->user_id;
-                $conversation = \App\Models\Conversation::where('buyer_id', $order->user_id)
-                    ->where('seller_id', $sellerId)
-                    ->where('product_id', $product->id)
-                    ->with(['messages.sender'])
-                    ->first();
-            }
-
-            // Show dispute view if it's currently a dispute OR if it was completed with damage/chat logs
-            if ($returnEscrow->status === 'dispute' || ($returnEscrow->status === 'completed' && ($returnEscrow->damage_fee > 0 || !empty($returnEscrow->dispute_chat_log)))) {
-                return view('admin.returns.show_sewa_dispute', [
-                    'return' => $returnEscrow,
-                    'statuses' => ReturnEscrow::STATUSES,
-                    'conversation' => $conversation,
-                ]);
-            }
             return view('admin.returns.show_sewa_normal', [
                 'return' => $returnEscrow,
                 'statuses' => ReturnEscrow::STATUSES,
@@ -173,27 +150,6 @@ class ReturnEscrowController extends Controller
         }
 
         if ($returnEscrow->type === 'jual_beli') {
-            // Fetch live conversation if it exists
-            $conversation = null;
-            $order = $returnEscrow->order;
-            $product = $order->details->first()->product ?? null;
-            
-            if ($product) {
-                $sellerId = $product->store?->user_id ?? $product->user_id;
-                $conversation = \App\Models\Conversation::where('buyer_id', $order->user_id)
-                    ->where('seller_id', $sellerId)
-                    ->where('product_id', $product->id)
-                    ->with(['messages.sender'])
-                    ->first();
-            }
-
-            if ($returnEscrow->status === 'dispute' || ($returnEscrow->status === 'completed' && ($returnEscrow->damage_fee > 0 || !empty($returnEscrow->dispute_chat_log)))) {
-                return view('admin.returns.show_jual_beli_dispute', [
-                    'return' => $returnEscrow,
-                    'statuses' => ReturnEscrow::STATUSES,
-                    'conversation' => $conversation,
-                ]);
-            }
             return view('admin.returns.show_jual_beli_normal', [
                 'return' => $returnEscrow,
                 'statuses' => ReturnEscrow::STATUSES,
@@ -282,21 +238,5 @@ class ReturnEscrowController extends Controller
         ]);
 
         return back()->with('success', 'Dana jaminan pembeli & dana sewa seller berhasil ditandai sebagai telah dicairkan.');
-    }
-
-    public function sendMediationMessage(Request $request, ReturnEscrow $returnEscrow)
-    {
-        $validated = $request->validate([
-            'message' => 'required|string',
-            'conversation_id' => 'required|exists:conversations,id',
-        ]);
-
-        \App\Models\Message::create([
-            'conversation_id' => $validated['conversation_id'],
-            'sender_id' => auth()->id(),
-            'message' => $validated['message'],
-        ]);
-
-        return redirect()->back()->with('success', 'Pesan mediasi terkirim.');
     }
 }

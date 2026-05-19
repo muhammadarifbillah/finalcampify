@@ -82,7 +82,7 @@ class AuthController extends Controller
     {
         $data = $request->validated();
 
-        $user = User::create([
+        User::create([
             'name' => $data['name'],
             'nama' => $data['name'],
             'email' => $data['email'],
@@ -91,9 +91,7 @@ class AuthController extends Controller
             'status' => 'active',
         ]);
 
-        Auth::login($user);
-
-        return $this->redirectBasedOnRole();
+        return redirect()->route('login')->with('success', 'Pendaftaran berhasil. Silakan masuk menggunakan akun baru Anda.');
     }
 
     /**

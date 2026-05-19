@@ -178,6 +178,72 @@ class RentalController_seller extends Controller
         return back()->with('success', 'Identitas Pembeli Berhasil Diverifikasi! Pesanan kini dapat diproses.');
     }
 
+    public function reviewComplaint(Request $request, $return_id)
+    {
+        $request->validate([
+            'action' => 'required|in:approve,reject',
+            'resolution_type' => 'required_if:action,approve|in:refund,replacement',
+            'owner_notes' => 'nullable|string|max:500',
+        ]);
+
+        $return = \App\Models\Pembeli\Return_pembeli::findOrFail($return_id);
+
+        if ($request->action === 'reject') {
+            $return->update([
+                'status' => 'rejected',
+                'owner_notes' => $request->owner_notes,
+            ]);
+
+            $order = \App\Models\Pembeli\Order_pembeli::find($return->order_id);
+            if ($order) {
+                $order->update(['status' => 'selesai']);
+            }
+
+            return back()->with('success', 'Komplain pembeli telah ditolak.');
+        }
+
+        $resolution = $request->resolution_type;
+        $status = ($resolution === 'refund') ? 'refund_pending' : 'approved';
+
+        $return->update([
+            'status' => $status,
+            'resolution_type' => $resolution,
+            'owner_notes' => $request->owner_notes,
+        ]);
+
+        return back()->with('success', 'Komplain disetujui dengan resolusi: ' . ($resolution === 'refund' ? 'Refund Dana' : 'Kirim Produk Pengganti'));
+    }
+
+    public function sendReplacementItem(Request $request, $return_id)
+    {
+        $request->validate([
+            'resi_pengganti' => 'required|string|max:255',
+        ]);
+
+        $return = \App\Models\Pembeli\Return_pembeli::findOrFail($return_id);
+        $return->update([
+            'status' => 'replacement_shipping',
+            'resi_pengganti' => $request->resi_pengganti,
+        ]);
+
+        return back()->with('success', 'Barang pengganti telah dikirim dengan nomor resi ' . $request->resi_pengganti);
+    }
+
+    public function confirmRefundTransferred($return_id)
+    {
+        $return = \App\Models\Pembeli\Return_pembeli::findOrFail($return_id);
+        $return->update([
+            'status' => 'completed',
+        ]);
+
+        $order = \App\Models\Pembeli\Order_pembeli::find($return->order_id);
+        if ($order) {
+            $order->update(['status' => 'selesai']);
+        }
+
+        return back()->with('success', 'Refund dana telah berhasil dikonfirmasi.');
+    }
+
     private function sellerRentals()
     {
         return Rental_seller::with(['product', 'user', 'order'])

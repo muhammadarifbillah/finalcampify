@@ -197,6 +197,12 @@
                 <h2 class="auth-title">Selamat Datang Kembali</h2>
                 <p class="auth-subtitle">Silakan masukkan detail akun Anda untuk melanjutkan akses sesuai role.</p>
 
+                @if(session('success'))
+                    <div class="alert alert-success py-2">
+                        {{ session('success') }}
+                    </div>
+                @endif
+
                 @if(isset($errors) && $errors->any())
                     <div class="alert alert-danger py-2">
                         <ul class="mb-0 ps-3">

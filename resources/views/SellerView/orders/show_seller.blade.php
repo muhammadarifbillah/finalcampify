@@ -57,6 +57,262 @@
             </div>
         @endif
 
+        {{-- PANEL PENGEMBALIAN BARANG JUAL BELI (BPMN BASED) --}}
+        @php
+            $returnRequest = \App\Models\SellerModels\Return_seller::where('order_id', $order->id)
+                ->where('type', 'jual_beli')
+                ->first();
+        @endphp
+
+        @if($returnRequest)
+            <div class="card card-modern border-0 p-5 mb-4 shadow-sm" style="border-left: 5px solid #e11d48 !important;">
+                <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                    <div>
+                        <span class="badge bg-danger-subtle text-danger px-3 py-2 rounded-pill fw-bold text-uppercase" style="font-size: 11px;">Komplain & Pengembalian Produk</span>
+                        <h4 class="fw-bold text-dark mt-2 mb-0">Status Komplain: 
+                            <span class="text-uppercase" style="color: #e11d48 !important;">
+                                {{ str_replace('_', ' ', $returnRequest->status) }}
+                            </span>
+                        </h4>
+                    </div>
+                    <i class="bi bi-exclamation-octagon fs-2 text-danger opacity-75"></i>
+                </div>
+
+                {{-- Detail Masalah & Bukti dari Pembeli --}}
+                <div class="p-4 bg-light rounded-4 mb-4 border border-slate-100">
+                    <h6 class="fw-bold mb-3 text-secondary text-uppercase tracking-wider" style="font-size: 11px;">Rincian Komplain Pembeli</h6>
+                    <div class="row g-3">
+                        <div class="col-md-3 text-muted fw-semibold small">Alasan Masalah:</div>
+                        <div class="col-md-9 text-dark fw-bold small">"{{ $returnRequest->renter_notes }}"</div>
+
+                        <div class="col-md-3 text-muted fw-semibold small">Rekening Refund:</div>
+                        <div class="col-md-9 text-dark small">
+                            <span class="fw-bold text-dark">{{ $returnRequest->buyer_refund_bank_name }} - {{ $returnRequest->buyer_refund_bank_account }}</span><br>
+                            <span class="text-muted">Atas Nama:</span> <span class="fw-bold">{{ $returnRequest->buyer_refund_bank_name_owner }}</span>
+                        </div>
+
+                        @if($returnRequest->proof_returned_image)
+                            <div class="col-md-3 text-muted fw-semibold small">Bukti Masalah (Foto):</div>
+                            <div class="col-md-9">
+                                <a href="{{ asset($returnRequest->proof_returned_image) }}" target="_blank" class="d-block" style="max-width: 250px;">
+                                    <img src="{{ asset($returnRequest->proof_returned_image) }}" class="img-fluid rounded-3 border shadow-sm">
+                                </a>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+
+                {{-- DYNAMIC STAGES (SELLER ACTIONS) --}}
+                @if($returnRequest->status === 'pending')
+                    {{-- STAGE 1: ACTION REQUIRED - TINJAU KOMPLAIN --}}
+                    <div class="p-4 rounded-4 border-dashed border-2 text-dark bg-white">
+                        <h5 class="fw-bold mb-2 text-dark">Tinjau Komplain & Pilih Resolusi</h5>
+                        <p class="text-muted small mb-4">Silakan tentukan apakah komplain pembeli ini valid. Jika valid, pilih resolusi yang sesuai: <strong>Refund Dana</strong> atau <strong>Replacement (Kirim Produk Pengganti)</strong>.</p>
+                        
+                        <form action="{{ route('seller.returns.review-complaint', $returnRequest->id) }}" method="POST" id="reviewComplaintForm">
+                            @csrf
+                            <input type="hidden" name="action" id="complaintAction" value="approve">
+
+                            <div class="mb-4">
+                                <label class="fw-bold text-dark mb-2">Pilihan Tindakan</label>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <div class="p-3 border rounded-4 cursor-pointer action-card active" onclick="selectAction('approve')" id="actionApproveCard">
+                                            <div class="d-flex align-items-center gap-3">
+                                                <i class="bi bi-check-circle-fill text-success fs-3"></i>
+                                                <div>
+                                                    <span class="fw-bold d-block text-dark small">Setujui Komplain</span>
+                                                    <span class="text-muted" style="font-size: 10px;">Proses solusi retur</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="p-3 border rounded-4 cursor-pointer action-card" onclick="selectAction('reject')" id="actionRejectCard">
+                                            <div class="d-flex align-items-center gap-3">
+                                                <i class="bi bi-x-circle-fill text-danger fs-3"></i>
+                                                <div>
+                                                    <span class="fw-bold d-block text-dark small">Tolak Komplain</span>
+                                                    <span class="text-muted" style="font-size: 10px;">Komplain tidak valid</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- Resolusi Section (Only visible for Approve) --}}
+                            <div id="resolutionSection" class="mb-4">
+                                <label class="fw-bold text-dark mb-2">Pilihan Resolusi</label>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="p-3 border rounded-4 w-100 cursor-pointer d-block">
+                                            <div class="d-flex align-items-center gap-3">
+                                                <input type="radio" name="resolution_type" value="refund" checked class="form-check-input text-rose">
+                                                <div>
+                                                    <span class="fw-bold d-block text-dark small">Refund Dana</span>
+                                                    <span class="text-muted" style="font-size: 10px;">Kembalikan uang 100%</span>
+                                                </div>
+                                            </div>
+                                        </label>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="p-3 border rounded-4 w-100 cursor-pointer d-block">
+                                            <div class="d-flex align-items-center gap-3">
+                                                <input type="radio" name="resolution_type" value="replacement" class="form-check-input text-rose">
+                                                <div>
+                                                    <span class="fw-bold d-block text-dark small">Kirim Produk Pengganti</span>
+                                                    <span class="text-muted" style="font-size: 10px;">Kirim barang baru</span>
+                                                </div>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="fw-bold text-dark mb-2" id="notesLabel">Catatan Tambahan (Opsional)</label>
+                                <textarea name="owner_notes" rows="2" class="form-control rounded-3" placeholder="Masukkan catatan atau alasan jika komplain ditolak..."></textarea>
+                            </div>
+
+                            <button type="submit" class="btn btn-emerald w-100 py-3 rounded-4 fw-bold">
+                                Proses Keputusan Komplain
+                            </button>
+                        </form>
+                    </div>
+
+                @elseif($returnRequest->status === 'refund_pending')
+                    {{-- STAGE 2A: ACTION REQUIRED - PROSES TRANSFER REFUND --}}
+                    <div class="p-4 rounded-4 border-dashed border-2 text-dark bg-white">
+                        <h5 class="fw-bold mb-2 text-dark">Proses Transfer Refund Dana</h5>
+                        <p class="text-muted small mb-4">Anda menyetujui resolusi <strong>Refund Dana</strong>. Silakan lakukan transfer sebesar <strong>Rp {{ number_format($returnRequest->escrow_total) }}</strong> ke rekening pembeli di bawah ini, kemudian lakukan konfirmasi.</p>
+                        
+                        <div class="p-4 bg-emerald-soft rounded-4 border border-emerald border-opacity-20 mb-4">
+                            <div class="row g-2 text-xs">
+                                <div class="col-4 text-muted">Bank Tujuan:</div>
+                                <div class="col-8 fw-bold text-dark">{{ $returnRequest->buyer_refund_bank_name }}</div>
+                                <div class="col-4 text-muted">Nomor Rekening:</div>
+                                <div class="col-8 fw-bold text-dark">{{ $returnRequest->buyer_refund_bank_account }}</div>
+                                <div class="col-4 text-muted">Pemilik Rekening:</div>
+                                <div class="col-8 fw-bold text-dark">{{ $returnRequest->buyer_refund_bank_name_owner }}</div>
+                                <div class="col-4 text-muted">Total Transfer:</div>
+                                <div class="col-8 fw-extrabold text-danger fs-6">Rp {{ number_format($returnRequest->escrow_total) }}</div>
+                            </div>
+                        </div>
+
+                        <form action="{{ route('seller.returns.confirm-refund', $returnRequest->id) }}" method="POST">
+                            @csrf
+                            <button type="submit" class="btn btn-emerald w-100 py-3 rounded-4 fw-bold shadow-sm">
+                                <i class="bi bi-check-circle me-2"></i>Konfirmasi Telah Transfer Refund
+                            </button>
+                        </form>
+                    </div>
+
+                @elseif($returnRequest->status === 'approved')
+                    {{-- STAGE 2B: ACTION REQUIRED - KIRIM BARANG PENGGANTI --}}
+                    <div class="p-4 rounded-4 border-dashed border-2 text-dark bg-white">
+                        <h5 class="fw-bold mb-2 text-dark">Kirim Produk Pengganti & Input Resi</h5>
+                        <p class="text-muted small mb-4">Anda menyetujui resolusi <strong>Kirim Produk Pengganti</strong>. Silakan packing barang pengganti dan kirimkan ke alamat pembeli di bawah ini. Jika sudah, masukkan nomor resi ekspedisinya:</p>
+                        
+                        <div class="p-3 bg-light rounded-4 mb-4">
+                            <small class="text-muted text-uppercase tracking-wider d-block mb-1" style="font-size: 9px;">Alamat Kirim Pembeli</small>
+                            <p class="small text-dark m-0 fw-bold">
+                                {{ $order->shipping_address ?? 'Alamat tidak tersedia' }}<br>
+                                {{ $order->shipping_district ?? '' }}, {{ $order->shipping_city ?? '' }} {{ $order->shipping_postal_code ?? '' }}
+                            </p>
+                        </div>
+
+                        <form action="{{ route('seller.returns.send-replacement', $returnRequest->id) }}" method="POST">
+                            @csrf
+                            <div class="mb-4">
+                                <label class="fw-bold text-dark mb-2">Nomor Resi Barang Pengganti</label>
+                                <input type="text" name="resi_pengganti" class="form-control rounded-3 py-3" placeholder="Masukkan resi ekspedisi pengganti (Contoh: JNE / J&T - JG2931)" required>
+                            </div>
+                            <button type="submit" class="btn btn-emerald w-100 py-3 rounded-4 fw-bold">
+                                <i class="bi bi-truck me-2"></i>Kirimkan Nomor Resi Pengganti
+                            </button>
+                        </form>
+                    </div>
+
+                @elseif($returnRequest->status === 'replacement_shipping')
+                    {{-- STAGE 3: WAITING FOR BUYER --}}
+                    <div class="alert alert-warning border-0 p-4 rounded-4 d-flex gap-3 align-items-center m-0">
+                        <i class="bi bi-hourglass-split fs-2 text-warning"></i>
+                        <div>
+                            <h6 class="fw-bold m-0 text-dark">Menunggu Konfirmasi Penerimaan</h6>
+                            <p class="small text-muted m-0 mt-1">Produk pengganti telah dikirim dengan nomor resi <strong>{{ $returnRequest->resi_pengganti }}</strong>. Menunggu pembeli melakukan konfirmasi penerimaan barang.</p>
+                        </div>
+                    </div>
+
+                @elseif($returnRequest->status === 'completed')
+                    {{-- STAGE 4: COMPLETED --}}
+                    <div class="p-4 bg-emerald-soft border-emerald border border-opacity-20 rounded-4 text-dark m-0">
+                        <div class="d-flex align-items-center gap-3">
+                            <i class="bi bi-check-circle-fill text-success fs-2"></i>
+                            <div>
+                                <h6 class="fw-bold m-0 text-success">Proses Retur Selesai Sukses!</h6>
+                                <p class="small text-muted m-0 mt-1">
+                                    @if($returnRequest->resolution_type === 'refund')
+                                        Refund dana 100% sebesar <strong>Rp {{ number_format($returnRequest->escrow_total) }}</strong> telah sukses ditransfer ke rekening pembeli.
+                                    @else
+                                        Barang pengganti dengan resi <strong>{{ $returnRequest->resi_pengganti }}</strong> telah sukses diterima oleh pembeli.
+                                    @endif
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                @elseif($returnRequest->status === 'rejected')
+                    {{-- STAGE: REJECTED --}}
+                    <div class="p-4 bg-danger-subtle rounded-4 text-dark m-0">
+                        <div class="d-flex align-items-center gap-3">
+                            <i class="bi bi-x-circle-fill text-danger fs-2"></i>
+                            <div>
+                                <h6 class="fw-bold m-0 text-danger">Komplain Telah Anda Tolak</h6>
+                                <p class="small text-muted m-0 mt-1">Komplain pembeli dinilai tidak valid. Catatan penolakan: <strong>"{{ $returnRequest->owner_notes }}"</strong>.</p>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+            </div>
+        @endif
+
+        <script>
+            function selectAction(action) {
+                document.getElementById('complaintAction').value = action;
+                const approveCard = document.getElementById('actionApproveCard');
+                const rejectCard = document.getElementById('actionRejectCard');
+                const resolutionSection = document.getElementById('resolutionSection');
+                const notesLabel = document.getElementById('notesLabel');
+                
+                if (action === 'approve') {
+                    approveCard.classList.add('active');
+                    rejectCard.classList.remove('active');
+                    resolutionSection.style.display = 'block';
+                    notesLabel.innerText = 'Catatan Tambahan (Opsional)';
+                } else {
+                    approveCard.classList.remove('active');
+                    rejectCard.classList.add('active');
+                    resolutionSection.style.display = 'none';
+                    notesLabel.innerText = 'Alasan Penolakan Komplain (Wajib)';
+                }
+            }
+        </script>
+        <style>
+            .action-card {
+                transition: all 0.2s ease-in-out;
+                border: 2px solid #e2e8f0 !important;
+            }
+            .action-card:hover {
+                border-color: #cbd5e1 !important;
+                transform: translateY(-2px);
+            }
+            .action-card.active {
+                border-color: #10B981 !important;
+                background-color: #f0fdf4 !important;
+            }
+        </style>
+
         {{-- ITEM LIST --}}
         <div class="card card-modern border-0 p-5 mb-4 shadow-sm">
             <h5 class="fw-bold mb-4 text-dark">Item yang Dipesan</h5>

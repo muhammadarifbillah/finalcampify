@@ -53,8 +53,10 @@ class ProductUnsplashSeeder extends Seeder
                 'category' => $p['category'],
                 'description' => $p['description'],
                 'price' => $p['price'],
+                'buy_price' => $p['price'],
                 'rent_price' => $p['rent_price'],
                 'is_rental' => $p['is_rental'],
+                'jenis_produk' => 'sewa',
                 'stock' => $p['stock'],
                 // store filename only; API will return full URL to /assets/images/
                 'image' => $filename,

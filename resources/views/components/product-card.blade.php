@@ -10,9 +10,20 @@
         ? route('produk.detail.buy', $product->id) 
         : route('produk.detail.rent', $product->id) }}">
         
-      @if($product->image_url)
+      @php
+        $imgPath = $product->image ?? $product->gambar;
+        if ($imgPath && !str_starts_with($imgPath, 'assets/images/') && !str_starts_with($imgPath, 'storage/') && !str_starts_with($imgPath, 'http')) {
+            if (file_exists(public_path('assets/images/' . $imgPath))) {
+                $imgPath = 'assets/images/' . $imgPath;
+            } else {
+                $imgPath = 'storage/' . $imgPath;
+            }
+        }
+      @endphp
+
+      @if($imgPath && (file_exists(public_path($imgPath)) || str_contains($imgPath, 'http')))
           <img
-            src="{{ $product->image_url }}"
+            src="{{ asset($imgPath) }}"
             alt="{{ $product->name ?? $product->nama_produk }}"
             class="w-full h-full object-cover transition duration-500 group-hover:scale-110"
           >

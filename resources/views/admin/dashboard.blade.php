@@ -144,13 +144,6 @@
         {{-- Row 3: Alerts --}}
         <div class="grid gap-4 md:grid-cols-2">
             <div class="space-y-4">
-                <div class="bg-[#b91c1c] text-white p-6 rounded-xl flex items-center gap-6 shadow-md border-l-[12px] border-[#7f1d1d]">
-                    <div class="p-3 bg-white/20 rounded-xl"><i data-lucide="alert-triangle" class="w-8 h-8"></i></div>
-                    <div>
-                        <p class="text-lg font-black uppercase tracking-tight leading-none">[Urgensi] Ada {{ $disputeReturns }} SENGKETA AKTIF (Jual-Beli & Sewa)</p>
-                        <p class="text-xs font-bold opacity-80 mt-2">yang butuh penanganan Admin.</p>
-                    </div>
-                </div>
                 <div class="bg-[#d97706] text-white p-6 rounded-xl flex items-center gap-6 shadow-md border-l-[12px] border-[#92400e]">
                     <div class="p-3 bg-white/20 rounded-xl"><i data-lucide="circle-alert" class="w-8 h-8"></i></div>
                     <div>
@@ -169,7 +162,7 @@
                 </div>
                 <div class="bg-[#d97706] text-white p-6 rounded-xl flex items-center gap-4 col-span-2">
                     <i data-lucide="more-horizontal" class="w-6 h-6 opacity-80 border-2 border-white/50 rounded-full p-0.5"></i>
-                    <p class="text-[12px] font-black uppercase leading-tight">[Pengecekan] Ada {{ $pendingReturnsCount }} pengajuan retur (pending) baru.</p>
+                    <p class="text-[12px] font-black uppercase leading-tight">[Pengecekan] Ada {{ $pendingReturns }} pengajuan retur (pending) baru.</p>
                 </div>
             </div>
         </div>
@@ -212,7 +205,6 @@
             <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden flex flex-col">
                 <div class="flex items-center gap-8 px-8 py-5 border-b border-slate-50">
                     <a href="?filter=all" class="{{ $filter === 'all' || !$filter ? 'bg-[#064e3b] text-white px-6 py-2 rounded-lg' : 'text-slate-400 hover:text-slate-600' }} text-sm font-black uppercase tracking-tight transition-colors">Semua Masalah</a>
-                    <a href="?filter=dispute" class="{{ $filter === 'dispute' ? 'bg-[#064e3b] text-white px-6 py-2 rounded-lg' : 'text-slate-400 hover:text-slate-600' }} text-sm font-black uppercase tracking-tight transition-colors">Retur Sengketa (Urgent)</a>
                     <a href="?filter=overdue" class="{{ $filter === 'overdue' ? 'bg-[#064e3b] text-white px-6 py-2 rounded-lg' : 'text-slate-400 hover:text-slate-600' }} text-sm font-black uppercase tracking-tight transition-colors">Sewa Terlambat (Overdue)</a>
                     <a href="{{ route('admin.returns.sewa') }}" class="ml-auto text-sm font-black text-[#059669] hover:underline">Lihat Semua</a>
                 </div>
