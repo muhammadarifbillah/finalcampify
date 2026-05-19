@@ -131,7 +131,8 @@
                 <tbody class="divide-y divide-gray-100">
                     @forelse($returns as $item)
                         @php
-                            $product = $item->order->details->first()->product;
+                            $firstDetail = $item->order->details->first();
+                            $product = $firstDetail ? $firstDetail->product : null;
                             $productName = $product->name ?? 'Produk';
                             $productCategory = $product->category->name ?? 'Kategori';
                             $buyerName = $item->order->user->name ?? 'Penyewa';
@@ -145,7 +146,7 @@
                                 $actual   = $item->actual_date ? \Carbon\Carbon::parse($item->actual_date)->startOfDay() : now()->startOfDay();
                                 $liveLateFeeDays = max(0, (int) $expected->diffInDays($actual, false));
                             }
-                            $dailyRentTotal = $item->rental_fee_amount > 0 ? $item->rental_fee_amount : ($item->order->details->first()->harga ?? 0);
+                            $dailyRentTotal = $item->rental_fee_amount > 0 ? $item->rental_fee_amount : ($firstDetail->harga ?? 0);
                             $liveFinePerDay = (int) ($dailyRentTotal * 0.3);
                             $liveTotalLateFee = ($item->late_fee > 0) ? (int)$item->late_fee : ($liveLateFeeDays * $liveFinePerDay);
                             

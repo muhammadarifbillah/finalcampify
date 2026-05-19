@@ -8,9 +8,23 @@ class Return_seller extends Model
 {
     use HasFactory;
     protected $table = 'returns';
-    protected $fillable = ['rental_id', 'resi_return', 'proof_returned_image', 'proof_sent_image', 'bukti_denda', 'kondisi_barang', 'denda', 'tanggal_pengembalian'];
+    protected $fillable = [
+        'rental_id', 
+        'resi_return', 
+        'proof_returned_image', 
+        'proof_sent_image', 
+        'bukti_denda', 
+        'kondisi_barang', 
+        'denda', 
+        'tanggal_pengembalian',
+        'buyer_refund_bank_name',
+        'buyer_refund_bank_account',
+        'buyer_refund_bank_name_owner',
+        'refund_disbursed_at',
+    ];
     protected $casts = [
         'tanggal_pengembalian' => 'datetime',
+        'refund_disbursed_at' => 'datetime',
         'denda' => 'integer'
     ];
 

@@ -256,6 +256,19 @@ class ReturnEscrowController extends Controller
             ->with('success', 'Settlement berhasil disimpan dan transaksi diselesaikan.');
     }
 
+    public function disburseRefund(ReturnEscrow $returnEscrow)
+    {
+        if ($returnEscrow->status !== 'completed') {
+            return back()->with('error', 'Status pengembalian belum selesai (completed).');
+        }
+
+        $returnEscrow->update([
+            'refund_disbursed_at' => now(),
+        ]);
+
+        return back()->with('success', 'Dana jaminan pembeli & dana sewa seller berhasil ditandai sebagai telah dicairkan.');
+    }
+
     public function sendMediationMessage(Request $request, ReturnEscrow $returnEscrow)
     {
         $validated = $request->validate([

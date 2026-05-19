@@ -46,14 +46,42 @@ class Product_pembeli extends Model
             ?? $this->store?->user_id;
     }
 
+    /**
+     * Aliasing accessors for English/Indonesian consistency
+     */
+    public function getNameAttribute()
+    {
+        return $this->attributes['name'] ?? $this->attributes['nama_produk'] ?? null;
+    }
+
+    public function getPriceAttribute()
+    {
+        return $this->attributes['price'] ?? $this->attributes['harga'] ?? $this->attributes['buy_price'] ?? null;
+    }
+
+    public function getDescriptionAttribute()
+    {
+        return $this->attributes['description'] ?? $this->attributes['deskripsi'] ?? null;
+    }
+
+    public function getStockAttribute()
+    {
+        return $this->attributes['stock'] ?? $this->attributes['stok'] ?? null;
+    }
+
+    /**
+     * Get the image URL for the product
+     */
     public function getImageUrlAttribute()
     {
         $imageField = $this->attributes['image'] ?? $this->attributes['gambar'] ?? null;
+
 
         if (!$imageField) {
             return null;
         }
 
+        // If it's already a full URL, return as-is
         if (filter_var($imageField, FILTER_VALIDATE_URL)) {
             return $imageField;
         }
@@ -77,14 +105,22 @@ class Product_pembeli extends Model
             return asset('storage/' . $imageField);
         }
 
+        // Check if it exists in storage products folder
         if (\Illuminate\Support\Facades\Storage::disk('public')->exists('products/' . $filename)) {
             return asset('storage/products/' . $filename);
         }
 
+        // Check if it's in assets/images
         if (file_exists(public_path('assets/images/' . $filename))) {
             return asset('assets/images/' . $filename);
         }
 
+        // Fallback to serving through the /images/{path} route if it contains path segments
+        if (strpos($imageField, '/') !== false) {
+             return asset('images/' . ltrim($imageField, '/'));
+        }
+
+        // Final fallback to assets/images
         return asset('assets/images/' . $filename);
     }
 }

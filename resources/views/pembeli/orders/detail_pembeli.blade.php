@@ -44,6 +44,7 @@
                     <a href="{{ route('profile') }}" class="mt-3 inline-block text-xs font-bold text-amber-900 border-b-2 border-amber-900 hover:text-amber-700 transition-colors">Cek Status KTP Saya →</a>
                 </div>
             </div>
+        @endif
         <!-- RETURN STATUS ALERTS -->
         @if($pesanan->returnRequest)
             @php
@@ -220,7 +221,7 @@
                 
                 <div class="relative group">
                     <div id="tracking-map" class="shadow-inner border border-slate-200"></div>
-                    <div class="absolute bottom-4 left-4 right-4 z-[1000] flex gap-2">
+                    <div class="absolute bottom-4 left-4 right-4 z-30 flex gap-2">
                         <div class="bg-white/90 backdrop-blur px-3 py-2 rounded-xl shadow-sm border border-slate-200 flex items-center gap-3">
                             <div class="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center text-emerald-600">
                                 🚚

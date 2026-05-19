@@ -78,25 +78,18 @@ class PembeliOrderController extends Controller
             abort(403);
         }
 
-        $request->validate([
-            'metode_return' => 'required|in:antar,kurir',
-            'resi_return' => 'required_if:metode_return,kurir|nullable|string|max:255',
-            'foto_kondisi' => 'required|file|mimes:jpg,jpeg,png,webp,mp4,mov,avi|max:10240',
-            'alasan_return' => $detail->type === 'buy' ? 'required|string|max:500' : 'nullable',
-        ]);
-
-        $resi = $request->metode_return === 'antar' ? 'DIANTAR_LANGSUNG' : $request->resi_return;
-
-        $fotoKondisiPath = null;
-        if ($request->hasFile('foto_kondisi')) {
-            $file = $request->file('foto_kondisi');
-            $filename = 'return_' . time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('assets/images'), $filename);
-            $fotoKondisiPath = 'assets/images/' . $filename;
-        }
-
-        $rental = null;
         if ($detail->type === 'rent') {
+            $request->validate([
+                'metode_return' => 'required|in:antar,kurir',
+                'buyer_refund_bank_name' => 'required|string|max:255',
+                'buyer_refund_bank_account' => 'required|string|max:255',
+                'buyer_refund_bank_name_owner' => 'required|string|max:255',
+            ]);
+
+            $depositAmount = ($detail->product->buy_price ?? 0) * 0.25;
+            $rentalFeeAmount = $detail->harga;
+            $escrowTotal = $depositAmount + $rentalFeeAmount;
+
             $startDate = Carbon::parse($detail->start_date)->startOfDay();
             $endDate = (clone $startDate)->addDays((int) $detail->duration)->startOfDay();
 
@@ -114,17 +107,114 @@ class PembeliOrderController extends Controller
                     'status' => 'active',
                 ]
             );
+
+            $return = Return_pembeli::firstOrNew([
+                'order_id' => $pesanan->id,
+                'type' => 'sewa',
+            ]);
+
+            if ($return->exists) {
+                return back()->with('error', 'Pengembalian untuk pesanan ini sudah pernah diajukan.');
+            }
+
+            if ($request->metode_return === 'antar') {
+                $adminFee = $rentalFeeAmount * 0.1; // 10% admin fee
+                $return->fill([
+                    'rental_id' => $rental->id,
+                    'resi_return' => 'DIANTAR_LANGSUNG',
+                    'proof_returned_image' => null,
+                    'tanggal_pengembalian' => now(),
+                    'actual_date' => now(),
+                    'denda' => 0,
+                    'kondisi_barang' => 'baik',
+                    'status' => 'completed',
+                    'escrow_total' => (string) $escrowTotal,
+                    'deposit_amount' => (string) $depositAmount,
+                    'rental_fee_amount' => (string) $rentalFeeAmount,
+                    'expected_date' => $endDate,
+                    'late_fee' => '0',
+                    'damage_fee' => '0',
+                    'to_seller' => (string) ($rentalFeeAmount - $adminFee),
+                    'to_buyer' => (string) $depositAmount,
+                    'total_fines' => '0',
+                    'deficit' => '0',
+                    'buyer_refund_bank_name' => $request->buyer_refund_bank_name,
+                    'buyer_refund_bank_account' => $request->buyer_refund_bank_account,
+                    'buyer_refund_bank_name_owner' => $request->buyer_refund_bank_name_owner,
+                    'renter_notes' => 'Pengembalian Antar Langsung ke Toko.',
+                ]);
+                $return->save();
+
+                $rental->status = 'completed';
+                $rental->save();
+
+                $pesanan->status = 'selesai';
+                $pesanan->save();
+
+                return redirect()
+                    ->route('orders.detail', $pesanan->id)
+                    ->with('success', 'Pengembalian sewa (Antar Langsung) berhasil diajukan dan diselesaikan.');
+            } else {
+                $return->fill([
+                    'rental_id' => $rental->id,
+                    'resi_return' => null,
+                    'proof_returned_image' => null,
+                    'tanggal_pengembalian' => null,
+                    'actual_date' => null,
+                    'denda' => 0,
+                    'kondisi_barang' => 'belum_dicek',
+                    'status' => 'pending',
+                    'escrow_total' => (string) $escrowTotal,
+                    'deposit_amount' => (string) $depositAmount,
+                    'rental_fee_amount' => (string) $rentalFeeAmount,
+                    'expected_date' => $endDate,
+                    'late_fee' => '0',
+                    'damage_fee' => '0',
+                    'to_seller' => '0',
+                    'to_buyer' => '0',
+                    'total_fines' => '0',
+                    'deficit' => '0',
+                    'buyer_refund_bank_name' => $request->buyer_refund_bank_name,
+                    'buyer_refund_bank_account' => $request->buyer_refund_bank_account,
+                    'buyer_refund_bank_name_owner' => $request->buyer_refund_bank_name_owner,
+                    'renter_notes' => null,
+                ]);
+                $return->save();
+
+                $rental->status = 'returning';
+                $rental->save();
+
+                return redirect()
+                    ->route('orders.detail', $pesanan->id)
+                    ->with('success', 'Permintaan pengembalian sewa berhasil diajukan. Menunggu persetujuan Seller.');
+            }
         }
 
-        $returnType = $detail->type === 'rent' ? 'sewa' : 'jual_beli';
-        
+        // --- Alur Retur Jual Beli / Buy Return (Tetap/Legacy) ---
+        $request->validate([
+            'metode_return' => 'required|in:antar,kurir',
+            'resi_return' => 'required_if:metode_return,kurir|nullable|string|max:255',
+            'foto_kondisi' => 'required|file|mimes:jpg,jpeg,png,webp,mp4,mov,avi|max:10240',
+            'alasan_return' => 'required|string|max:500',
+        ]);
+
+        $resi = $request->metode_return === 'antar' ? 'DIANTAR_LANGSUNG' : $request->resi_return;
+
+        $fotoKondisiPath = null;
+        if ($request->hasFile('foto_kondisi')) {
+            $file = $request->file('foto_kondisi');
+            $filename = 'return_' . time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('assets/images'), $filename);
+            $fotoKondisiPath = 'assets/images/' . $filename;
+        }
+
         $return = Return_pembeli::firstOrNew([
             'order_id' => $pesanan->id,
-            'type' => $returnType,
+            'type' => 'jual_beli',
         ]);
 
         if ($return->exists) {
-            return back()->with('error', 'Pengembalian untuk pesanan ini sudah pernah disubmit.');
+            return back()->with('error', 'Pengembalian untuk pesanan ini sudah pernah diajukan.');
         }
 
         $return->fill([
@@ -144,26 +234,48 @@ class PembeliOrderController extends Controller
             'to_buyer' => '0',
             'renter_notes' => $request->alasan_return,
         ]);
-
-        // Use settlement service if exists
-        $return->setRelation('order', $pesanan->loadMissing('details.product'));
-
-        if (class_exists(ReturnSettlementService::class)) {
-            $settlement = app(ReturnSettlementService::class);
-            $settlement->applyAutoCalculations($return);
-        }
-        
         $return->save();
 
-        if ($rental) {
-            $rental->status = 'returned';
-            $rental->save();
-        }
+        $pesanan->status = 'retur';
+        $pesanan->save();
 
-        $message = $detail->type === 'buy' ? 'Permintaan retur berhasil dikirim. Menunggu mediasi Admin.' : 'Resi pengembalian berhasil dikirim. Menunggu pengecekan toko.';
         return redirect()
             ->route('orders.detail', $pesanan->id)
-            ->with('success', $message);
+            ->with('success', 'Permintaan retur berhasil dikirim. Menunggu mediasi Admin.');
+    }
+
+    public function submitShipping(Request $request, $return_id)
+    {
+        $return = Return_pembeli::findOrFail($return_id);
+        $pesanan = Order_pembeli::findOrFail($return->order_id);
+
+        if ($pesanan->user_id !== \Illuminate\Support\Facades\Auth::id()) {
+            abort(403);
+        }
+
+        $request->validate([
+            'resi_return' => 'required|string|max:255',
+            'foto_kondisi' => 'required|file|mimes:jpg,jpeg,png,webp,mp4,mov,avi|max:10240',
+            'renter_notes' => 'nullable|string|max:500',
+        ]);
+
+        $fotoKondisiPath = null;
+        if ($request->hasFile('foto_kondisi')) {
+            $file = $request->file('foto_kondisi');
+            $filename = 'return_' . time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('assets/images'), $filename);
+            $fotoKondisiPath = 'assets/images/' . $filename;
+        }
+
+        $return->update([
+            'resi_return' => $request->resi_return,
+            'proof_returned_image' => $fotoKondisiPath,
+            'renter_notes' => $request->renter_notes,
+            'status' => 'shipping',
+            'tanggal_pengembalian' => now(),
+        ]);
+
+        return back()->with('success', 'Detail pengiriman balik berhasil disubmit. Menunggu Seller menerima barang.');
     }
 
     public function uploadBuktiDenda(Request $request, $return_id)
@@ -184,10 +296,13 @@ class PembeliOrderController extends Controller
             $file = $request->file('bukti_denda');
             $filename = 'denda_' . time() . '_' . $file->getClientOriginalName();
             $file->move(public_path('assets/images'), $filename);
-            
-            $return->update(['bukti_denda' => 'assets/images/' . $filename]);
-            
-            $rental->update(['status' => 'denda_dibayar']);
+
+            $return->update([
+                'bukti_denda' => 'assets/images/' . $filename,
+                'status' => 'denda_submitted'
+            ]);
+
+            $rental->update(['status' => 'denda_submitted']);
         }
 
         return back()->with('success', 'Bukti pembayaran denda berhasil diunggah. Menunggu verifikasi toko.');
