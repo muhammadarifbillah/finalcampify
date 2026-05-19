@@ -18,21 +18,50 @@
             <p class="admin-section-subtitle">Daftar user, filter role, search, pagination, dan detail akun.</p>
         </div>
 
-        <div class="grid gap-5 md:grid-cols-3">
-            <div class="admin-card admin-stat-card">
-                <p class="admin-stat-label">Buyer</p>
-                <h2 class="admin-stat-value">{{ number_format($roleCounts['buyer'] ?? 0) }}</h2>
-                <p class="admin-stat-meta">Pengguna marketplace</p>
+        <div class="grid gap-6 md:grid-cols-3">
+            {{-- Card 1: Buyer --}}
+            <div class="bg-white border border-slate-200 hover:border-[#059669] hover:shadow-[0_12px_30px_-10px_rgba(5,150,105,0.2)] rounded-2xl p-6 shadow-sm transition-all duration-300 relative overflow-hidden flex flex-col justify-between group min-h-[140px]">
+                <div class="absolute top-0 left-0 w-full h-[4px] bg-[#059669]"></div>
+                <div class="flex justify-between items-start mb-2">
+                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Buyer</span>
+                    <div class="w-8 h-8 rounded-lg bg-[#ecfdf5] text-[#059669] flex items-center justify-center transition-colors group-hover:bg-[#059669] group-hover:text-white">
+                        <i data-lucide="users" class="w-4 h-4"></i>
+                    </div>
+                </div>
+                <div>
+                    <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">{{ number_format($roleCounts['buyer'] ?? 0) }}</h2>
+                    <p class="text-[11px] text-slate-400 font-bold mt-1">Pengguna marketplace</p>
+                </div>
             </div>
-            <div class="admin-card admin-stat-card">
-                <p class="admin-stat-label">Seller</p>
-                <h2 class="admin-stat-value">{{ number_format($roleCounts['seller'] ?? 0) }}</h2>
-                <p class="admin-stat-meta">Pemilik toko</p>
+
+            {{-- Card 2: Seller --}}
+            <div class="bg-white border border-slate-200 hover:border-[#064e3b] hover:shadow-[0_12px_30px_-10px_rgba(6,78,59,0.2)] rounded-2xl p-6 shadow-sm transition-all duration-300 relative overflow-hidden flex flex-col justify-between group min-h-[140px]">
+                <div class="absolute top-0 left-0 w-full h-[4px] bg-[#064e3b]"></div>
+                <div class="flex justify-between items-start mb-2">
+                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Seller</span>
+                    <div class="w-8 h-8 rounded-lg bg-[#e6f4ea] text-[#047857] flex items-center justify-center transition-colors group-hover:bg-[#064e3b] group-hover:text-white">
+                        <i data-lucide="store" class="w-4 h-4"></i>
+                    </div>
+                </div>
+                <div>
+                    <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">{{ number_format($roleCounts['seller'] ?? 0) }}</h2>
+                    <p class="text-[11px] text-slate-400 font-bold mt-1">Pemilik toko</p>
+                </div>
             </div>
-            <div class="admin-card admin-stat-card">
-                <p class="admin-stat-label">Admin</p>
-                <h2 class="admin-stat-value">{{ number_format($roleCounts['admin'] ?? 0) }}</h2>
-                <p class="admin-stat-meta">Pengelola sistem</p>
+
+            {{-- Card 3: Admin --}}
+            <div class="bg-white border border-slate-200 hover:border-[#10b981] hover:shadow-[0_12px_30px_-10px_rgba(16,185,129,0.2)] rounded-2xl p-6 shadow-sm transition-all duration-300 relative overflow-hidden flex flex-col justify-between group min-h-[140px]">
+                <div class="absolute top-0 left-0 w-full h-[4px] bg-[#10b981]"></div>
+                <div class="flex justify-between items-start mb-2">
+                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Admin</span>
+                    <div class="w-8 h-8 rounded-lg bg-[#f0fdf4] text-[#10b981] flex items-center justify-center transition-colors group-hover:bg-[#10b981] group-hover:text-white">
+                        <i data-lucide="user-cog" class="w-4 h-4"></i>
+                    </div>
+                </div>
+                <div>
+                    <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">{{ number_format($roleCounts['admin'] ?? 0) }}</h2>
+                    <p class="text-[11px] text-slate-400 font-bold mt-1">Pengelola sistem</p>
+                </div>
             </div>
         </div>
 

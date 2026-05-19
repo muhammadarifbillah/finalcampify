@@ -44,17 +44,17 @@
             </div>
         </div>
 
-        <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+        <div class="grid gap-6 md:grid-cols-2 2xl:grid-cols-3">
             @forelse($products as $product)
-                @php
-                    $imageUrl = $product->image_url ?: null;
-                @endphp
-                <div class="admin-card overflow-hidden">
-                    <div class="h-48 bg-slate-100">
+                 @php
+                     $imageUrl = $product->image_url ?: null;
+                 @endphp
+                 <div class="admin-card overflow-hidden">
+                    <div class="w-full bg-slate-50 overflow-hidden border-b border-slate-100">
                         @if($imageUrl)
-                            <img src="{{ $imageUrl }}" alt="{{ $product->name }}" class="h-full w-full object-cover">
+                            <img src="{{ $imageUrl }}" alt="{{ $product->name }}" class="w-full h-auto block">
                         @else
-                            <div class="admin-empty h-full">No Image</div>
+                            <div class="h-48 flex items-center justify-center bg-slate-100 text-slate-400">No Image</div>
                         @endif
                     </div>
                     <div class="space-y-4 p-5">

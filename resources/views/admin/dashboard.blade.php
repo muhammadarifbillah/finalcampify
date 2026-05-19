@@ -19,182 +19,266 @@
         {{-- Row 1: Primary Stats --}}
         <div class="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
             {{-- Card 1: Pengguna --}}
-            <div class="bg-white border border-slate-200 rounded-xl p-8 shadow-sm flex flex-col justify-between h-full min-h-[200px]">
+            <div class="premium-glass-card premium-glass-card-emerald p-6 flex flex-col justify-between min-h-[220px] group">
+                <div class="absolute top-0 left-0 w-full h-[4px] bg-[#059669]"></div>
                 <div>
-                    <div class="flex items-center gap-3 mb-4">
-                        <p class="text-[11px] font-black uppercase tracking-widest text-slate-400">TOTAL PENGGUNA</p>
-                        <div class="p-1.5 bg-[#ecfdf5] rounded text-[#059669]">
+                    <div class="flex items-center justify-between mb-4">
+                        <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">TOTAL PENGGUNA</p>
+                        <div class="w-8 h-8 rounded-lg bg-[#ecfdf5] text-[#059669] flex items-center justify-center transition-colors group-hover:bg-[#059669] group-hover:text-white">
                             <i data-lucide="users" class="w-4 h-4"></i>
                         </div>
                     </div>
-                    <h2 class="text-[48px] font-black text-slate-800 leading-none tracking-tighter">{{ $users }}</h2>
+                    <div class="flex items-baseline gap-2">
+                        <h2 class="text-4xl font-extrabold text-slate-800 tracking-tight">{{ $users }}</h2>
+                        <span class="text-xs font-semibold text-slate-400">Akun Terdaftar</span>
+                    </div>
                 </div>
-                <div class="mt-6 space-y-1 border-t border-slate-100 pt-4">
+                <div class="mt-5 space-y-2 border-t border-slate-100 pt-4">
                     <div class="flex justify-between text-[11px] font-bold text-slate-500 uppercase tracking-tight">
-                        <span>Pembeli (Buyer):</span>
-                        <span class="text-slate-800 font-black">{{ $buyers }} Akun</span>
+                        <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-[#059669]"></span>Pembeli (Buyer):</span>
+                        <span class="text-slate-800 font-extrabold">{{ $buyers }} Akun</span>
                     </div>
                     <div class="flex justify-between text-[11px] font-bold text-slate-500 uppercase tracking-tight">
-                        <span>Penjual (Seller):</span>
-                        <span class="text-[#059669] font-black">{{ $sellers }} Akun</span>
+                        <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-[#10b981]"></span>Penjual (Seller):</span>
+                        <span class="text-[#059669] font-extrabold">{{ $sellers }} Akun</span>
                     </div>
                 </div>
             </div>
 
             {{-- Card 2: Produk --}}
-            <div class="bg-white border border-slate-200 rounded-xl p-8 shadow-sm flex flex-col justify-between h-full min-h-[200px]">
+            <div class="premium-glass-card premium-glass-card-forest p-6 flex flex-col justify-between min-h-[220px] group">
+                <div class="absolute top-0 left-0 w-full h-[4px] bg-[#064e3b]"></div>
                 <div>
-                    <div class="flex items-center gap-3 mb-4">
-                        <p class="text-[11px] font-black uppercase tracking-widest text-slate-400">TOTAL PRODUK</p>
-                        <div class="p-1.5 bg-[#fef2f2] rounded text-[#dc2626]">
-                            <i data-lucide="calendar" class="w-4 h-4"></i>
+                    <div class="flex items-center justify-between mb-4">
+                        <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">TOTAL PRODUK</p>
+                        <div class="w-8 h-8 rounded-lg bg-[#e6f4ea] text-[#047857] flex items-center justify-center transition-colors group-hover:bg-[#064e3b] group-hover:text-white">
+                            <i data-lucide="package" class="w-4 h-4"></i>
                         </div>
                     </div>
-                    <h2 class="text-[48px] font-black text-slate-800 leading-none tracking-tighter">{{ $products }}</h2>
+                    <div class="flex items-baseline gap-2">
+                        <h2 class="text-4xl font-extrabold text-slate-800 tracking-tight">{{ $products }}</h2>
+                        <span class="text-xs font-semibold text-slate-400">Unit Katalog</span>
+                    </div>
                 </div>
-                <p class="text-xs font-black text-[#059669] mt-3">+{{ $newProductsThisWeek }} Baru Minggu Ini</p>
+                <div class="mt-5 border-t border-slate-100 pt-4 flex items-center gap-2">
+                    <span class="flex h-2 w-2 relative">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-[#059669]"></span>
+                    </span>
+                    <p class="text-xs font-extrabold text-[#059669]">+{{ $newProductsThisWeek }} Baru Minggu Ini</p>
+                </div>
             </div>
 
             {{-- Card 3: Transaksi --}}
-            <div class="bg-white border border-slate-200 rounded-xl p-8 shadow-sm flex flex-col justify-between h-full min-h-[200px]">
+            <div class="premium-glass-card premium-glass-card-teal p-6 flex flex-col justify-between min-h-[220px] group">
+                <div class="absolute top-0 left-0 w-full h-[4px] bg-[#0f766e]"></div>
                 <div>
-                    <div class="flex items-center gap-3 mb-4">
-                        <p class="text-[11px] font-black uppercase tracking-widest text-slate-400">TOTAL TRANSAKSI</p>
-                        <div class="p-1.5 bg-[#eff6ff] rounded text-[#2563eb]">
+                    <div class="flex items-center justify-between mb-4">
+                        <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">TOTAL TRANSAKSI</p>
+                        <div class="w-8 h-8 rounded-lg bg-[#f0fdfa] text-[#0f766e] flex items-center justify-center transition-colors group-hover:bg-[#0f766e] group-hover:text-white">
                             <i data-lucide="banknote" class="w-4 h-4"></i>
                         </div>
                     </div>
-                    <h2 class="text-[48px] font-black text-slate-800 leading-none tracking-tighter">{{ $transactions }}</h2>
-                </div>
-                <div class="mt-6 space-y-1 border-t border-slate-100 pt-4">
-                    <div class="flex justify-between text-[11px] font-bold text-slate-500 uppercase tracking-tight">
-                        <span>Penyewaan:</span>
-                        <span class="text-[#059669] font-black">{{ $rentalCount }} Transaksi</span>
-                    </div>
-                    <div class="flex justify-between text-[11px] font-bold text-slate-500 uppercase tracking-tight">
-                        <span>Pembelian:</span>
-                        <span class="text-[#2563eb] font-black">{{ $buyCount }} Transaksi</span>
+                    <div class="flex items-baseline gap-2">
+                        <h2 class="text-4xl font-extrabold text-slate-800 tracking-tight">{{ $transactions }}</h2>
+                        <span class="text-xs font-semibold text-slate-400">Penyewaan & Pembelian</span>
                     </div>
                 </div>
-                <p class="text-xs font-black text-[#059669] uppercase mt-3 tracking-tight">TOTAL SUKSES: RP {{ number_format($revenue, 0, ',', '.') }}</p>
+                <div class="mt-5 space-y-2 border-t border-slate-100 pt-4">
+                    <div class="flex justify-between text-[11px] font-bold text-slate-500 uppercase tracking-tight">
+                        <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-[#059669]"></span>Penyewaan:</span>
+                        <span class="text-[#059669] font-extrabold">{{ $rentalCount }} Transaksi</span>
+                    </div>
+                    <div class="flex justify-between text-[11px] font-bold text-slate-500 uppercase tracking-tight">
+                        <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-[#0f766e]"></span>Pembelian:</span>
+                        <span class="text-[#0f766e] font-extrabold">{{ $buyCount }} Transaksi</span>
+                    </div>
+                </div>
             </div>
 
             {{-- Card 4: Escrow --}}
-            <div class="bg-white border border-slate-200 rounded-xl p-8 shadow-sm flex flex-col justify-between h-full min-h-[200px]">
+            <div class="premium-glass-card premium-glass-card-mint p-6 flex flex-col justify-between min-h-[220px] group">
+                <div class="absolute top-0 left-0 w-full h-[4px] bg-[#10b981]"></div>
                 <div>
-                    <div class="flex items-center gap-3 mb-4">
-                        <p class="text-[11px] font-black uppercase tracking-widest text-slate-400">TOTAL ESCROW TERTAHAN</p>
-                        <div class="bg-[#b91c1c] text-[10px] font-black text-white px-2 py-0.5 rounded shadow-sm">NEW</div>
+                    <div class="flex items-center justify-between mb-4">
+                        <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">TOTAL ESCROW TERTAHAN</p>
+                        <div class="flex items-center gap-2">
+                            <span class="bg-[#059669] text-[8px] font-black text-white px-2 py-0.5 rounded shadow-sm tracking-wider">NEW</span>
+                            <div class="w-8 h-8 rounded-lg bg-[#f0fdf4] text-[#10b981] flex items-center justify-center transition-colors group-hover:bg-[#10b981] group-hover:text-white">
+                                <i data-lucide="wallet-cards" class="w-4 h-4"></i>
+                            </div>
+                        </div>
                     </div>
-                    <h2 class="text-[48px] font-black text-[#b91c1c] leading-none tracking-tighter">Rp {{ number_format($totalEscrow, 0, ',', '.') }}</h2>
-                    <p class="text-xs text-slate-400 font-bold mt-3">(Gabungan Sewa & Retur)</p>
+                    <div>
+                        <h2 class="text-3xl font-extrabold text-[#064e3b] tracking-tight">Rp {{ number_format($totalEscrow, 0, ',', '.') }}</h2>
+                        <span class="text-[10px] text-slate-400 font-bold block mt-1">(Gabungan Sewa & Retur)</span>
+                    </div>
                 </div>
-                <div class="mt-6 space-y-2 border-t border-slate-100 pt-4">
+                <div class="mt-5 space-y-2 border-t border-slate-100 pt-4">
                     <div class="flex justify-between text-[11px] font-bold text-slate-500 uppercase tracking-tight">
-                        <span>Jaminan Sewa (Escrow):</span>
-                        <span class="text-slate-800 font-black">Rp {{ number_format($jaminanSewaEscrow, 0, ',', '.') }}</span>
+                        <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>Jaminan Sewa:</span>
+                        <span class="text-slate-800 font-extrabold">Rp {{ number_format($jaminanSewaEscrow, 0, ',', '.') }}</span>
                     </div>
                     <div class="flex justify-between text-[11px] font-bold text-slate-500 uppercase tracking-tight">
-                        <span>Dana Retur (Escrow):</span>
-                        <span class="text-slate-800 font-black">Rp {{ number_format($danaReturEscrow, 0, ',', '.') }}</span>
+                        <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-[#10b981]"></span>Dana Retur:</span>
+                        <span class="text-slate-800 font-extrabold">Rp {{ number_format($danaReturEscrow, 0, ',', '.') }}</span>
                     </div>
                 </div>
             </div>
         </div>
 
         {{-- Row 2: Secondary Metrics --}}
-        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-            <div class="bg-white border border-slate-100 rounded-xl p-5 flex items-center gap-4 shadow-sm">
-                <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-100 text-slate-500"><i data-lucide="wallet" class="w-5 h-5"></i></div>
+        <div class="flex gap-4 overflow-x-auto pb-3 flex-nowrap custom-scrollbar">
+            <!-- Card 2.1: Jaminan Sewa -->
+            <div class="premium-glass-card premium-glass-card-emerald p-5 flex items-center gap-4 min-w-[260px] flex-shrink-0 flex-1 group">
+                <div class="p-3 bg-[#f0fdf4] text-[#059669] rounded-xl group-hover:bg-[#059669] group-hover:text-white transition-colors duration-300 flex-shrink-0">
+                    <i data-lucide="wallet" class="w-5 h-5"></i>
+                </div>
                 <div>
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Jaminan Sewa (Escrow)</p>
-                    <p class="text-lg font-black text-slate-800 leading-none">Rp {{ number_format($jaminanSewaEscrow, 0, ',', '.') }}</p>
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1.5">Jaminan Sewa (Escrow)</p>
+                    <p class="text-base font-extrabold text-slate-800 leading-none">Rp {{ number_format($jaminanSewaEscrow, 0, ',', '.') }}</p>
                 </div>
             </div>
-            <div class="bg-white border border-slate-100 rounded-xl p-5 flex items-center gap-4 shadow-sm">
-                <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-100 text-slate-500"><i data-lucide="hand-coins" class="w-5 h-5"></i></div>
+
+            <!-- Card 2.2: Dana Retur -->
+            <div class="premium-glass-card premium-glass-card-emerald p-5 flex items-center gap-4 min-w-[260px] flex-shrink-0 flex-1 group">
+                <div class="p-3 bg-[#f0fdf4] text-[#059669] rounded-xl group-hover:bg-[#059669] group-hover:text-white transition-colors duration-300 flex-shrink-0">
+                    <i data-lucide="hand-coins" class="w-5 h-5"></i>
+                </div>
                 <div>
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Dana Retur (Escrow)</p>
-                    <p class="text-lg font-black text-slate-800 leading-none">Rp {{ number_format($danaReturEscrow, 0, ',', '.') }}</p>
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1.5">Dana Retur (Escrow)</p>
+                    <p class="text-base font-extrabold text-slate-800 leading-none">Rp {{ number_format($danaReturEscrow, 0, ',', '.') }}</p>
                 </div>
             </div>
-            <div class="bg-white border border-slate-100 rounded-xl p-5 flex items-center gap-4 shadow-sm">
-                <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-100 text-slate-500"><i data-lucide="timer" class="w-5 h-5"></i></div>
+
+            <!-- Card 2.3: Rata-rata Durasi -->
+            <div class="premium-glass-card premium-glass-card-emerald p-5 flex items-center gap-4 min-w-[260px] flex-shrink-0 flex-1 group">
+                <div class="p-3 bg-[#f0fdf4] text-[#059669] rounded-xl group-hover:bg-[#059669] group-hover:text-white transition-colors duration-300 flex-shrink-0">
+                    <i data-lucide="timer" class="w-5 h-5"></i>
+                </div>
                 <div>
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Avg. Durasi Resolusi</p>
-                    <p class="text-lg font-black text-slate-800 leading-none">{{ $avgResolutionTime }}d</p>
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1.5">Rata-rata Durasi Penyelesaian</p>
+                    <p class="text-base font-extrabold text-slate-800 leading-none">{{ $avgResolutionTime }} Hari</p>
                 </div>
             </div>
-            <div class="bg-white border border-slate-100 rounded-xl p-5 flex items-center gap-4 shadow-sm">
-                <div class="p-2.5 bg-emerald-50 rounded-lg border border-emerald-100 text-emerald-600"><i data-lucide="hand-coins" class="w-5 h-5"></i></div>
+
+            <!-- Card 2.4: Pendapatan Admin -->
+            <div class="premium-glass-card premium-glass-card-emerald p-5 flex items-center gap-4 min-w-[260px] flex-shrink-0 flex-1 group">
+                <div class="p-3 bg-[#f0fdf4] text-[#059669] rounded-xl group-hover:bg-[#059669] group-hover:text-white transition-colors duration-300 flex-shrink-0">
+                    <i data-lucide="trending-up" class="w-5 h-5"></i>
+                </div>
                 <div>
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Pendapatan Admin (Fee)</p>
-                    <p class="text-lg font-black text-slate-800 leading-none">Rp {{ number_format($adminRentalRevenue, 0, ',', '.') }}</p>
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1.5">Pendapatan Admin (Fee)</p>
+                    <p class="text-base font-extrabold text-slate-800 leading-none">Rp {{ number_format($adminRentalRevenue, 0, ',', '.') }}</p>
                 </div>
             </div>
-            <div class="bg-white border border-slate-100 rounded-xl p-5 flex items-center gap-4 shadow-sm">
-                <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-100 text-slate-500"><i data-lucide="trending-up" class="w-5 h-5"></i></div>
+
+            <!-- Card 2.5: Denda Keterlambatan -->
+            <div class="premium-glass-card premium-glass-card-emerald p-5 flex items-center gap-4 min-w-[260px] flex-shrink-0 flex-1 group">
+                <div class="p-3 bg-[#f0fdf4] text-[#059669] rounded-xl group-hover:bg-[#059669] group-hover:text-white transition-colors duration-300 flex-shrink-0">
+                    <i data-lucide="shield-alert" class="w-5 h-5"></i>
+                </div>
                 <div>
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Denda Keterlambatan</p>
-                    <p class="text-lg font-black text-slate-800 leading-none">Rp {{ number_format($totalLateFees, 0, ',', '.') }}</p>
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1.5">Denda Keterlambatan</p>
+                    <p class="text-base font-extrabold text-slate-800 leading-none">Rp {{ number_format($totalLateFees, 0, ',', '.') }}</p>
                 </div>
             </div>
         </div>
 
         {{-- Row 3: Alerts --}}
-        <div class="grid gap-4 md:grid-cols-2">
-            <div class="space-y-4">
-                <div class="bg-[#d97706] text-white p-6 rounded-xl flex items-center gap-6 shadow-md border-l-[12px] border-[#92400e]">
-                    <div class="p-3 bg-white/20 rounded-xl"><i data-lucide="circle-alert" class="w-8 h-8"></i></div>
-                    <div>
-                        <p class="text-lg font-black uppercase tracking-tight leading-none">[Peringatan] Ada {{ $overdueReturns }} UNIT SEWA MELEBIHI BATAS (OVERDUE).</p>
+        <div class="grid gap-4 grid-cols-1 md:grid-cols-2">
+            <!-- Card 1: Overdue Warning -->
+            <div class="bg-gradient-to-br from-[#064e3b] to-[#043024] text-white p-5 rounded-2xl flex items-center gap-5 shadow-sm border border-[#064e3b]/20 transition hover:shadow-md relative overflow-hidden group">
+                <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-white/5 rounded-full blur-xl group-hover:scale-125 transition-transform duration-500"></div>
+                <div class="p-3 bg-white/10 rounded-xl backdrop-blur-sm flex-shrink-0"><i data-lucide="triangle-alert" class="w-6 h-6 text-red-300 animate-pulse"></i></div>
+                <div>
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="text-[9px] font-black tracking-widest text-red-200 uppercase bg-[#991b1b]/80 px-2 py-0.5 rounded-full border border-red-800/30">OVERDUE WARNING</span>
                     </div>
+                    <p class="text-sm font-extrabold uppercase leading-tight">Ada {{ $overdueReturns }} UNIT SEWA MELEBIHI BATAS (OVERDUE)</p>
                 </div>
             </div>
-            <div class="grid grid-cols-2 gap-4">
-                <div class="bg-[#064e3b] text-white p-6 rounded-xl flex items-center gap-4">
-                    <i data-lucide="calendar-check" class="w-6 h-6 opacity-60"></i>
-                    <p class="text-[12px] font-black uppercase leading-tight">[Peringatan] Ada {{ $todayDueRentals }} unit sewa jatuh tempo hari ini.</p>
+
+            <!-- Card 2: Today's Due Warning -->
+            <div class="bg-gradient-to-br from-[#0f766e] to-[#115e59] text-white p-5 rounded-2xl flex items-center gap-5 shadow-sm border border-[#0f766e]/20 transition hover:shadow-md relative overflow-hidden group">
+                <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-white/5 rounded-full blur-xl group-hover:scale-125 transition-transform duration-500"></div>
+                <div class="p-3 bg-white/10 rounded-xl backdrop-blur-sm flex-shrink-0"><i data-lucide="calendar-clock" class="w-6 h-6 text-teal-100"></i></div>
+                <div>
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="text-[9px] font-black tracking-widest text-teal-200 uppercase bg-[#134e4a]/80 px-2 py-0.5 rounded-full border border-teal-800/30">JADWAL HARI INI</span>
+                    </div>
+                    <p class="text-sm font-extrabold uppercase leading-tight">Ada {{ $todayDueRentals }} unit sewa jatuh tempo hari ini</p>
                 </div>
-                <div class="bg-[#059669] text-white p-6 rounded-xl flex items-center gap-4">
-                    <i data-lucide="info" class="w-6 h-6 opacity-60"></i>
-                    <p class="text-[12px] font-black uppercase leading-tight">[Laporan] Ada {{ $todayDueRentals }} unit sewa jatuh tempo hari ini.</p>
+            </div>
+
+            <!-- Card 3: Today's Due Report -->
+            <div class="bg-gradient-to-br from-[#059669] to-[#047857] text-white p-5 rounded-2xl flex items-center gap-5 shadow-sm border border-emerald-500/20 transition hover:shadow-md relative overflow-hidden group">
+                <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-white/5 rounded-full blur-xl group-hover:scale-125 transition-transform duration-500"></div>
+                <div class="p-3 bg-white/10 rounded-xl backdrop-blur-sm flex-shrink-0"><i data-lucide="info" class="w-6 h-6 text-emerald-100"></i></div>
+                <div>
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="text-[9px] font-black tracking-widest text-emerald-100 uppercase bg-[#064e3b]/80 px-2 py-0.5 rounded-full border border-emerald-500/20">LAPORAN AKTIVITAS</span>
+                    </div>
+                    <p class="text-sm font-extrabold uppercase leading-tight">Ada {{ $todayDueRentals }} unit sewa jatuh tempo hari ini</p>
                 </div>
-                <div class="bg-[#d97706] text-white p-6 rounded-xl flex items-center gap-4 col-span-2">
-                    <i data-lucide="more-horizontal" class="w-6 h-6 opacity-80 border-2 border-white/50 rounded-full p-0.5"></i>
-                    <p class="text-[12px] font-black uppercase leading-tight">[Pengecekan] Ada {{ $pendingReturns }} pengajuan retur (pending) baru.</p>
+            </div>
+
+            <!-- Card 4: Pending Returns Check -->
+            <div class="bg-gradient-to-br from-[#b45309] to-[#78350f] text-white p-5 rounded-2xl flex items-center gap-5 shadow-sm border border-orange-500/20 transition hover:shadow-md relative overflow-hidden group">
+                <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-white/5 rounded-full blur-xl group-hover:scale-125 transition-transform duration-500"></div>
+                <div class="p-3 bg-white/10 rounded-xl backdrop-blur-sm flex-shrink-0"><i data-lucide="package-search" class="w-6 h-6 text-orange-100"></i></div>
+                <div>
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="text-[9px] font-black tracking-widest text-orange-100 uppercase bg-[#78350f]/80 px-2 py-0.5 rounded-full border border-orange-500/20">PENGECEKAN RETUR</span>
+                    </div>
+                    <p class="text-sm font-extrabold uppercase leading-tight">Ada {{ $pendingReturns }} pengajuan retur (pending) baru</p>
                 </div>
             </div>
         </div>
 
         {{-- Row 4: Status Cards --}}
         <div class="grid gap-4 grid-cols-2 xl:grid-cols-4">
-            <div class="bg-[#fef2f2] border border-[#fee2e2] p-5 rounded-xl flex items-center gap-5">
-                <i data-lucide="package" class="w-6 h-6 text-[#ef4444] opacity-50"></i>
+            <!-- Card 4.1: PRODUK WAITING -->
+            <div class="premium-glass-card premium-glass-card-emerald p-5 flex items-center gap-4 group">
+                <div class="w-10 h-10 rounded-xl bg-[#e6f4ec] text-[#047857] flex items-center justify-center flex-shrink-0 group-hover:bg-[#047857] group-hover:text-white transition-colors duration-300">
+                    <i data-lucide="package" class="w-5 h-5"></i>
+                </div>
                 <div>
-                    <p class="text-[11px] font-black text-[#991b1b] uppercase tracking-widest leading-none mb-1">PRODUK WAITING</p>
-                    <p class="text-xs text-[#991b1b] font-bold opacity-60">{{ $pendingProducts }} produk menunggu validasi</p>
+                    <p class="text-[10px] font-black text-[#047857] uppercase tracking-widest leading-none mb-1">PRODUK WAITING</p>
+                    <p class="text-xs text-[#065f46] font-bold opacity-80">{{ $pendingProducts }} produk menunggu validasi</p>
                 </div>
             </div>
-            <div class="bg-[#f8fafc] border border-[#f1f5f9] p-5 rounded-xl flex items-center gap-5">
-                <i data-lucide="ban" class="w-6 h-6 text-slate-400 opacity-50"></i>
+
+            <!-- Card 4.2: TOKO BANNED -->
+            <div class="premium-glass-card premium-glass-card-forest p-5 flex items-center gap-4 group">
+                <div class="w-10 h-10 rounded-xl bg-[#e2ebd5] text-[#4a5f54] flex items-center justify-center flex-shrink-0 group-hover:bg-[#4a5f54] group-hover:text-white transition-colors duration-300">
+                    <i data-lucide="ban" class="w-5 h-5"></i>
+                </div>
                 <div>
-                    <p class="text-[11px] font-black text-slate-800 uppercase tracking-widest leading-none mb-1">TOKO BANNED</p>
-                    <p class="text-xs text-slate-500 font-bold opacity-60">{{ $bannedStores }} toko sedang diblokir</p>
+                    <p class="text-[10px] font-black text-slate-800 uppercase tracking-widest leading-none mb-1">TOKO BANNED</p>
+                    <p class="text-xs text-slate-500 font-bold opacity-80">{{ $bannedStores }} toko sedang diblokir</p>
                 </div>
             </div>
-            <div class="bg-[#eff6ff] border border-[#dbeafe] p-5 rounded-xl flex items-center gap-5">
-                <i data-lucide="message-square" class="w-6 h-6 text-[#2563eb] opacity-50"></i>
+
+            <!-- Card 4.3: CHAT BERMASALAH -->
+            <div class="premium-glass-card premium-glass-card-teal p-5 flex items-center gap-4 group">
+                <div class="w-10 h-10 rounded-xl bg-[#e2eedc] text-[#0b663b] flex items-center justify-center flex-shrink-0 group-hover:bg-[#0b663b] group-hover:text-white transition-colors duration-300">
+                    <i data-lucide="message-square" class="w-5 h-5"></i>
+                </div>
                 <div>
-                    <p class="text-[11px] font-black text-[#1e40af] uppercase tracking-widest leading-none mb-1">CHAT BERMASALAH</p>
-                    <p class="text-xs text-[#1e40af] font-bold opacity-60">{{ $flaggedChats }} chat ditandai sistem</p>
+                    <p class="text-[10px] font-black text-[#0b663b] uppercase tracking-widest leading-none mb-1">CHAT BERMASALAH</p>
+                    <p class="text-xs text-[#064e3b] font-bold opacity-80">{{ $flaggedChats }} chat ditandai sistem</p>
                 </div>
             </div>
-            <div class="bg-[#fffbeb] border border-[#fef3c7] p-5 rounded-xl flex items-center gap-5">
-                <i data-lucide="user-check" class="w-6 h-6 text-[#d97706] opacity-50"></i>
+
+            <!-- Card 4.4: PENDING KYC -->
+            <div class="premium-glass-card premium-glass-card-mint p-5 flex items-center gap-4 group">
+                <div class="w-10 h-10 rounded-xl bg-[#dcfce7] text-[#15803d] flex items-center justify-center flex-shrink-0 group-hover:bg-[#15803d] group-hover:text-white transition-colors duration-300">
+                    <i data-lucide="user-check" class="w-5 h-5"></i>
+                </div>
                 <div>
-                    <p class="text-[11px] font-black text-[#92400e] uppercase tracking-widest leading-none mb-1">PENDING KYC</p>
-                    <p class="text-xs text-[#92400e] font-bold opacity-60">{{ $pendingKyc }} user menunggu verifikasi</p>
+                    <p class="text-[10px] font-black text-[#15803d] uppercase tracking-widest leading-none mb-1">PENDING KYC</p>
+                    <p class="text-xs text-[#166534] font-bold opacity-80">{{ $pendingKyc }} user menunggu verifikasi</p>
                 </div>
             </div>
         </div>
@@ -231,7 +315,7 @@
                                         <div class="text-[12px] font-black text-[#dc2626]">{{ $issue->expected_date->format('d M Y, H:i') }}</div>
                                         @if($issue->expected_date->isPast())
                                         <div class="text-[9px] font-black uppercase text-[#991b1b] flex items-center gap-1 mt-1">
-                                            <div class="w-1.5 h-1.5 bg-[#dc2626] rounded-full"></div> TERLAMBAT {{ $issue->expected_date->diffInHours(now()) }} JAM
+                                            <div class="w-1.5 h-1.5 bg-[#dc2626] rounded-full"></div> TERLAMBAT {{ round($issue->expected_date->diffInHours(now())) }} JAM
                                         </div>
                                         @endif
                                     @else
@@ -239,7 +323,7 @@
                                     @endif
                                 </td>
                                 <td class="px-8 py-6 text-center text-xs font-black text-slate-600">
-                                    {{ $issue->expected_date ? $issue->expected_date->diffInDays(now()) . ' Hari' : '-' }}
+                                    {{ $issue->expected_date ? round($issue->expected_date->diffInDays(now())) . ' Hari' : '-' }}
                                 </td>
                                 <td class="px-8 py-6 text-right font-black text-slate-800 text-sm">
                                     <span class="text-[#b91c1c] mr-1">Rp</span>{{ number_format($issue->deposit_amount + $issue->rental_fee_amount, 0, ',', '.') }}
@@ -386,7 +470,7 @@
                     borderRadius: 4
                 },
             },
-            colors: ['#2563eb', '#cbd5e1'],
+            colors: ['#059669', '#a7f3d0'],
             dataLabels: { enabled: false },
             stroke: { show: true, width: 2, colors: ['transparent'] },
             xaxis: { categories: months },

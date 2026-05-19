@@ -26,61 +26,57 @@
     </div>
 
     <!-- Stats -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <!-- Diharapkan Hari Ini -->
-        <div class="admin-card p-5 border border-gray-100 shadow-sm flex flex-col justify-between rounded-xl">
-            <div class="flex justify-between items-start mb-4">
-                <div class="w-8 h-8 rounded bg-[#f8fbf9] border border-green-100 flex items-center justify-center text-[#0f6b52]">
-                    <i data-lucide="calendar" style="width: 16px; height: 16px;"></i>
+        <div class="bg-white border border-slate-200 hover:border-[#059669] hover:shadow-[0_12px_30px_-10px_rgba(5,150,105,0.2)] rounded-2xl p-6 shadow-sm transition-all duration-300 relative overflow-hidden flex flex-col justify-between min-h-[180px] group">
+            <div class="absolute top-0 left-0 w-full h-[4px] bg-[#059669]"></div>
+            <div class="flex justify-between items-start mb-3">
+                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Diharapkan Hari Ini</span>
+                <div class="w-8 h-8 rounded-lg bg-[#ecfdf5] text-[#059669] flex items-center justify-center transition-colors group-hover:bg-[#059669] group-hover:text-white">
+                    <i data-lucide="calendar" class="w-4 h-4"></i>
                 </div>
-                <span class="text-xs font-semibold text-green-600">+12% vs kemarin</span>
             </div>
             <div>
-                <div class="text-[10px] font-bold text-gray-400 tracking-wider uppercase mb-1">Diharapkan Hari Ini</div>
-                <div class="flex items-baseline gap-1 mb-2">
-                    <span class="text-3xl font-extrabold text-gray-800">{{ $diharapkanHariIni }}</span>
-                    <span class="text-sm font-semibold text-gray-500">Unit</span>
+                <div class="flex items-baseline gap-1 mb-1">
+                    <span class="text-3xl font-extrabold text-slate-800">{{ $diharapkanHariIni }}</span>
+                    <span class="text-xs font-semibold text-slate-400">Unit</span>
                 </div>
-                <p class="text-xs text-gray-500">Penyewa telah menerima notifikasi SLA.</p>
+                <p class="text-[11px] font-medium text-slate-400">Penyewa telah menerima notifikasi SLA.</p>
             </div>
         </div>
 
         <!-- Overdue -->
-        <div class="admin-card p-5 border border-red-100 shadow-sm flex flex-col justify-between rounded-xl relative overflow-hidden">
-            <!-- Decorative red line at bottom -->
-            <div class="absolute bottom-0 left-0 h-1 bg-red-500 w-1/3"></div>
-            <div class="absolute bottom-0 left-1/3 h-1 bg-gray-100 w-2/3"></div>
-
-            <div class="flex justify-between items-start mb-4">
-                <div class="w-8 h-8 rounded bg-red-50 border border-red-100 flex items-center justify-center text-red-500">
-                    <i data-lucide="alert-triangle" style="width: 16px; height: 16px;"></i>
+        <div class="bg-white border border-slate-200 hover:border-[#064e3b] hover:shadow-[0_12px_30px_-10px_rgba(6,78,59,0.2)] rounded-2xl p-6 shadow-sm transition-all duration-300 relative overflow-hidden flex flex-col justify-between min-h-[180px] group">
+            <div class="absolute top-0 left-0 w-full h-[4px] bg-[#064e3b]"></div>
+            <div class="flex justify-between items-start mb-3">
+                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Melebihi Batas (Overdue)</span>
+                <div class="w-8 h-8 rounded-lg bg-[#e6f4ea] text-[#047857] flex items-center justify-center transition-colors group-hover:bg-[#064e3b] group-hover:text-white">
+                    <i data-lucide="alert-triangle" class="w-4 h-4"></i>
                 </div>
-                <span class="text-xs font-semibold text-red-500">Kritis</span>
             </div>
             <div>
-                <div class="text-[10px] font-bold text-gray-400 tracking-wider uppercase mb-1">Melebihi Batas (Overdue)</div>
                 <div class="flex items-baseline gap-1">
-                    <span class="text-3xl font-extrabold text-red-600">{{ str_pad($overdue, 2, '0', STR_PAD_LEFT) }}</span>
-                    <span class="text-sm font-semibold text-gray-500">Unit</span>
+                    <span class="text-3xl font-extrabold text-[#064e3b]">{{ str_pad($overdue, 2, '0', STR_PAD_LEFT) }}</span>
+                    <span class="text-xs font-semibold text-slate-400">Unit</span>
                 </div>
             </div>
         </div>
 
         <!-- Dalam Pemeriksaan -->
-        <div class="admin-card p-5 border border-indigo-100 shadow-sm flex flex-col justify-between rounded-xl">
-            <div class="flex justify-between items-start mb-4">
-                <div class="w-8 h-8 rounded bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-500">
-                    <i data-lucide="clipboard-check" style="width: 16px; height: 16px;"></i>
+        <div class="bg-white border border-slate-200 hover:border-[#10b981] hover:shadow-[0_12px_30px_-10px_rgba(16,185,129,0.2)] rounded-2xl p-6 shadow-sm transition-all duration-300 relative overflow-hidden flex flex-col justify-between min-h-[180px] group">
+            <div class="absolute top-0 left-0 w-full h-[4px] bg-[#10b981]"></div>
+            <div class="flex justify-between items-start mb-3">
+                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Dalam Pemeriksaan</span>
+                <div class="w-8 h-8 rounded-lg bg-[#f0fdf4] text-[#10b981] flex items-center justify-center transition-colors group-hover:bg-[#10b981] group-hover:text-white">
+                    <i data-lucide="clipboard-check" class="w-4 h-4"></i>
                 </div>
-                <span class="text-xs font-semibold text-indigo-500">Antrean</span>
             </div>
             <div>
-                <div class="text-[10px] font-bold text-gray-400 tracking-wider uppercase mb-1">Dalam Pemeriksaan</div>
-                <div class="flex items-baseline gap-1 mb-2">
-                    <span class="text-3xl font-extrabold text-gray-800">{{ str_pad($dalamPemeriksaan, 2, '0', STR_PAD_LEFT) }}</span>
-                    <span class="text-sm font-semibold text-gray-500">Unit</span>
+                <div class="flex items-baseline gap-1 mb-1">
+                    <span class="text-3xl font-extrabold text-slate-800">{{ str_pad($dalamPemeriksaan, 2, '0', STR_PAD_LEFT) }}</span>
+                    <span class="text-xs font-semibold text-slate-400">Unit</span>
                 </div>
-                <a href="?status=checking" class="text-xs font-semibold text-indigo-600 hover:underline flex items-center gap-1">Lihat Antrean <i data-lucide="arrow-right" style="width: 12px; height: 12px;"></i></a>
+                <a href="?status=checking" class="text-xs font-bold text-[#059669] hover:underline flex items-center gap-1">Lihat Antrean <i data-lucide="arrow-right" class="w-3 h-3"></i></a>
             </div>
         </div>
     </div>

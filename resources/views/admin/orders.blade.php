@@ -15,22 +15,53 @@
     </div>
 
     {{-- Stats --}}
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div class="admin-card p-5 rounded-xl border border-gray-100 shadow-sm">
-            <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Total Transaksi</div>
-            <div class="text-2xl font-extrabold text-gray-800">{{ number_format($totalOrders) }}</div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {{-- Card 1: Total Transaksi --}}
+        <div class="bg-white border border-slate-200 hover:border-[#059669] hover:shadow-[0_12px_30px_-10px_rgba(5,150,105,0.2)] rounded-2xl p-6 shadow-sm transition-all duration-300 relative overflow-hidden flex flex-col justify-between group">
+            <div class="absolute top-0 left-0 w-full h-[4px] bg-[#059669]"></div>
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Transaksi</span>
+                <div class="w-8 h-8 rounded-lg bg-[#ecfdf5] text-[#059669] flex items-center justify-center transition-colors group-hover:bg-[#059669] group-hover:text-white">
+                    <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+                </div>
+            </div>
+            <div class="text-3xl font-extrabold text-slate-800 tracking-tight">{{ number_format($totalOrders) }}</div>
         </div>
-        <div class="admin-card p-5 rounded-xl border border-gray-100 shadow-sm">
-            <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Total Pendapatan</div>
-            <div class="text-lg font-extrabold text-[#0f6b52]">Rp {{ number_format($totalRevenue, 0, ',', '.') }}</div>
+
+        {{-- Card 2: Total Pendapatan --}}
+        <div class="bg-white border border-slate-200 hover:border-[#064e3b] hover:shadow-[0_12px_30px_-10px_rgba(6,78,59,0.2)] rounded-2xl p-6 shadow-sm transition-all duration-300 relative overflow-hidden flex flex-col justify-between group">
+            <div class="absolute top-0 left-0 w-full h-[4px] bg-[#064e3b]"></div>
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Pendapatan</span>
+                <div class="w-8 h-8 rounded-lg bg-[#e6f4ea] text-[#047857] flex items-center justify-center transition-colors group-hover:bg-[#064e3b] group-hover:text-white">
+                    <i data-lucide="banknote" class="w-4 h-4"></i>
+                </div>
+            </div>
+            <div class="text-xl font-extrabold text-[#064e3b] tracking-tight">Rp {{ number_format($totalRevenue, 0, ',', '.') }}</div>
         </div>
-        <div class="admin-card p-5 rounded-xl border border-amber-100 shadow-sm">
-            <div class="text-[10px] font-bold text-amber-600 uppercase tracking-widest mb-1">Menunggu</div>
-            <div class="text-2xl font-extrabold text-amber-700">{{ number_format($pendingOrders) }}</div>
+
+        {{-- Card 3: Menunggu --}}
+        <div class="bg-white border border-slate-200 hover:border-[#b45309] hover:shadow-[0_12px_30px_-10px_rgba(180,83,9,0.2)] rounded-2xl p-6 shadow-sm transition-all duration-300 relative overflow-hidden flex flex-col justify-between group">
+            <div class="absolute top-0 left-0 w-full h-[4px] bg-[#b45309]"></div>
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Menunggu</span>
+                <div class="w-8 h-8 rounded-lg bg-[#fffbeb] text-[#b45309] flex items-center justify-center transition-colors group-hover:bg-[#b45309] group-hover:text-white">
+                    <i data-lucide="clock" class="w-4 h-4"></i>
+                </div>
+            </div>
+            <div class="text-3xl font-extrabold text-[#b45309] tracking-tight">{{ number_format($pendingOrders) }}</div>
         </div>
-        <div class="admin-card p-5 rounded-xl border border-emerald-100 shadow-sm">
-            <div class="text-[10px] font-bold text-emerald-600 uppercase tracking-widest mb-1">Selesai</div>
-            <div class="text-2xl font-extrabold text-emerald-700">{{ number_format($selesaiOrders) }}</div>
+
+        {{-- Card 4: Selesai --}}
+        <div class="bg-white border border-slate-200 hover:border-[#10b981] hover:shadow-[0_12px_30px_-10px_rgba(16,185,129,0.2)] rounded-2xl p-6 shadow-sm transition-all duration-300 relative overflow-hidden flex flex-col justify-between group">
+            <div class="absolute top-0 left-0 w-full h-[4px] bg-[#10b981]"></div>
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Selesai</span>
+                <div class="w-8 h-8 rounded-lg bg-[#f0fdf4] text-[#10b981] flex items-center justify-center transition-colors group-hover:bg-[#10b981] group-hover:text-white">
+                    <i data-lucide="check-circle" class="w-4 h-4"></i>
+                </div>
+            </div>
+            <div class="text-3xl font-extrabold text-[#059669] tracking-tight">{{ number_format($selesaiOrders) }}</div>
         </div>
     </div>
 

@@ -24,19 +24,34 @@
     </div>
 
     <!-- Stats -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="admin-card p-5 border border-green-100 shadow-sm flex flex-col justify-between rounded-xl">
-            <div class="text-[10px] font-bold text-gray-400 tracking-wider uppercase mb-3">Total Permintaan</div>
-            <div class="flex items-end gap-2">
-                <span class="text-4xl font-extrabold text-gray-800">{{ number_format($totalPermintaan, 0, ',', '.') }}</span>
-                <span class="text-sm font-bold text-[#0f6b52] mb-1 flex items-center"><i data-lucide="trending-up" style="width:16px; height:16px;" class="mr-1"></i>12%</span>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {{-- Card 1: Total Permintaan --}}
+        <div class="bg-white border border-slate-200 hover:border-[#059669] hover:shadow-[0_12px_30px_-10px_rgba(5,150,105,0.2)] rounded-2xl p-6 shadow-sm transition-all duration-300 relative overflow-hidden flex flex-col justify-between group">
+            <div class="absolute top-0 left-0 w-full h-[4px] bg-[#059669]"></div>
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Permintaan</span>
+                <div class="w-8 h-8 rounded-lg bg-[#ecfdf5] text-[#059669] flex items-center justify-center transition-colors group-hover:bg-[#059669] group-hover:text-white">
+                    <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                </div>
+            </div>
+            <div class="flex items-baseline gap-2">
+                <h2 class="text-4xl font-extrabold text-slate-800 tracking-tight">{{ number_format($totalPermintaan, 0, ',', '.') }}</h2>
+                <span class="text-xs font-bold text-[#059669] flex items-center"><i data-lucide="trending-up" class="w-3.5 h-3.5 mr-0.5"></i>12%</span>
             </div>
         </div>
-        <div class="admin-card p-5 border border-green-100 shadow-sm flex flex-col justify-between rounded-xl">
-            <div class="text-[10px] font-bold text-gray-400 tracking-wider uppercase mb-3">Avg. Resolusi</div>
-            <div class="flex items-end justify-between">
-                <span class="text-4xl font-extrabold text-gray-800">2.4d</span>
-                <span class="text-xs font-bold text-[#0f6b52] mb-1">Efficient</span>
+
+        {{-- Card 2: Rata-rata Durasi Penyelesaian --}}
+        <div class="bg-white border border-slate-200 hover:border-[#064e3b] hover:shadow-[0_12px_30px_-10px_rgba(6,78,59,0.2)] rounded-2xl p-6 shadow-sm transition-all duration-300 relative overflow-hidden flex flex-col justify-between group">
+            <div class="absolute top-0 left-0 w-full h-[4px] bg-[#064e3b]"></div>
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Rata-rata Durasi Penyelesaian</span>
+                <div class="w-8 h-8 rounded-lg bg-[#e6f4ea] text-[#047857] flex items-center justify-center transition-colors group-hover:bg-[#064e3b] group-hover:text-white">
+                    <i data-lucide="timer" class="w-4 h-4"></i>
+                </div>
+            </div>
+            <div class="flex items-baseline justify-between">
+                <h2 class="text-4xl font-extrabold text-slate-800 tracking-tight">2.4 Hari</h2>
+                <span class="text-xs font-bold text-[#064e3b] bg-[#e6f4ea] px-2 py-0.5 rounded-full">Efisien</span>
             </div>
         </div>
     </div>

@@ -268,10 +268,10 @@
                     </div>
                 </div>
                 <div class="bg-surface p-lg rounded-xl shadow-sm border border-outline-variant">
-                    <p class="text-label-bold text-on-surface-variant uppercase tracking-wider mb-sm">Avg. Resolusi</p>
+                    <p class="text-label-bold text-on-surface-variant uppercase tracking-wider mb-sm">Rata-rata Durasi Penyelesaian</p>
                     <div class="flex items-end justify-between">
-                        <span class="font-stats-number text-stats-number text-on-surface">{{ $summary['avg_resolution_days'] ?? '0' }}d</span>
-                        <span class="text-primary-container font-semibold text-sm">Efficient</span>
+                        <span class="font-stats-number text-stats-number text-on-surface">{{ $summary['avg_resolution_days'] ?? '0' }} Hari</span>
+                        <span class="text-primary-container font-semibold text-sm">Efisien</span>
                     </div>
                 </div>
             </div>

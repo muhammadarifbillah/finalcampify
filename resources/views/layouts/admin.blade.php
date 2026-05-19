@@ -92,7 +92,7 @@
                 .nav-sub-btn .chevron2 { transition: transform 0.2s; width: 12px; height: 12px; flex-shrink: 0; }
             </style>
 
-            <nav class="admin-nav">
+            <nav class="admin-nav custom-scrollbar">
                 @foreach($adminNav as $item)
                     @if(isset($item['submenu']))
                         <div class="nav-group admin-nav-group {{ $item['active'] ? 'is-open' : '' }}">
@@ -175,7 +175,7 @@
 
         <div class="admin-main">
             <header class="admin-topbar">
-                <button id="adminMenuButton" class="admin-icon-button md:hidden" type="button" aria-label="Buka menu">
+                <button id="adminMenuButton" class="admin-icon-button admin-menu-toggle" type="button" aria-label="Buka menu">
                     <i data-lucide="menu"></i>
                 </button>
 
@@ -200,7 +200,7 @@
                         </div>
                         <div class="w-9 h-9 rounded-full bg-[#3b82f6] text-white flex items-center justify-center font-black text-md">{{ $initials ?: 'A' }}</div>
                     </div>
-                    <form action="{{ route('logout') }}" method="POST" class="ml-2">
+                    <form action="{{ route('logout') }}" method="POST" class="ml-2 hidden sm:block">
                         @csrf
                         <button type="submit" class="px-5 py-2 rounded-lg border-2 border-slate-200 text-slate-700 font-bold text-sm hover:bg-slate-50 transition-colors">Logout</button>
                     </form>
