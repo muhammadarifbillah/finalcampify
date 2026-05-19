@@ -178,18 +178,33 @@ class Product extends Model
             return $imageField;
         }
 
+        $imageField = str_replace('\\', '/', $imageField);
         $filename = basename($imageField);
 
-        // Check if it exists in storage
+        if (str_starts_with($imageField, 'assets/images/')) {
+            return asset($imageField);
+        }
+
+        if (str_starts_with($imageField, 'storage/')) {
+            return asset($imageField);
+        }
+
+        if (str_starts_with($imageField, 'public/')) {
+            return asset('storage/' . substr($imageField, strlen('public/')));
+        }
+
+        if (\Illuminate\Support\Facades\Storage::disk('public')->exists($imageField)) {
+            return asset('storage/' . $imageField);
+        }
+
         if (\Illuminate\Support\Facades\Storage::disk('public')->exists('products/' . $filename)) {
             return asset('storage/products/' . $filename);
         }
 
-        if (strpos($imageField, 'products/') !== false || strpos($imageField, 'storage/') !== false) {
-             return asset('storage/' . str_replace('public/', '', $imageField));
+        if (file_exists(public_path('assets/images/' . $filename))) {
+            return asset('assets/images/' . $filename);
         }
 
-        // Default to assets/images
         return asset('assets/images/' . $filename);
     }
 }

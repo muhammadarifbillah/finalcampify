@@ -123,13 +123,33 @@ class Product_seller extends Model
             return $imageField;
         }
 
-        // If it contains 'products/' or 'storage/', it's the old format - extract filename
-        if (strpos($imageField, 'products/') !== false || strpos($imageField, 'storage/') !== false) {
-            $filename = basename($imageField);
+        $imageField = str_replace('\\', '/', $imageField);
+        $filename = basename($imageField);
+
+        if (str_starts_with($imageField, 'assets/images/')) {
+            return asset($imageField);
+        }
+
+        if (str_starts_with($imageField, 'storage/')) {
+            return asset($imageField);
+        }
+
+        if (str_starts_with($imageField, 'public/')) {
+            return asset('storage/' . substr($imageField, strlen('public/')));
+        }
+
+        if (\Illuminate\Support\Facades\Storage::disk('public')->exists($imageField)) {
+            return asset('storage/' . $imageField);
+        }
+
+        if (\Illuminate\Support\Facades\Storage::disk('public')->exists('products/' . $filename)) {
+            return asset('storage/products/' . $filename);
+        }
+
+        if (file_exists(public_path('assets/images/' . $filename))) {
             return asset('assets/images/' . $filename);
         }
 
-        // If it's just a filename (new format), serve from assets/images
-        return asset('assets/images/' . $imageField);
+        return asset('assets/images/' . $filename);
     }
 }
