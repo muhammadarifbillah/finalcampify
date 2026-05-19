@@ -130,6 +130,23 @@ class OrderController extends Controller
             foreach ($orderItems as $orderItem) {
                 $orderItem['order_id'] = $order->id;
                 OrderDetail::create($orderItem);
+
+                if ($orderItem['type'] === 'rent') {
+                    $duration = (int) ($orderItem['duration'] ?? 1);
+                    $startDate = $orderItem['start_date'] ? \Carbon\Carbon::parse($orderItem['start_date']) : now();
+                    $endDate = (clone $startDate)->addDays($duration);
+
+                    \App\Models\Pembeli\Rental_pembeli::create([
+                        'user_id' => Auth::id(),
+                        'product_id' => $orderItem['product_id'],
+                        'order_id' => $order->id,
+                        'start_date' => $startDate->format('Y-m-d'),
+                        'end_date' => $endDate->format('Y-m-d'),
+                        'duration' => $duration,
+                        'price' => $orderItem['harga'] * $orderItem['qty'],
+                        'status' => 'pending'
+                    ]);
+                }
             }
 
             DB::commit();

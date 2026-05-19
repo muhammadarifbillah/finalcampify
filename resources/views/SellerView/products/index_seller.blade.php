@@ -34,30 +34,15 @@
 </div>
 
 {{-- PRODUK GRID --}}
-<div class="row g-4" id="products-grid">
+<div class="row g-4">
     @forelse ($products as $product)
-    <div class="col-xl-4 col-md-6 product-card-col" 
-         data-name="{{ strtolower($product->nama_produk) }}" 
-         data-desc="{{ strtolower($product->deskripsi) }}" 
-         data-cat="{{ strtolower($product->kategori) }}">
+    <div class="col-xl-4 col-md-6">
         <div class="card card-modern h-100 border-0 overflow-hidden">
             
             {{-- IMAGE SECTION --}}
             <div class="position-relative" style="height: 240px;">
-                @php
-                    $imgPath = $product->gambar;
-                    if ($imgPath && !str_starts_with($imgPath, 'assets/images/') && !str_starts_with($imgPath, 'storage/') && !str_starts_with($imgPath, 'http')) {
-                        // Cek apakah ada di assets/images dulu
-                        if (file_exists(public_path('assets/images/' . $imgPath))) {
-                            $imgPath = 'assets/images/' . $imgPath;
-                        } else {
-                            $imgPath = 'storage/' . $imgPath;
-                        }
-                    }
-                @endphp
-
-                @if($imgPath && (file_exists(public_path($imgPath)) || str_contains($imgPath, 'http')))
-                    <img src="{{ asset($imgPath) }}" class="w-100 h-100 object-fit-cover" alt="{{ $product->nama_produk }}">
+                @if($product->image_url)
+                    <img src="{{ $product->image_url }}" class="w-100 h-100 object-fit-cover" alt="{{ $product->nama_produk }}">
                 @else
                     <div class="w-100 h-100 bg-light d-flex flex-column align-items-center justify-content-center">
                         <span class="fs-1 opacity-25">🏕️</span>

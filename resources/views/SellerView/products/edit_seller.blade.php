@@ -60,15 +60,6 @@
                         <label class="form-label fw-bold text-muted small text-uppercase ls-1">Stok</label>
                         <input type="number" name="stok" class="form-control border-0 bg-light rounded-3 px-3 py-2 shadow-sm" value="{{ $product->stok }}" required>
                     </div>
-                    </div>
-                </div>
-
-                <div class="row g-3 mb-4" id="escrow_row" style="display: none;">
-                    <div class="col-md-12">
-                        <label class="form-label fw-bold text-muted small text-uppercase ls-1">Escrow / Jaminan Sewa (Rp)</label>
-                        <input type="number" name="escrow_amount" id="escrow_amount" class="form-control border-0 bg-light rounded-3 px-3 py-2 shadow-sm" value="{{ $product->escrow_amount ?? 0 }}">
-                        <small class="text-muted mt-2 d-block" id="escrow_recommendation">Rekomendasi jaminan: <strong class="text-emerald">Rp 0</strong>. <br>Anda bebas menentukan nominal ini. Jaminan akan dikembalikan ke penyewa jika barang kembali tanpa kerusakan.</small>
-                    </div>
                 </div>
 
                 <div class="mb-0">
@@ -83,19 +74,8 @@
                 
                 <div class="mb-4 text-center">
                     <div class="p-2 bg-light rounded-4 mb-3 border dashed shadow-sm mx-auto" style="width: 250px; height: 250px;">
-                        @php
-                            $imgPath = $product->gambar;
-                            if ($imgPath && !str_starts_with($imgPath, 'assets/images/') && !str_starts_with($imgPath, 'storage/') && !str_starts_with($imgPath, 'http')) {
-                                if (file_exists(public_path('assets/images/' . $imgPath))) {
-                                    $imgPath = 'assets/images/' . $imgPath;
-                                } else {
-                                    $imgPath = 'storage/' . $imgPath;
-                                }
-                            }
-                        @endphp
-                        
-                        @if($imgPath && (file_exists(public_path($imgPath)) || str_contains($imgPath, 'http')))
-                            <img src="{{ asset($imgPath) }}" class="w-100 h-100 object-fit-cover rounded-3">
+                        @if($product->image_url)
+                            <img src="{{ $product->image_url }}" class="w-100 h-100 object-fit-cover rounded-3">
                         @else
                             <div class="w-100 h-100 d-flex align-items-center justify-content-center opacity-25 fs-1">🏕️</div>
                         @endif
@@ -124,47 +104,4 @@
     .object-fit-cover { object-fit: cover; }
     .dashed { border: 2px dashed #e2e8f0 !important; }
 </style>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const jenisProdukSelect = document.querySelector('select[name="jenis_produk"]');
-    const escrowRow = document.getElementById('escrow_row');
-    const hargaInput = document.querySelector('input[name="harga"]');
-    const escrowInput = document.getElementById('escrow_amount');
-    const escrowRecommendation = document.getElementById('escrow_recommendation');
-    
-    // Check if the current product already has an escrow amount saved > 0
-    const initialEscrow = {{ $product->escrow_amount ?? 0 }};
-    let userEditedEscrow = initialEscrow > 0;
-    
-    escrowInput.addEventListener('input', () => { userEditedEscrow = true; });
-
-    function updateEscrowVisibility() {
-        if (jenisProdukSelect.value === 'sewa') {
-            escrowRow.style.display = 'flex';
-            updateEscrowRecommendation();
-        } else {
-            escrowRow.style.display = 'none';
-        }
-    }
-
-    function updateEscrowRecommendation() {
-        const harga = parseFloat(hargaInput.value) || 0;
-        const rekomendasi = Math.round(harga * 0.25);
-        
-        escrowRecommendation.innerHTML = `Rekomendasi jaminan (25% dari harga): <strong class="text-emerald">Rp ${rekomendasi.toLocaleString('id-ID')}</strong>. <br>Anda bebas menentukan nominal jaminan ini.`;
-        
-        // Auto-fill jika belum pernah diedit user dan belum ada isinya
-        if (!userEditedEscrow && harga > 0) {
-            escrowInput.value = rekomendasi;
-        }
-    }
-
-    jenisProdukSelect.addEventListener('change', updateEscrowVisibility);
-    hargaInput.addEventListener('input', updateEscrowRecommendation);
-    
-    // Initial check
-    updateEscrowVisibility();
-});
-</script>
 @endsection

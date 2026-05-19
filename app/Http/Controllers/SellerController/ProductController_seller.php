@@ -24,16 +24,6 @@ class ProductController_seller extends Controller
             $query->where('jenis_produk', $request->jenis);
         }
 
-        // search keyword
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('nama_produk', 'like', '%' . $search . '%')
-                  ->orWhere('description', 'like', '%' . $search . '%')
-                  ->orWhere('category', 'like', '%' . $search . '%');
-            });
-        }
-
         $products = $query->latest()->get();
 
         return view('SellerView.products.index_seller', compact('products'));
@@ -64,16 +54,15 @@ class ProductController_seller extends Controller
             'stok'          => 'required|integer|min:0',
             'deskripsi'     => 'nullable|string',
             'gambar'         => 'required|image|mimes:jpg,jpeg,png,gif|max:2048',
-            'escrow_amount'  => 'nullable|numeric|min:0',
         ]);
 
         // Upload gambar
         $imagePath = null;
         if ($request->hasFile('gambar')) {
             $file = $request->file('gambar');
-            $filename = time() . '_' . $file->getClientOriginalName();
+            $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
             $file->move(public_path('assets/images'), $filename);
-            $imagePath = 'assets/images/' . $filename;
+            $imagePath = $filename;
         }
 
         $flagReasons = \App\Models\Product::flagReasonsFor($request->only(['nama_produk', 'harga', 'deskripsi']));
@@ -95,7 +84,6 @@ class ProductController_seller extends Controller
             'kategori'      => $request->kategori,
             'jenis_produk'  => $request->jenis_produk, // jual / sewa
             'is_rental'     => $request->jenis_produk === 'sewa',
-            'escrow_amount' => $request->jenis_produk === 'sewa' ? ($request->escrow_amount ?? 0) : 0,
             'stock'         => $request->stok,
             'stok'          => $request->stok,
             'image'         => $imagePath,
@@ -138,7 +126,6 @@ class ProductController_seller extends Controller
             'stok'          => 'required|integer|min:0',
             'deskripsi'     => 'nullable|string',
             'gambar'        => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
-            'escrow_amount'  => 'nullable|numeric|min:0',
         ]);
 
         $data = [
@@ -153,7 +140,6 @@ class ProductController_seller extends Controller
             'kategori'      => $request->kategori,
             'jenis_produk'  => $request->jenis_produk,
             'is_rental'     => $request->jenis_produk === 'sewa',
-            'escrow_amount' => $request->jenis_produk === 'sewa' ? ($request->escrow_amount ?? 0) : 0,
             'stock'         => $request->stok,
             'stok'          => $request->stok,
             'description'   => $request->deskripsi,
@@ -167,19 +153,23 @@ class ProductController_seller extends Controller
         // Jika upload gambar baru
         if ($request->hasFile('gambar')) {
 
-            // Hapus gambar lama dari public/assets/images
-            $oldPath = $product->gambar;
-            if ($oldPath && file_exists(public_path($oldPath))) {
-                unlink(public_path($oldPath));
+            // Hapus gambar lama jika ada
+            if ($product->gambar || $product->image) {
+                $oldFilename = $product->gambar ?: $product->image;
+                // Extract just the filename in case it contains old path format
+                $oldFilename = basename($oldFilename);
+                $oldPath = public_path('assets/images/' . $oldFilename);
+                if (file_exists($oldPath)) {
+                    unlink($oldPath);
+                }
             }
 
-            // Simpan gambar baru ke assets/images
+            // Simpan gambar baru
             $file = $request->file('gambar');
-            $filename = time() . '_' . $file->getClientOriginalName();
+            $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
             $file->move(public_path('assets/images'), $filename);
-            
-            $data['gambar'] = 'assets/images/' . $filename;
-            $data['image'] = $data['gambar'];
+            $data['gambar'] = $filename;
+            $data['image'] = $filename;
         }
 
         $product->update($data);

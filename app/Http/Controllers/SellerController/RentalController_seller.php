@@ -91,6 +91,19 @@ class RentalController_seller extends Controller
 
         $rental->update($data);
 
+        if ($rental->order) {
+            $statusMap = [
+                'pending' => 'diproses',
+                'active' => 'dikirim',
+                'completed' => 'selesai',
+                'cancelled' => 'dibatalkan',
+            ];
+
+            if (array_key_exists($request->status, $statusMap)) {
+                $rental->order->update(['status' => $statusMap[$request->status]]);
+            }
+        }
+
         return redirect('/seller/rentals')->with('success', 'Penyewaan berhasil diupdate');
     }
 
