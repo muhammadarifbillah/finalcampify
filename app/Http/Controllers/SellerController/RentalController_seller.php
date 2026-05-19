@@ -43,52 +43,88 @@ class RentalController_seller extends Controller
             'catatan' => $request->catatan ?? $rental->catatan
         ]);
 
-        // Ambil data return (pengembalian)
-        $returnRequest = $rental->returnRequest ?: \App\Models\ReturnEscrow::where('order_id', $rental->order_id)->first();
+        return redirect('/seller/rentals')->with('success', 'Penyewaan berhasil diupdate');
+    }
+
+    public function approveRequest($id)
+    {
+        $rental = $this->sellerRentals()->findOrFail($id);
+        $returnRequest = \App\Models\ReturnEscrow::where('order_id', $rental->order_id)->first();
 
         if ($returnRequest) {
-            // Hitung ulang denda telat
-            $endDate = \Carbon\Carbon::parse($rental->end_date)->startOfDay();
-            $today = now()->startOfDay();
-            $daysLate = max(0, $endDate->diffInDays($today, false));
-            $dendaTelat = $daysLate * 10000;
-
-            $dendaKerusakan = $request->denda_kerusakan ?? 0;
-            $totalDenda = $dendaTelat + $dendaKerusakan;
-
-            $returnRequest->update([
-                'denda' => $totalDenda,
-                'kondisi_barang' => $request->kondisi_barang ?? 'baik',
-                'damage_fee' => (string) $dendaKerusakan,
-                'status' => in_array($request->status, ['completed', 'denda_pending']) ? 'checking' : $returnRequest->status,
-                'actual_date' => in_array($request->status, ['completed', 'denda_pending']) ? now() : $returnRequest->actual_date
-            ]);
-
-            // Gunakan settlement service untuk update kalkulasi (to_seller, to_buyer)
-            if (class_exists(\App\Services\ReturnSettlementService::class)) {
-                $settlement = app(\App\Services\ReturnSettlementService::class);
-                $settlement->applyAutoCalculations($returnRequest);
-                $returnRequest->save();
-            }
-
-            // Jika status diset ke denda_pending, pastikan denda > 0
-            if ($request->status === 'denda_pending' && $totalDenda <= 0) {
-                return back()->with('error', 'Tidak ada denda yang perlu dibayar (Telat: 0, Kerusakan: 0).');
-            }
+            $returnRequest->update(['status' => 'approved']);
+            $rental->update(['status' => 'approved_return']);
+            return back()->with('success', 'Permintaan pengembalian sewa disetujui. Menunggu pembeli memasukkan resi pengiriman.');
         }
 
-        // Sync status ke tabel orders agar pembeli melihat perubahan
-        if ($rental->order) {
-            if ($request->status === 'active') {
-                $rental->order->update(['status' => 'diproses']);
-            } elseif ($request->status === 'completed') {
+        return back()->with('error', 'Data pengembalian tidak ditemukan.');
+    }
+
+    public function receiveItem(Request $request, $id)
+    {
+        $rental = $this->sellerRentals()->findOrFail($id);
+        $returnRequest = \App\Models\ReturnEscrow::where('order_id', $rental->order_id)->first();
+
+        if (!$returnRequest) {
+            return back()->with('error', 'Data pengembalian tidak ditemukan.');
+        }
+
+        $request->validate([
+            'denda_kerusakan' => 'required|numeric|min:0',
+            'kondisi_barang' => 'required|string|max:255',
+        ]);
+
+        // Set tanggal penerimaan barang
+        $returnRequest->actual_date = now();
+        $returnRequest->damage_fee = (string) $request->denda_kerusakan;
+        $returnRequest->kondisi_barang = $request->kondisi_barang;
+        $returnRequest->status = 'checking'; // sementara untuk auto calculation
+
+        if (class_exists(\App\Services\ReturnSettlementService::class)) {
+            $settlement = app(\App\Services\ReturnSettlementService::class);
+            $settlement->applyAutoCalculations($returnRequest);
+        }
+
+        // Tentukan status akhir berdasarkan nilai defisit
+        if ($returnRequest->deficit > 0) {
+            $returnRequest->status = 'denda_pending';
+            $rental->status = 'denda_pending';
+            $returnRequest->save();
+            $rental->save();
+
+            return back()->with('success', 'Barang diterima. Denda melebihi deposit jaminan. Menunggu pembeli mentransfer sisa denda sebesar Rp ' . number_format($returnRequest->deficit, 0, ',', '.'));
+        } else {
+            $returnRequest->status = 'completed';
+            $returnRequest->save();
+
+            $rental->status = 'completed';
+            $rental->save();
+
+            if ($rental->order) {
                 $rental->order->update(['status' => 'selesai']);
-            } elseif ($request->status === 'cancelled') {
-                $rental->order->update(['status' => 'dibatalkan']);
             }
+
+            return back()->with('success', 'Barang diterima dalam kondisi baik / tercover deposit. Pengembalian sewa selesai otomatis.');
+        }
+    }
+
+    public function verifyDendaPayment($id)
+    {
+        $rental = $this->sellerRentals()->findOrFail($id);
+        $returnRequest = \App\Models\ReturnEscrow::where('order_id', $rental->order_id)->first();
+
+        if (!$returnRequest) {
+            return back()->with('error', 'Data pengembalian tidak ditemukan.');
         }
 
-        return redirect('/seller/rentals')->with('success', 'Penyewaan berhasil diupdate');
+        $returnRequest->update(['status' => 'completed']);
+        $rental->update(['status' => 'completed']);
+
+        if ($rental->order) {
+            $rental->order->update(['status' => 'selesai']);
+        }
+
+        return back()->with('success', 'Pembayaran sisa denda berhasil diverifikasi. Transaksi sewa selesai.');
     }
 
     public function verifyUserKtp($userId)
@@ -110,8 +146,4 @@ class RentalController_seller extends Controller
                     ->orWhereHas('store', fn ($store) => $store->where('user_id', \Illuminate\Support\Facades\Auth::id()));
             });
     }
-}       return Rental_seller::with(['product', 'user', 'order'])
-            ->whereHas('product', function ($query) {
-                $query->where('user_id', \Illuminate\Support\Facades\Auth::id())
-                    ->orWhereHas('store', fn ($store) => $store->where('user_id', \Illuminate\Support\Facades\Auth::id()));
-            });
+}

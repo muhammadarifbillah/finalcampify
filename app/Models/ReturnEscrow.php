@@ -54,6 +54,10 @@ class ReturnEscrow extends Model
         'deficit',
         'deposit_amount',
         'rental_fee_amount',
+        'buyer_refund_bank_name',
+        'buyer_refund_bank_account',
+        'buyer_refund_bank_name_owner',
+        'refund_disbursed_at',
     ];
 
     protected $casts = [
@@ -69,6 +73,7 @@ class ReturnEscrow extends Model
         'deficit' => 'decimal:2',
         'expected_date' => 'datetime',
         'actual_date' => 'datetime',
+        'refund_disbursed_at' => 'datetime',
         'dispute_chat_log' => 'array',
     ];
 

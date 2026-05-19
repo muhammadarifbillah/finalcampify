@@ -44,6 +44,7 @@
                     <a href="{{ route('profile') }}" class="mt-3 inline-block text-xs font-bold text-amber-900 border-b-2 border-amber-900 hover:text-amber-700 transition-colors">Cek Status KTP Saya →</a>
                 </div>
             </div>
+        @endif
         <!-- RETURN STATUS ALERTS -->
         @if($pesanan->returnRequest)
             @php
@@ -220,7 +221,7 @@
                 
                 <div class="relative group">
                     <div id="tracking-map" class="shadow-inner border border-slate-200"></div>
-                    <div class="absolute bottom-4 left-4 right-4 z-[1000] flex gap-2">
+                    <div class="absolute bottom-4 left-4 right-4 z-30 flex gap-2">
                         <div class="bg-white/90 backdrop-blur px-3 py-2 rounded-xl shadow-sm border border-slate-200 flex items-center gap-3">
                             <div class="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center text-emerald-600">
                                 🚚
@@ -256,7 +257,6 @@
                             <div class="flex flex-col md:flex-row gap-6">
                                 <!-- FOTO PRODUK -->
                                 <div class="w-full md:w-32 h-32 flex-shrink-0">
-<<<<<<< HEAD
                                     @php
                                         $imgPath = $produk->image ?? $produk->gambar;
                                         if ($imgPath && !str_starts_with($imgPath, 'assets/images/') && !str_starts_with($imgPath, 'storage/') && !str_starts_with($imgPath, 'http')) {
@@ -273,12 +273,6 @@
                                     @else
                                         <div class="w-full h-full bg-slate-100 rounded-2xl flex items-center justify-center text-3xl">📦</div>
                                     @endif
-=======
-                                    <img 
-                                        src="{{ $produk->image_url }}"
-                                        class="w-full h-full object-cover rounded-2xl shadow-sm"
-                                    >
->>>>>>> e24353f58e6091604773e271772369e5c95c3d17
                                 </div>
 
                                 <!-- INFO UTAMA -->
@@ -396,15 +390,11 @@
                                         <div class="mt-4 pt-4 border-t border-slate-200 space-y-4">
                                             <div class="flex flex-col gap-3">
                                                 @if(!$returnInfo)
-<<<<<<< HEAD
                                                     @php
                                                         $canReturn = ($rentalInfo && $rentalInfo->status === 'active') || 
                                                                     in_array($pesanan->status, ['dikirim', 'selesai']);
                                                     @endphp
                                                     @if($canReturn)
-=======
-                                                    @if($canReturnRental)
->>>>>>> e24353f58e6091604773e271772369e5c95c3d17
                                                         <a href="{{ route('orders.return', $item->id) }}" class="inline-flex items-center justify-center rounded-xl bg-slate-900 px-4 py-2 text-xs font-bold text-white hover:bg-slate-800 transition shadow-lg shadow-slate-200">
                                                             <i data-lucide="rotate-ccw" class="w-3 h-3 me-2"></i> AJUKAN PENGEMBALIAN SEKARANG
                                                         </a>

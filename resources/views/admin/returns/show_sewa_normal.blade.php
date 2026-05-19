@@ -109,9 +109,67 @@
                         </button>
                     </form>
                 @else
-                    <div class="p-4 bg-emerald-50 border border-emerald-100 rounded-xl flex items-center gap-3">
-                        <i data-lucide="check-circle" class="text-emerald-600" style="width: 20px; height: 20px;"></i>
-                        <div class="text-[11px] font-bold text-emerald-800 uppercase tracking-wider">Transaksi Telah Selesai</div>
+                    <div class="space-y-4">
+                        <div class="p-4 bg-emerald-50 border border-emerald-100 rounded-xl flex items-center gap-3">
+                            <i data-lucide="check-circle" class="text-emerald-600" style="width: 20px; height: 20px;"></i>
+                            <div class="text-[11px] font-bold text-emerald-800 uppercase tracking-wider">Transaksi Telah Selesai (Completed)</div>
+                        </div>
+
+                        <!-- Panel Transfer Manual Admin -->
+                        @if(!$return->refund_disbursed_at)
+                            <div class="p-5 bg-amber-50 border border-amber-100 rounded-2xl space-y-4">
+                                <h3 class="text-xs font-black text-amber-800 uppercase tracking-wider"><i class="bi bi-bank me-1"></i>INSTRUKSI PENCAIRAN MANUAL (ADMIN)</h3>
+                                
+                                <!-- Ke Pembeli -->
+                                <div class="p-3 bg-white rounded-xl border border-amber-200 space-y-2">
+                                    <div class="flex justify-between items-center text-xs">
+                                        <span class="text-gray-500">Tujuan Refund Penyewa:</span>
+                                        <span class="font-bold text-[#0f6b52]">Rp {{ number_format((int)$return->to_buyer, 0, ',', '.') }}</span>
+                                    </div>
+                                    <div class="grid grid-cols-3 gap-1 text-[11px] pt-2 border-t text-gray-700">
+                                        <span class="text-gray-400">Bank:</span>
+                                        <span class="col-span-2 font-bold">{{ $return->buyer_refund_bank_name ?? '-' }}</span>
+                                        <span class="text-gray-400">No. Rek:</span>
+                                        <span class="col-span-2 font-bold">{{ $return->buyer_refund_bank_account ?? '-' }}</span>
+                                        <span class="text-gray-400 font-bold">Atas Nama:</span>
+                                        <span class="col-span-2 font-bold">{{ $return->buyer_refund_bank_name_owner ?? '-' }}</span>
+                                    </div>
+                                </div>
+
+                                <!-- Ke Penjual -->
+                                <div class="p-3 bg-white rounded-xl border border-amber-200 space-y-2">
+                                    <div class="flex justify-between items-center text-xs">
+                                        <span class="text-gray-500">Tujuan Transfer Seller:</span>
+                                        <span class="font-bold text-gray-900">Rp {{ number_format((int)$return->to_seller, 0, ',', '.') }}</span>
+                                    </div>
+                                    <div class="grid grid-cols-3 gap-1 text-[11px] pt-2 border-t text-gray-700">
+                                        <span class="text-gray-400">Bank:</span>
+                                        <span class="col-span-2 font-bold">{{ $return->order->details->first()->product->store->bank_name ?? 'BCA' }}</span>
+                                        <span class="text-gray-400">No. Rek:</span>
+                                        <span class="col-span-2 font-bold">{{ $return->order->details->first()->product->store->bank_account_number ?? '-' }}</span>
+                                        <span class="text-gray-400 font-bold">Atas Nama:</span>
+                                        <span class="col-span-2 font-bold">{{ $return->order->details->first()->product->store->bank_account_name ?? '-' }}</span>
+                                    </div>
+                                </div>
+
+                                <form method="POST" action="{{ route('admin.returns.disburse', $return->id) }}">
+                                    @csrf
+                                    <button type="submit" class="w-full py-3 bg-[#0f6b52] hover:bg-[#0c5843] text-white text-xs font-black rounded-xl shadow transition-all active:scale-95 flex items-center justify-center gap-2">
+                                        <i data-lucide="check-square" style="width: 16px; height: 16px;"></i>
+                                        TANDAI DANA TELAH DITRANSFER
+                                    </button>
+                                </form>
+                            </div>
+                        @else
+                            <div class="p-4 bg-emerald-100 border border-emerald-200 rounded-xl space-y-2 text-emerald-800">
+                                <div class="flex items-center gap-2 text-xs font-bold">
+                                    <span>✅ DANA TELAH DICAIRKAN</span>
+                                </div>
+                                <p class="text-[10px] leading-relaxed m-0 text-emerald-700">
+                                    Semua pencairan dana jaminan (refund penyewa) & dana sewa (payout seller) telah sukses diselesaikan oleh Admin pada <strong>{{ $return->refund_disbursed_at->format('d M Y H:i') }}</strong>.
+                                </p>
+                            </div>
+                        @endif
                     </div>
                 @endif
                 <p class="text-[9px] text-gray-400 text-center leading-relaxed">Dana akan didistribusikan sesuai kalkulasi di atas. Pastikan kondisi barang sudah diperiksa oleh pemilik.</p>

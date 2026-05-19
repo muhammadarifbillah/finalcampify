@@ -117,6 +117,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::post('/returns/{returnEscrow}', [ReturnEscrowController::class, 'update'])->name('admin.returns.update');
     Route::post('/returns/{returnEscrow}/message', [ReturnEscrowController::class, 'sendMediationMessage'])->name('admin.returns.message');
     Route::post('/returns/{returnEscrow}/finalize', [ReturnEscrowController::class, 'finalize'])->name('admin.returns.finalize');
+    Route::post('/returns/{returnEscrow}/disburse', [ReturnEscrowController::class, 'disburseRefund'])->name('admin.returns.disburse');
 
     Route::get('/settings', [SettingsController::class, 'index'])->name('admin.settings');
     Route::post('/settings', [SettingsController::class, 'update'])->name('admin.settings.update');
@@ -192,12 +193,12 @@ Route::middleware(['auth', 'role:buyer'])->group(function () {
 
     Route::get('/orders/return/{detail_id}', [PembeliOrderController::class, 'returnForm'])->name('orders.return');
     Route::post('/orders/return/{detail_id}', [PembeliOrderController::class, 'returnStore'])->name('orders.return.store');
+    Route::post('/orders/return-submit-shipping/{return_id}', [PembeliOrderController::class, 'submitShipping'])->name('orders.return.submit-shipping');
     Route::post('/orders/return-upload-bukti/{return_id}', [PembeliOrderController::class, 'uploadBuktiDenda'])->name('orders.return.upload-bukti');
     Route::get('/orders', [PembeliOrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{id}', [PembeliOrderController::class, 'detail'])->name('orders.detail');
     Route::post('/orders/{id}/cancel', [PembeliOrderController::class, 'cancel'])->name('orders.cancel');
     Route::post('/orders/{id}/confirm', [PembeliOrderController::class, 'confirmReceipt'])->name('orders.confirm');
-
     Route::get('/chat', [PembeliChatController::class, 'index'])->name('chat.index');
     Route::get('/product/{product}/chat', [PembeliChatController::class, 'start'])->name('chat.product.start');
     Route::get('/chat/{conversation}', [PembeliChatController::class, 'show'])->name('chat.show');
@@ -224,6 +225,9 @@ Route::middleware(['auth', 'role:seller'])->prefix('seller')->name('seller.')->g
     Route::get('/rentals/{rental}', [RentalController_seller::class, 'show'])->name('rentals.show');
     Route::get('/rentals/{rental}/edit', [RentalController_seller::class, 'edit'])->name('rentals.edit');
     Route::put('/rentals/{rental}', [RentalController_seller::class, 'update'])->name('rentals.update');
+    Route::post('/rentals/{rental}/approve-return', [RentalController_seller::class, 'approveRequest'])->name('rentals.approve-return');
+    Route::post('/rentals/{rental}/receive-item', [RentalController_seller::class, 'receiveItem'])->name('rentals.receive-item');
+    Route::post('/rentals/{rental}/verify-denda', [RentalController_seller::class, 'verifyDendaPayment'])->name('rentals.verify-denda');
 
     // Store Profile
     Route::get('/store-profile', [StoreProfileController_seller::class, 'index'])->name('store-profile.index');

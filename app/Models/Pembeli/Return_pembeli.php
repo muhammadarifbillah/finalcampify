@@ -34,6 +34,10 @@ class Return_pembeli extends Model
         'kondisi_barang',
         'denda',
         'tanggal_pengembalian',
+        'buyer_refund_bank_name',
+        'buyer_refund_bank_account',
+        'buyer_refund_bank_name_owner',
+        'refund_disbursed_at',
     ];
 
     protected $casts = [
@@ -49,5 +53,6 @@ class Return_pembeli extends Model
         'expected_date' => 'datetime',
         'actual_date' => 'datetime',
         'tanggal_pengembalian' => 'datetime',
+        'refund_disbursed_at' => 'datetime',
     ];
 }

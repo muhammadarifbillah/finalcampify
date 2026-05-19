@@ -160,7 +160,6 @@
                             Belum ada riwayat penyewaan.
                         </div>
                     @else
-<<<<<<< HEAD
                         <div class="space-y-6">
                             @foreach($rentalOrders as $order)
                                 <div class="rounded-3xl border p-6 shadow-sm bg-blue-50/30">
@@ -298,36 +297,13 @@
                                                 </div>
                                             @endif
                                         @endforeach
-=======
-                        <div class="space-y-4">
-                            @foreach($orders as $order)
-                                <div class="rounded-3xl border p-6 shadow-sm">
-                                    <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                                        <div>
-                                            <p class="text-sm text-gray-500">No. Pesanan</p>
-                                            <p class="font-bold">#{{ $order->id }}</p>
-                                        </div>
-                                        <div>
-                                            <p class="text-sm text-gray-500">Status</p>
-                                            <p class="font-medium capitalize">{{ $order->status }}</p>
-                                        </div>
-                                        <div>
-                                            <p class="text-sm text-gray-500">Total</p>
-                                            <p class="font-medium">Rp {{ number_format($order->total, 0, ',', '.') }}</p>
-                                        </div>
-                                        <div class="text-right">
-                                            @if($order->status == 'selesai')
-                                                <a href="{{ route('orders.detail', $order->id) }}#review-section" class="inline-block bg-emerald-600 text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-emerald-700 transition mr-2 mb-2 md:mb-0">Beri Ulasan</a>
-                                            @endif
-                                            <a href="{{ route('orders.detail', $order->id) }}" class="text-green-600 hover:underline font-medium">Lihat Detail</a>
-                                        </div>
->>>>>>> e24353f58e6091604773e271772369e5c95c3d17
                                     </div>
                                 </div>
                             @endforeach
                         </div>
                     @endif
                 </div>
+
             @elseif($tab === 'edit')
                 <div class="bg-white rounded-3xl p-8 shadow-sm">
                     <h2 class="text-2xl font-bold mb-4">Edit Profile & Alamat</h2>
