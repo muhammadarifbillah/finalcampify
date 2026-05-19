@@ -59,9 +59,10 @@ class PembeliOrderController extends Controller
             $denda = $daysLate * $dailyFine;
         }
 
+        $returnType = $detail->type === 'rent' ? 'sewa' : 'jual_beli';
         $return = Return_pembeli::query()
             ->where('order_id', $pesanan->id)
-            ->where('type', 'sewa')
+            ->where('type', $returnType)
             ->first();
 
         $rental = Rental_pembeli::where('order_id', $pesanan->id)->first();
@@ -86,7 +87,7 @@ class PembeliOrderController extends Controller
                 'buyer_refund_bank_name_owner' => 'required|string|max:255',
             ]);
 
-            $depositAmount = ($detail->product->buy_price ?? 0) * 0.25;
+            $depositAmount = ($detail->product->escrow_amount > 0) ? $detail->product->escrow_amount : (($detail->product->buy_price ?? 0) * 0.25);
             $rentalFeeAmount = $detail->harga;
             $escrowTotal = $depositAmount + $rentalFeeAmount;
 
@@ -190,15 +191,14 @@ class PembeliOrderController extends Controller
             }
         }
 
-        // --- Alur Retur Jual Beli / Buy Return (Tetap/Legacy) ---
+        // --- Alur Retur Jual Beli / Buy Return (Sesuai BPMN) ---
         $request->validate([
-            'metode_return' => 'required|in:antar,kurir',
-            'resi_return' => 'required_if:metode_return,kurir|nullable|string|max:255',
-            'foto_kondisi' => 'required|file|mimes:jpg,jpeg,png,webp,mp4,mov,avi|max:10240',
+            'foto_kondisi' => 'required|file|mimes:jpg,jpeg,png,webp|max:10240',
             'alasan_return' => 'required|string|max:500',
+            'buyer_refund_bank_name' => 'required|string|max:255',
+            'buyer_refund_bank_account' => 'required|string|max:255',
+            'buyer_refund_bank_name_owner' => 'required|string|max:255',
         ]);
-
-        $resi = $request->metode_return === 'antar' ? 'DIANTAR_LANGSUNG' : $request->resi_return;
 
         $fotoKondisiPath = null;
         if ($request->hasFile('foto_kondisi')) {
@@ -218,12 +218,12 @@ class PembeliOrderController extends Controller
         }
 
         $return->fill([
-            'rental_id' => $rental?->id,
-            'resi_return' => $resi,
+            'rental_id' => null,
+            'resi_return' => null,
             'proof_returned_image' => $fotoKondisiPath,
             'tanggal_pengembalian' => now(),
             'actual_date' => now(),
-            'denda' => 0, 
+            'denda' => 0,
             'kondisi_barang' => $detail->type === 'buy' ? 'belum_dicek' : 'baik',
             'status' => 'pending',
             'escrow_total' => (string) ($detail->type === 'buy' ? ($detail->harga * $detail->qty) : ($pesanan->total ?? 0)),
@@ -231,8 +231,11 @@ class PembeliOrderController extends Controller
             'late_fee' => '0',
             'damage_fee' => '0',
             'to_seller' => '0',
-            'to_buyer' => '0',
+            'to_buyer' => (string) ($detail->harga * $detail->qty),
             'renter_notes' => $request->alasan_return,
+            'buyer_refund_bank_name' => $request->buyer_refund_bank_name,
+            'buyer_refund_bank_account' => $request->buyer_refund_bank_account,
+            'buyer_refund_bank_name_owner' => $request->buyer_refund_bank_name_owner,
         ]);
         $return->save();
 
@@ -282,7 +285,7 @@ class PembeliOrderController extends Controller
     {
         $return = Return_pembeli::findOrFail($return_id);
         $pesanan = Order_pembeli::findOrFail($return->order_id);
-        $rental = Rental_pembeli::where('order_id', $pesanan->id)->firstOrFail();
+        $rental = Rental_pembeli::where('order_id', $pesanan->id)->first();
 
         if ($pesanan->user_id !== \Illuminate\Support\Facades\Auth::id()) {
             abort(403);
@@ -302,7 +305,9 @@ class PembeliOrderController extends Controller
                 'status' => 'denda_submitted'
             ]);
 
-            $rental->update(['status' => 'denda_submitted']);
+            if ($rental) {
+                $rental->update(['status' => 'denda_submitted']);
+            }
         }
 
         return back()->with('success', 'Bukti pembayaran denda berhasil diunggah. Menunggu verifikasi toko.');
@@ -340,5 +345,21 @@ class PembeliOrderController extends Controller
             return back()->with('success', 'Pesanan dibatalkan');
         }
         return back()->with('error', 'Pesanan tidak dapat dibatalkan');
+    }
+
+    public function confirmReplacementReceipt($return_id)
+    {
+        $return = Return_pembeli::findOrFail($return_id);
+        $pesanan = Order_pembeli::findOrFail($return->order_id);
+
+        if ($pesanan->user_id !== \Illuminate\Support\Facades\Auth::id()) {
+            abort(403);
+        }
+
+        $return->update([
+            'status' => 'completed',
+        ]);
+
+        return back()->with('success', 'Penerimaan produk pengganti berhasil dikonfirmasi. Retur selesai!');
     }
 }

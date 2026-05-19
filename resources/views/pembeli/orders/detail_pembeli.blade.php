@@ -174,7 +174,7 @@
                         <div class="flex justify-between items-center pt-2 border-t">
                             <span class="font-bold text-slate-800">Total Transaksi {{ isset($detailId) ? '(Barang Ini)' : '' }}</span>
                             <span class="text-xl font-black text-emerald-600">
-                                Rp {{ number_format(isset($detailId) ? ($pesanan->details->first()->harga * $pesanan->details->first()->qty + ($pesanan->details->first()->type === 'rent' ? ($pesanan->details->first()->product->buy_price * 0.25) : 0)) : ($pesanan->total ?? 0)) }}
+                                Rp {{ number_format(isset($detailId) ? ($pesanan->details->first()->harga * $pesanan->details->first()->qty + ($pesanan->details->first()->type === 'rent' ? ($pesanan->details->first()->product->escrow_amount > 0 ? $pesanan->details->first()->product->escrow_amount : ($pesanan->details->first()->product->buy_price * 0.25)) : 0)) : ($pesanan->total ?? 0)) }}
                             </span>
                         </div>
                         @if($pesanan->bukti_pembayaran)
@@ -345,7 +345,7 @@
                                                     // Ambil deposit dari record return jika sudah ada, atau hitung manual
                                                     $deposit = ($returnInfo && $returnInfo->deposit_amount > 0) 
                                                         ? $returnInfo->deposit_amount 
-                                                        : (($produk->buy_price ?? 0) * 0.25);
+                                                        : ($produk->escrow_amount > 0 ? $produk->escrow_amount : (($produk->buy_price ?? 0) * 0.25));
                                                     
                                                     // Jika tetap 0 tapi ada escrow_total di return, gunakan itu
                                                     if ($deposit <= 0 && $returnInfo && $returnInfo->escrow_total > 0) {
@@ -364,6 +364,14 @@
 
                                         {{-- Return & Review Section for Rental --}}
                                         <div class="mt-4 pt-4 border-t border-slate-200 space-y-4">
+                                            @if($rentalInfo && $rentalInfo->condition_photo_handover)
+                                                <div class="p-4 bg-emerald-50/50 rounded-2xl border border-emerald-100">
+                                                    <p class="text-[10px] font-black text-emerald-800 uppercase tracking-widest mb-2"><i class="bi bi-camera me-1"></i> Foto Kondisi Barang Saat Mulai Sewa</p>
+                                                    <a href="{{ asset($rentalInfo->condition_photo_handover) }}" target="_blank" class="inline-block relative rounded-xl overflow-hidden border border-emerald-200 max-w-xs hover:opacity-95 transition shadow-sm">
+                                                        <img src="{{ asset($rentalInfo->condition_photo_handover) }}" class="max-h-44 object-cover" style="max-width: 100%;">
+                                                    </a>
+                                                </div>
+                                            @endif
                                             <div class="flex flex-col gap-3">
                                                 @if(!$returnInfo)
                                                     @if($canReturnRental)
@@ -391,7 +399,7 @@
                                                                 <div class="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></div>
                                                                 <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Status Pengembalian</span>
                                                             </div>
-                                                            <span class="px-2 py-0.5 {{ $returnInfo->status === 'completed' ? 'bg-emerald-100 text-emerald-700' : 'bg-indigo-100 text-indigo-700' }} rounded text-[9px] font-bold uppercase">{{ $returnInfo->status }}</span>
+                                                            <span class="px-2 py-0.5 {{ $returnInfo->status === 'completed' ? 'bg-emerald-100 text-emerald-700' : ($returnInfo->status === 'waiting_refund' ? 'bg-amber-100 text-amber-700' : 'bg-indigo-100 text-indigo-700') }} rounded text-[9px] font-bold uppercase">{{ str_replace('_', ' ', $returnInfo->status) }}</span>
                                                         </div>
                                                         
                                                         @if($returnInfo->status === 'completed')
@@ -409,6 +417,14 @@
                                                                     <span class="text-lg font-black text-emerald-600">Rp {{ number_format($returnInfo->to_buyer) }}</span>
                                                                 </div>
                                                                 <p class="text-[9px] text-slate-400 text-center italic mt-2">Dana telah dikembalikan ke saldo/rekening Anda.</p>
+                                                            </div>
+                                                        @elseif($returnInfo->status === 'waiting_refund')
+                                                            <div class="space-y-2 pt-2 border-t border-dashed border-slate-200">
+                                                                <p class="text-[10px] text-slate-600 font-medium">Barang diterima seller. <strong>Menunggu proses transfer dana refund dari Admin.</strong></p>
+                                                                <div class="flex justify-between items-center pt-2 border-t border-slate-200">
+                                                                    <span class="text-xs font-bold text-amber-700">Estimasi Refund</span>
+                                                                    <span class="text-md font-black text-amber-600">Rp {{ number_format($returnInfo->to_buyer) }}</span>
+                                                                </div>
                                                             </div>
                                                         @else
                                                             <p class="text-[10px] text-slate-500 italic">Barang dalam proses pengecekan oleh Admin & Penjual. Harap tunggu konfirmasi refund.</p>

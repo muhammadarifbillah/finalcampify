@@ -9,9 +9,25 @@ use Illuminate\Http\Request;
 
 class OrderController_seller extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $orders = $this->sellerOrders()->latest()->get();
+        $query = $this->sellerOrders();
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('id', 'like', '%' . $search . '%')
+                  ->orWhere('receiver_name', 'like', '%' . $search . '%')
+                  ->orWhereHas('buyer', function ($bq) use ($search) {
+                      $bq->where('name', 'like', '%' . $search . '%');
+                  })
+                  ->orWhereHas('details.product', function ($pq) use ($search) {
+                      $pq->where('nama_produk', 'like', '%' . $search . '%');
+                  });
+            });
+        }
+
+        $orders = $query->latest()->get();
         return view('SellerView.orders.index_seller', compact('orders'));
     }
 

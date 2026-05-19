@@ -22,7 +22,7 @@
 </div>
 
 {{-- STATS CARDS --}}
-<div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-6 g-4 mb-5">
+<div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 mb-5">
     {{-- Revenue --}}
     <div class="col">
         <div class="card card-modern p-4 h-100 border-0 shadow-sm position-relative overflow-hidden">

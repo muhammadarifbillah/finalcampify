@@ -99,16 +99,16 @@
             </div>
 
             <div class="pt-6 space-y-3">
-                @if($return->status !== 'completed')
+                @if($return->status === 'waiting_refund')
                     <form method="POST" action="{{ route('admin.returns.finalize', $return->id) }}">
                         @csrf
                         <input type="hidden" name="final_status" value="completed">
                         <button type="submit" class="w-full py-4 bg-[#0f6b52] text-white text-sm font-black rounded-xl hover:bg-[#0c5843] transition-all active:scale-95 shadow-lg flex items-center justify-center gap-3 group">
                             <i data-lucide="check-circle" style="width: 20px; height: 20px;"></i>
-                            SELESAIKAN & CAIRKAN
+                            SELESAIKAN & TRANSFER REFUND
                         </button>
                     </form>
-                @else
+                @elseif($return->status === 'completed')
                     <div class="space-y-4">
                         <div class="p-4 bg-emerald-50 border border-emerald-100 rounded-xl flex items-center gap-3">
                             <i data-lucide="check-circle" class="text-emerald-600" style="width: 20px; height: 20px;"></i>
@@ -170,6 +170,13 @@
                                 </p>
                             </div>
                         @endif
+                    </div>
+                @else
+                    <div class="p-4 bg-gray-50 border border-gray-200 rounded-xl text-center space-y-1">
+                        <div class="text-xs font-bold text-gray-500 uppercase">Menunggu Proses dari Seller / Penyewa</div>
+                        <p class="text-[10px] text-gray-400 leading-normal">
+                            Seller belum melakukan konfirmasi penerimaan barang atau pembayaran denda belum diselesaikan.
+                        </p>
                     </div>
                 @endif
                 <p class="text-[9px] text-gray-400 text-center leading-relaxed">Dana akan didistribusikan sesuai kalkulasi di atas. Pastikan kondisi barang sudah diperiksa oleh pemilik.</p>

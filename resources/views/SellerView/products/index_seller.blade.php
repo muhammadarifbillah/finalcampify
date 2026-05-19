@@ -34,9 +34,12 @@
 </div>
 
 {{-- PRODUK GRID --}}
-<div class="row g-4">
+<div class="row g-4" id="products-grid">
     @forelse ($products as $product)
-    <div class="col-xl-4 col-md-6">
+    <div class="col-xl-4 col-md-6 product-card-col" 
+         data-name="{{ strtolower($product->nama_produk) }}" 
+         data-desc="{{ strtolower($product->deskripsi) }}" 
+         data-cat="{{ strtolower($product->kategori) }}">
         <div class="card card-modern h-100 border-0 overflow-hidden">
             
             {{-- IMAGE SECTION --}}

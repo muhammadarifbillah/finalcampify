@@ -11,7 +11,7 @@ class Rental_pembeli extends Model
 
     use HasFactory;
 
-    protected $fillable = ['user_id', 'product_id', 'order_id', 'start_date', 'end_date', 'duration', 'price', 'status'];
+    protected $fillable = ['user_id', 'product_id', 'order_id', 'start_date', 'end_date', 'duration', 'price', 'status', 'condition_photo_handover'];
 
     protected $casts = [
         'start_date' => 'date',

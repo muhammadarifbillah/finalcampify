@@ -38,6 +38,9 @@ class Return_pembeli extends Model
         'buyer_refund_bank_account',
         'buyer_refund_bank_name_owner',
         'refund_disbursed_at',
+        'resolution_type',
+        'resi_pengganti',
+        'owner_notes',
     ];
 
     protected $casts = [

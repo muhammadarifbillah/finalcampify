@@ -192,7 +192,7 @@
                                             @if($item->type === 'rent' || str_contains(strtolower($item->product->name ?? ''), '(sewa)'))
                                                 <div class="flex items-center gap-4 p-4 bg-white rounded-2xl border border-blue-50 shadow-sm">
                                                     @php
-                                                        $imgPath = $item->product->image ?? $item->product->gambar;
+                                                        $imgPath = $item->product?->image ?? $item->product?->gambar;
                                                         if ($imgPath && !str_starts_with($imgPath, 'assets/images/') && !str_starts_with($imgPath, 'storage/') && !str_starts_with($imgPath, 'http')) {
                                                             if (file_exists(public_path('assets/images/' . $imgPath))) {
                                                                 $imgPath = 'assets/images/' . $imgPath;
@@ -209,7 +209,7 @@
                                                         @endif
                                                     </div>
                                                     <div class="flex-1">
-                                                        <p class="text-xs font-bold text-slate-800">{{ $item->product->name ?? $item->product->nama_produk }}</p>
+                                                        <p class="text-xs font-bold text-slate-800">{{ $item->product?->name ?? $item->product?->nama_produk }}</p>
                                                         <p class="text-[10px] text-slate-500">{{ $item->duration ?? 3 }} Hari &bull; Rp {{ number_format($item->harga) }}</p>
                                                     </div>
                                                     <a href="{{ route('orders.detail', ['id' => $order->id, 'detail_id' => $item->id]) }}" 
@@ -266,7 +266,7 @@
                                             @if($item->type === 'buy' && !str_contains(strtolower($item->product->name ?? ''), '(sewa)'))
                                                 <div class="flex items-center gap-4 p-4 bg-white rounded-2xl border border-emerald-50 shadow-sm">
                                                     @php
-                                                        $imgPath = $item->product->image ?? $item->product->gambar;
+                                                        $imgPath = $item->product?->image ?? $item->product?->gambar;
                                                         if ($imgPath && !str_starts_with($imgPath, 'assets/images/') && !str_starts_with($imgPath, 'storage/') && !str_starts_with($imgPath, 'http')) {
                                                             if (file_exists(public_path('assets/images/' . $imgPath))) {
                                                                 $imgPath = 'assets/images/' . $imgPath;
@@ -283,7 +283,7 @@
                                                         @endif
                                                     </div>
                                                     <div class="flex-1">
-                                                        <p class="text-xs font-bold text-slate-800">{{ $item->product->name ?? $item->product->nama_produk }}</p>
+                                                        <p class="text-xs font-bold text-slate-800">{{ $item->product?->name ?? $item->product?->nama_produk }}</p>
                                                         <p class="text-[10px] text-slate-500">{{ $item->qty }} Item &bull; Rp {{ number_format($item->harga) }}</p>
                                                     </div>
                                                     <a href="{{ route('orders.detail', ['id' => $order->id, 'detail_id' => $item->id]) }}" 

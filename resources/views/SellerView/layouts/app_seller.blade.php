@@ -73,6 +73,8 @@
             position: sticky;
             top: 0;
             z-index: 999;
+            margin-left: 280px;
+            transition: all 0.3s ease;
         }
 
         .alert-modern {
@@ -84,6 +86,7 @@
         @media (max-width: 992px) {
             .sidebar { transform: translateX(-100%); }
             .main-content { margin-left: 0; padding: 20px; }
+            .glass-nav { margin-left: 0; }
         }
     </style>
 </head>
@@ -98,9 +101,10 @@
         <div class="container-fluid d-flex justify-content-between align-items-center">
             <h5 class="m-0 fw-bold d-lg-none" style="color: var(--primary-emerald)">CAMPIFY</h5>
             
-            <div class="search-bar d-none d-md-flex position-relative w-25">
-                <input type="text" class="form-control border-0 bg-light rounded-pill px-4" placeholder="Cari pesanan atau produk...">
-            </div>
+            <form id="navbar-search-form" class="search-bar d-none d-md-flex position-relative w-25" method="GET">
+                <i class="bi bi-search position-absolute start-0 top-50 translate-middle-y ms-3 text-muted"></i>
+                <input type="text" name="search" class="form-control border-0 bg-light rounded-pill ps-5 pe-4" placeholder="Cari pesanan, rental, atau produk..." value="{{ request('search') }}">
+            </form>
 
             <div class="nav-actions d-flex align-items-center gap-3">
                 <div class="notification-bell position-relative fs-5 text-muted">
@@ -140,5 +144,92 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchForm = document.getElementById('navbar-search-form');
+            const searchInput = searchForm ? searchForm.querySelector('input[name="search"]') : null;
+            
+            if (searchForm && searchInput) {
+                const path = window.location.pathname;
+                let isListPage = false;
+                let targetType = '';
+                
+                if (path.includes('/seller/orders')) {
+                    searchForm.action = '/seller/orders';
+                    isListPage = true;
+                    targetType = 'orders';
+                } else if (path.includes('/seller/rentals')) {
+                    searchForm.action = '/seller/rentals';
+                    isListPage = true;
+                    targetType = 'rentals';
+                } else if (path.includes('/seller/products')) {
+                    searchForm.action = '/seller/products';
+                    isListPage = true;
+                    targetType = 'products';
+                } else {
+                    searchForm.action = '/seller/products';
+                }
+
+                // If on a list page, perform live local DOM filtering
+                if (isListPage) {
+                    searchInput.addEventListener('input', function() {
+                        const query = this.value.toLowerCase().trim();
+                        
+                        if (targetType === 'products') {
+                            const cards = document.querySelectorAll('.product-card-col');
+                            cards.forEach(card => {
+                                const name = card.getAttribute('data-name') || '';
+                                const desc = card.getAttribute('data-desc') || '';
+                                const cat = card.getAttribute('data-cat') || '';
+                                
+                                if (name.includes(query) || desc.includes(query) || cat.includes(query)) {
+                                    card.style.setProperty('display', '', 'important');
+                                } else {
+                                    card.style.setProperty('display', 'none', 'important');
+                                }
+                            });
+                        } else if (targetType === 'orders') {
+                            const cards = document.querySelectorAll('.order-card-row');
+                            cards.forEach(card => {
+                                const id = card.getAttribute('data-id') || '';
+                                const buyer = card.getAttribute('data-buyer') || '';
+                                const products = card.getAttribute('data-products') || '';
+                                
+                                if (id.includes(query) || buyer.includes(query) || products.includes(query)) {
+                                    card.style.setProperty('display', '', 'important');
+                                } else {
+                                    card.style.setProperty('display', 'none', 'important');
+                                }
+                            });
+                        } else if (targetType === 'rentals') {
+                            const cards = document.querySelectorAll('.rental-card-row');
+                            cards.forEach(card => {
+                                const id = card.getAttribute('data-id') || '';
+                                const user = card.getAttribute('data-user') || '';
+                                const product = card.getAttribute('data-product') || '';
+                                
+                                if (id.includes(query) || user.includes(query) || product.includes(query)) {
+                                    card.style.setProperty('display', '', 'important');
+                                } else {
+                                    card.style.setProperty('display', 'none', 'important');
+                                }
+                            });
+                        }
+                    });
+                } else {
+                    // If on dashboard/other pages, debounce submit to redirect automatically after 800ms
+                    let debounceTimer;
+                    searchInput.addEventListener('input', function() {
+                        clearTimeout(debounceTimer);
+                        debounceTimer = setTimeout(() => {
+                            if (this.value.trim().length > 0) {
+                                searchForm.submit();
+                            }
+                        }, 800);
+                    });
+                }
+            }
+        });
+    </script>
 </body>
 </html>
