@@ -41,7 +41,6 @@
             
             {{-- IMAGE SECTION --}}
             <div class="position-relative" style="height: 240px;">
-<<<<<<< HEAD
                 @php
                     $imgPath = $product->gambar;
                     if ($imgPath && !str_starts_with($imgPath, 'assets/images/') && !str_starts_with($imgPath, 'storage/') && !str_starts_with($imgPath, 'http')) {
@@ -56,10 +55,6 @@
 
                 @if($imgPath && (file_exists(public_path($imgPath)) || str_contains($imgPath, 'http')))
                     <img src="{{ asset($imgPath) }}" class="w-100 h-100 object-fit-cover" alt="{{ $product->nama_produk }}">
-=======
-                @if($product->image_url)
-                    <img src="{{ $product->image_url }}" class="w-100 h-100 object-fit-cover" alt="{{ $product->nama_produk }}">
->>>>>>> e24353f58e6091604773e271772369e5c95c3d17
                 @else
                     <div class="w-100 h-100 bg-light d-flex flex-column align-items-center justify-content-center">
                         <span class="fs-1 opacity-25">🏕️</span>

@@ -10,7 +10,6 @@
         ? route('produk.detail.buy', $product->id) 
         : route('produk.detail.rent', $product->id) }}">
         
-<<<<<<< HEAD
       @php
         $imgPath = $product->image ?? $product->gambar;
         if ($imgPath && !str_starts_with($imgPath, 'assets/images/') && !str_starts_with($imgPath, 'storage/') && !str_starts_with($imgPath, 'http')) {
@@ -31,13 +30,6 @@
       @else
           <div class="w-full h-full bg-slate-100 flex items-center justify-center text-3xl">📦</div>
       @endif
-=======
-      <img
-  src="{{ $product->image_url }}"
-  alt="{{ $product->name }}"
-  class="w-full h-full object-cover transition duration-500 group-hover:scale-110"
->
->>>>>>> e24353f58e6091604773e271772369e5c95c3d17
     </a>
 
     <!-- TOP -->
