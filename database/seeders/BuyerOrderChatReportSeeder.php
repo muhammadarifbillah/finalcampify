@@ -52,6 +52,7 @@ class BuyerOrderChatReportSeeder extends Seeder
     private function buyerSpecs(): array
     {
         return [
+            ['email' => 'buyer@campify.com', 'name' => 'Sample Buyer', 'city' => 'Bandung', 'district' => 'Lengkong'],
             ['email' => 'agus.pratama@gmail.com', 'name' => 'Agus Pratama', 'city' => 'Bandung', 'district' => 'Lengkong'],
             ['email' => 'siti.aminah@yahoo.com', 'name' => 'Siti Aminah', 'city' => 'Jakarta', 'district' => 'Setiabudi'],
             ['email' => 'bambang.h@gmail.com', 'name' => 'Bambang Herlambang', 'city' => 'Bandung', 'district' => 'Coblong'],
@@ -91,6 +92,9 @@ class BuyerOrderChatReportSeeder extends Seeder
 
     private function passwordForEmail(string $email): string
     {
+        if ($email === 'buyer@campify.com') {
+            return 'buyer123';
+        }
         $local = trim(explode('@', $email)[0] ?? '');
         $local = $local !== '' ? $local : 'buyer';
         return Str::ucfirst($local) . '123?';

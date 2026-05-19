@@ -43,6 +43,8 @@ class AdminUserSeeder extends Seeder
                 'password' => Hash::make('buyer123'),
                 'role' => 'buyer',
                 'status' => 'active',
+                'ktp_image' => 'ktp_22_1779214919.png',
+                'ktp_verified_at' => now(),
             ]
         );
 

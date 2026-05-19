@@ -10,31 +10,20 @@
         ? route('produk.detail.buy', $product->id) 
         : route('produk.detail.rent', $product->id) }}">
         
-      @php
-        $imgPath = $product->image ?? $product->gambar;
-        if ($imgPath && !str_starts_with($imgPath, 'assets/images/') && !str_starts_with($imgPath, 'storage/') && !str_starts_with($imgPath, 'http')) {
-            if (file_exists(public_path('assets/images/' . $imgPath))) {
-                $imgPath = 'assets/images/' . $imgPath;
-            } else {
-                $imgPath = 'storage/' . $imgPath;
-            }
-        }
-      @endphp
-
-      @if($imgPath && (file_exists(public_path($imgPath)) || str_contains($imgPath, 'http')))
+      @if($product->image_url)
           <img
-            src="{{ asset($imgPath) }}"
+            src="{{ $product->image_url }}"
             alt="{{ $product->name ?? $product->nama_produk }}"
-            class="w-full h-full object-cover transition duration-500 group-hover:scale-110"
+            class="w-full h-full object-contain p-2 bg-slate-50 transition duration-300 group-hover:scale-105"
           >
       @else
           <div class="w-full h-full bg-slate-100 flex items-center justify-center text-3xl">📦</div>
       @endif
     </a>
-
+ 
     <!-- TOP -->
     <div class="absolute inset-x-0 top-3 px-4 flex justify-between items-center">
-
+ 
       <!-- BADGE -->
       @if($isBuy)
         <span class="bg-slate-100 text-slate-700 text-[10px] px-3 py-1 rounded-full font-semibold">
@@ -45,12 +34,12 @@
           Sewa
         </span>
       @endif
-
+ 
       <!-- WISHLIST -->
       <form action="{{ route('wishlist.toggle') }}" method="POST">
         @csrf
         <input type="hidden" name="product_id" value="{{ $product->id }}">
-        <button class="w-9 h-9 rounded-full bg-white/90 shadow flex items-center justify-center
+        <button class="w-9 h-9 rounded-full bg-white/90 shadow flex items-center justify-center transition-all duration-300 transform hover:scale-115 active:scale-95 hover:bg-white
           {{ $isWishlisted ?? false ? 'text-red-500' : 'text-gray-400 hover:text-red-500' }}">
           ❤️
         </button>
