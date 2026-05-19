@@ -45,4 +45,46 @@ class Product_pembeli extends Model
             ?? $this->user_id
             ?? $this->store?->user_id;
     }
+
+    public function getImageUrlAttribute()
+    {
+        $imageField = $this->attributes['image'] ?? $this->attributes['gambar'] ?? null;
+
+        if (!$imageField) {
+            return null;
+        }
+
+        if (filter_var($imageField, FILTER_VALIDATE_URL)) {
+            return $imageField;
+        }
+
+        $imageField = str_replace('\\', '/', $imageField);
+        $filename = basename($imageField);
+
+        if (str_starts_with($imageField, 'assets/images/')) {
+            return asset($imageField);
+        }
+
+        if (str_starts_with($imageField, 'storage/')) {
+            return asset($imageField);
+        }
+
+        if (str_starts_with($imageField, 'public/')) {
+            return asset('storage/' . substr($imageField, strlen('public/')));
+        }
+
+        if (\Illuminate\Support\Facades\Storage::disk('public')->exists($imageField)) {
+            return asset('storage/' . $imageField);
+        }
+
+        if (\Illuminate\Support\Facades\Storage::disk('public')->exists('products/' . $filename)) {
+            return asset('storage/products/' . $filename);
+        }
+
+        if (file_exists(public_path('assets/images/' . $filename))) {
+            return asset('assets/images/' . $filename);
+        }
+
+        return asset('assets/images/' . $filename);
+    }
 }
