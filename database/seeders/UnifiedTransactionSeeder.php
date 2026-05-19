@@ -40,7 +40,7 @@ class UnifiedTransactionSeeder extends Seeder
         }
 
         foreach ($buyers as $index => $buyer) {
-            // Skenario pembeli: 0=Normal, 1=Rusak, 2=Telat, 3=Dispute/Rejected, 4=Success Return
+            // Skenario pembeli: 0=Normal, 1=Rusak, 2=Telat, 3=Rejected, 4=Success Return
             $scenario = $index % 5;
 
             // 1. PEMBELIAN (BUY) - Selalu Produk Jual
@@ -179,7 +179,7 @@ class UnifiedTransactionSeeder extends Seeder
                 // Damaged (Sudah dikembalikan tapi ada masalah)
                 $actualDate = $expectedDate->copy();
                 $damageFee = $deposit * 0.5;
-                $status = ReturnEscrow::STATUS_DISPUTE;
+                $status = ReturnEscrow::STATUS_CHECKING;
                 $notes = 'Barang sudah kembali tapi terdapat kerusakan fisik.';
             } elseif ($scenario == 0) {
                 // Tepat Waktu (Selesai)
@@ -219,7 +219,7 @@ class UnifiedTransactionSeeder extends Seeder
                         'seller_id' => $sellerId,
                         'store_id' => $productBuy->store_id,
                         'type' => 'store',
-                        'reason' => 'Masalah sengketa',
+                        'reason' => 'Masalah pengembalian barang',
                         'description' => 'Seller tidak kooperatif dalam pengembalian.',
                         'status' => 'pending',
                     ]);

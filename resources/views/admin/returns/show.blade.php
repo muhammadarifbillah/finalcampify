@@ -6,7 +6,6 @@
 @php
     $badgeMap = [
         'pending' => 'admin-badge-warning',
-        'dispute' => 'admin-badge-danger',
         'checking' => 'admin-badge-info',
         'completed' => 'admin-badge-success',
         'rejected' => 'admin-badge-muted',

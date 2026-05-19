@@ -115,7 +115,6 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('/returns/jual-beli/export', [ReturnEscrowController::class, 'exportJualBeli'])->name('admin.returns.export.jual_beli');
     Route::get('/returns/{returnEscrow}', [ReturnEscrowController::class, 'show'])->name('admin.returns.show');
     Route::post('/returns/{returnEscrow}', [ReturnEscrowController::class, 'update'])->name('admin.returns.update');
-    Route::post('/returns/{returnEscrow}/message', [ReturnEscrowController::class, 'sendMediationMessage'])->name('admin.returns.message');
     Route::post('/returns/{returnEscrow}/finalize', [ReturnEscrowController::class, 'finalize'])->name('admin.returns.finalize');
     Route::post('/returns/{returnEscrow}/disburse', [ReturnEscrowController::class, 'disburseRefund'])->name('admin.returns.disburse');
 

@@ -684,7 +684,22 @@
                             @include('pembeli.produk.partials.review_pembeli', ['produk' => $detail->product])
                         </div>
                     </div>
+<<<<<<< HEAD
                 @endif
+=======
+                </div>
+            @endif
+
+            <!-- ------------------ LEGACY JUAL BELI VIEW Fallback ------------------ -->
+            @if($return && $detail->type === 'buy')
+                <div class="text-center py-10">
+                    <div class="w-20 h-20 bg-emerald-500 text-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                    </div>
+                    <h3 class="text-2xl font-black text-slate-900 mb-2">Permintaan Retur Terkirim!</h3>
+                    <p class="text-slate-500 mb-4">Pengajuan retur barang sedang diproses dan menunggu persetujuan dari penjual.</p>
+                </div>
+>>>>>>> c1119f10a6e970f0943e456c6dd7cf4eb8fd64da
             @endif
         </div>
     </div>

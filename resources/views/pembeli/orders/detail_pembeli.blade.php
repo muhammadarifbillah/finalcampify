@@ -51,20 +51,7 @@
                 $rStatus = $pesanan->returnRequest->status;
             @endphp
 
-            @if($rStatus === 'dispute')
-                <div class="mb-6 p-5 bg-rose-50 border-2 border-rose-200 rounded-3xl flex gap-5 items-start shadow-sm">
-                    <div class="w-12 h-12 rounded-2xl bg-rose-100 flex items-center justify-center text-rose-600 shrink-0">
-                        <i data-lucide="scale" class="w-6 h-6"></i>
-                    </div>
-                    <div class="flex-1">
-                        <h3 class="font-black text-rose-900 uppercase tracking-widest text-sm mb-1">Sedang Mediasi Admin</h3>
-                        <p class="text-xs text-rose-800 leading-relaxed">
-                            Pengembalian Anda sedang ditinjau oleh tim penengah (Admin) karena adanya sengketa/ketidaksesuaian dengan penjual. 
-                            Admin akan segera memberikan keputusan resolusi yang adil bagi kedua belah pihak.
-                        </p>
-                    </div>
-                </div>
-            @elseif($rStatus === 'checking')
+            @if($rStatus === 'checking')
                 <div class="mb-6 p-5 bg-amber-50 border-2 border-amber-200 rounded-3xl flex gap-5 items-start shadow-sm">
                     <div class="w-12 h-12 rounded-2xl bg-amber-100 flex items-center justify-center text-amber-600 shrink-0">
                         <i data-lucide="search" class="w-6 h-6"></i>
