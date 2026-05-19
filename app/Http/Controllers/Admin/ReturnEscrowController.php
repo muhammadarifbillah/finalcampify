@@ -25,7 +25,7 @@ class ReturnEscrowController extends Controller
 
         // Calculate stats
         $totalPermintaan = ReturnEscrow::where('type', 'jual_beli')->count();
-        $escrowTertahan = ReturnEscrow::where('type', 'jual_beli')->whereIn('status', ['pending', 'checking'])->sum('escrow_total');
+        $escrowTertahan = 0;
         
         return view('admin.returns.jual_beli', compact('returns', 'totalPermintaan', 'escrowTertahan'));
     }
@@ -165,6 +165,10 @@ class ReturnEscrowController extends Controller
 
     public function update(Request $request, ReturnEscrow $returnEscrow, ReturnSettlementService $settlement)
     {
+        if ($returnEscrow->type === ReturnEscrow::TYPE_JUAL_BELI) {
+            abort(403, 'Aksi tidak diizinkan untuk retur jual beli.');
+        }
+
         $validated = $request->validate([
             'type' => 'required|in:' . implode(',', ReturnEscrow::TYPES),
             'status' => 'required|in:' . implode(',', ReturnEscrow::STATUSES),
@@ -196,6 +200,10 @@ class ReturnEscrowController extends Controller
 
     public function finalize(Request $request, ReturnEscrow $returnEscrow, ReturnSettlementService $settlement)
     {
+        if ($returnEscrow->type === ReturnEscrow::TYPE_JUAL_BELI) {
+            abort(403, 'Aksi tidak diizinkan untuk retur jual beli.');
+        }
+
         $data = $request->validate([
             'final_status' => 'required|in:' . ReturnEscrow::STATUS_COMPLETED . ',' . ReturnEscrow::STATUS_REJECTED,
         ]);
@@ -214,6 +222,10 @@ class ReturnEscrowController extends Controller
 
     public function disburseRefund(ReturnEscrow $returnEscrow)
     {
+        if ($returnEscrow->type === ReturnEscrow::TYPE_JUAL_BELI) {
+            abort(403, 'Aksi tidak diizinkan untuk retur jual beli.');
+        }
+
         if ($returnEscrow->status !== 'completed') {
             return back()->with('error', 'Status pengembalian belum selesai (completed).');
         }

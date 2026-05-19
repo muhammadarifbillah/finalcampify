@@ -67,20 +67,16 @@
                 <div class="bg-white p-6 rounded-xl shadow-sm border">
                     <h2 class="text-lg font-bold mb-4">Metode Pembayaran</h2>
 
-                    <div class="grid grid-cols-2 gap-4">
-                        <label class="border rounded-lg p-4 cursor-pointer hover:bg-gray-50 transition">
+                    <div class="grid grid-cols-1 gap-4">
+                        <label class="border rounded-lg p-4 bg-gray-50 flex items-center">
                             <input type="radio" name="metode_pembayaran" value="transfer" checked class="mr-2 text-green-600">
-                            <span class="font-medium">Transfer Bank</span>
-                        </label>
-                        <label class="border rounded-lg p-4 cursor-pointer hover:bg-gray-50 transition">
-                            <input type="radio" name="metode_pembayaran" value="cod" class="mr-2 text-green-600">
-                            <span class="font-medium">COD</span>
+                            <span class="font-semibold text-slate-800">Transfer Bank</span>
                         </label>
                     </div>
 
                     {{-- INFO REKENING --}}
-                    <div id="checkout_payment_info" class="mt-4 p-4 bg-gray-50 rounded-lg hidden">
-                        <div id="checkout_info_transfer" class="hidden">
+                    <div id="checkout_payment_info" class="mt-4 p-4 bg-gray-50 rounded-lg">
+                        <div id="checkout_info_transfer">
                             <p class="text-sm font-bold mb-2">Transfer ke Rekening Toko:</p>
                             @php $uniqueStores = $cart->pluck('product.store')->unique('id')->filter(); @endphp
                             <div class="space-y-3">
@@ -92,10 +88,6 @@
                                     </div>
                                 @endforeach
                             </div>
-                        </div>
-
-                        <div id="checkout_info_cod" class="hidden text-sm">
-                            <p>Bayar tunai saat barang sampai di alamat Anda.</p>
                         </div>
                     </div>
 
@@ -321,32 +313,10 @@
 
         shippingRadios.forEach(radio => radio.addEventListener('change', updateTotals));
 
-        const payRadios = document.querySelectorAll('input[name="metode_pembayaran"]');
-        const payInfoBox = document.getElementById('checkout_payment_info');
-        const infoTransfer = document.getElementById('checkout_info_transfer');
-        const infoCod = document.getElementById('checkout_info_cod');
-        const proofContainer = document.getElementById('proof_upload_container');
         const proofInput = document.getElementById('bukti_pembayaran_input');
-
-        function updatePayInfo() {
-            const selected = document.querySelector('input[name="metode_pembayaran"]:checked').value;
-            payInfoBox.classList.remove('hidden');
-            infoTransfer.classList.add('hidden');
-            infoCod.classList.add('hidden');
-
-            if(selected === 'transfer') {
-                infoTransfer.classList.remove('hidden');
-                proofContainer.classList.remove('hidden');
-                proofInput.required = true;
-            } else {
-                infoCod.classList.remove('hidden');
-                proofContainer.classList.add('hidden');
-                proofInput.required = false;
-            }
+        if (proofInput) {
+            proofInput.required = true;
         }
-
-        payRadios.forEach(r => r.addEventListener('change', updatePayInfo));
-        updatePayInfo();
     });
 </script>
 @endsection

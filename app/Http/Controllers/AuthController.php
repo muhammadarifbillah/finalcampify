@@ -80,6 +80,13 @@ class AuthController extends Controller
      */
     public function register(StoreUserRequest $request)
     {
+        // Pastikan user log out dari sesi sebelumnya agar tidak terjadi auto-login akibat session check
+        if (Auth::check()) {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+        }
+
         $data = $request->validated();
 
         User::create([

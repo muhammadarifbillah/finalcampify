@@ -100,17 +100,17 @@
 
 
                         <div id="info_transfer" class="hidden space-y-2">
-                            @if(isset($admin) && $admin->bank_account_number)
+                            @if(isset($produk->store) && $produk->store->bank_account_number)
                             <div class="flex items-center justify-between p-3 bg-white rounded-xl border border-emerald-100">
                                 <div>
-                                    <p class="text-[10px] font-bold text-slate-400 uppercase">{{ $admin->bank_name ?? 'Transfer Bank' }}</p>
-                                    <p class="font-black text-slate-800 text-lg">{{ $admin->bank_account_number }}</p>
-                                    <p class="text-xs text-slate-500">a/n {{ $admin->bank_account_name }}</p>
+                                    <p class="text-[10px] font-bold text-slate-400 uppercase">{{ $produk->store->bank_name ?? 'Transfer Bank' }} ({{ $produk->store->nama_toko }})</p>
+                                    <p class="font-black text-slate-800 text-lg">{{ $produk->store->bank_account_number }}</p>
+                                    <p class="text-xs text-slate-500">a/n {{ $produk->store->bank_account_name }}</p>
                                 </div>
-                                <button type="button" onclick="copyToClipboard('{{ $admin->bank_account_number }}')" class="text-emerald-600 font-bold text-xs hover:underline">Salin</button>
+                                <button type="button" onclick="copyToClipboard('{{ $produk->store->bank_account_number }}')" class="text-emerald-600 font-bold text-xs hover:underline">Salin</button>
                             </div>
                             @else
-                            <p class="text-sm text-slate-500 italic">Admin belum mengatur informasi rekening tujuan.</p>
+                            <p class="text-sm text-slate-500 italic">Toko belum mengatur informasi rekening tujuan.</p>
                             @endif
                         </div>
 

@@ -24,19 +24,12 @@
     </div>
 
     <!-- Stats -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="admin-card p-5 border border-green-100 shadow-sm flex flex-col justify-between rounded-xl">
             <div class="text-[10px] font-bold text-gray-400 tracking-wider uppercase mb-3">Total Permintaan</div>
             <div class="flex items-end gap-2">
                 <span class="text-4xl font-extrabold text-gray-800">{{ number_format($totalPermintaan, 0, ',', '.') }}</span>
                 <span class="text-sm font-bold text-[#0f6b52] mb-1 flex items-center"><i data-lucide="trending-up" style="width:16px; height:16px;" class="mr-1"></i>12%</span>
-            </div>
-        </div>
-        <div class="admin-card p-5 border border-green-100 shadow-sm flex flex-col justify-between rounded-xl">
-            <div class="text-[10px] font-bold text-gray-400 tracking-wider uppercase mb-3">Escrow Tertahan</div>
-            <div class="flex items-end gap-2">
-                <span class="text-3xl font-extrabold text-gray-800">Rp {{ number_format($escrowTertahan, 0, ',', '.') }}</span>
-                <span class="text-[11px] text-gray-500 mb-1 leading-tight flex flex-col"><span>Total</span><span>Active</span></span>
             </div>
         </div>
         <div class="admin-card p-5 border border-green-100 shadow-sm flex flex-col justify-between rounded-xl">
@@ -105,7 +98,7 @@
                         <th class="py-4 px-6 text-left font-bold w-[15%]">ID RETUR</th>
                         <th class="py-4 px-6 text-left font-bold w-[15%]">ID PESANAN</th>
                         <th class="py-4 px-6 text-left font-bold w-[20%]">PENJUAL / PEMBELI</th>
-                        <th class="py-4 px-6 text-center font-bold w-[20%]">TOTAL ESCROW</th>
+                        <th class="py-4 px-6 text-center font-bold w-[20%]">TOTAL HARGA</th>
                         <th class="py-4 px-6 text-center font-bold w-[15%]">STATUS</th>
                         <th class="py-4 px-6 text-center font-bold w-[15%]">AKSI</th>
                     </tr>
@@ -144,7 +137,7 @@
                             <td class="py-4 px-4 text-center">
                                     <a href="{{ route('admin.returns.show', $item->id) }}"
                                        class="inline-flex items-center justify-center w-36 h-9 bg-[#0f6b52] hover:bg-[#0c5843] text-white text-[9.5px] font-bold rounded-lg shadow-sm transition-all duration-200 hover:-translate-y-0.5 active:scale-95 whitespace-nowrap px-2">
-                                        Kelola
+                                        Detail
                                     </a>
                             </td>
                         </tr>

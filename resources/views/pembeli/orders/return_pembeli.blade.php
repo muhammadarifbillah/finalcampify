@@ -196,7 +196,7 @@
                 </form>
 
             <!-- ------------------ STAGE 2: PENDING (MENUNGGU PERSETUJUAN SELLER) ------------------ -->
-            @elseif($return && $return->status === 'pending')
+            @elseif($return && $detail->type === 'rent' && $return->status === 'pending')
                 <div class="text-center py-10">
                     <div class="w-20 h-20 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-4">
                         <svg class="w-10 h-10 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -220,7 +220,7 @@
                 </div>
 
             <!-- ------------------ STAGE 3: APPROVED (BISA INPUT RESI & FOTO KONDISI) ------------------ -->
-            @elseif($return && $return->status === 'approved')
+            @elseif($return && $detail->type === 'rent' && $return->status === 'approved')
                 <div class="mb-6 p-4 bg-emerald-50 border border-emerald-100 rounded-2xl">
                     <p class="text-sm font-bold text-emerald-800">✅ Permintaan Pengembalian Disetujui!</p>
                     <p class="text-xs text-emerald-600 mt-1">Penjual menyetujui pengembalian Anda. Silakan kirim barang ke alamat toko dan isi resi di bawah ini.</p>
@@ -260,7 +260,7 @@
                 </form>
 
             <!-- ------------------ STAGE 4: SHIPPING (MENUNGGU BARANG DITERIMA SELLER) ------------------ -->
-            @elseif($return && $return->status === 'shipping')
+            @elseif($return && $detail->type === 'rent' && $return->status === 'shipping')
                 <div class="text-center py-10">
                     <div class="w-20 h-20 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
                         <svg class="w-10 h-10 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
@@ -279,7 +279,7 @@
                 </div>
 
             <!-- ------------------ STAGE 5: DENDA PENDING (PEMBELI HARUS BAYAR SISA KEKURANGAN) ------------------ -->
-            @elseif($return && $return->status === 'denda_pending')
+            @elseif($return && $detail->type === 'rent' && $return->status === 'denda_pending')
                 <div class="space-y-6">
                     <div class="p-6 bg-amber-50 border border-amber-100 rounded-3xl">
                         <div class="flex justify-between items-start mb-4">
@@ -354,7 +354,7 @@
                 </div>
 
             <!-- ------------------ STAGE 6: DENDA SUBMITTED (MENUNGGU VERIFIKASI) ------------------ -->
-            @elseif($return && $return->status === 'denda_submitted')
+            @elseif($return && $detail->type === 'rent' && $return->status === 'denda_submitted')
                 <div class="text-center py-10">
                     <div class="w-20 h-20 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-4">
                         <svg class="w-10 h-10 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 7.89M9 11l3 3L22 4"></path></svg>
@@ -373,7 +373,7 @@
                 </div>
 
             <!-- ------------------ STAGE 7: COMPLETED (SELESAI TRANSAKSI) ------------------ -->
-            @elseif($return && $return->status === 'completed')
+            @elseif($return && $detail->type === 'rent' && $return->status === 'completed')
                 <div class="text-center py-10">
                     <div class="w-20 h-20 bg-emerald-500 text-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-emerald-200">
                         <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
@@ -438,11 +438,30 @@
             <!-- ------------------ LEGACY JUAL BELI VIEW Fallback ------------------ -->
             @if($return && $detail->type === 'buy')
                 <div class="text-center py-10">
-                    <div class="w-20 h-20 bg-emerald-500 text-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                    <div class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
                         <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
                     </div>
-                    <h3 class="text-2xl font-black text-slate-900 mb-2">Permintaan Retur Terkirim!</h3>
-                    <p class="text-slate-500 mb-4">Pengajuan retur barang sedang diproses dan menunggu persetujuan dari penjual.</p>
+                    <h3 class="text-2xl font-black text-slate-900 mb-2">Informasi Retur Pembelian</h3>
+                    <p class="text-slate-500 mb-6">Status Retur: <span class="px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full text-xs font-bold uppercase">{{ $return->status }}</span></p>
+                    
+                    <div class="bg-slate-50 p-6 rounded-2xl text-left border border-slate-100 space-y-4 max-w-md mx-auto">
+                        <div>
+                            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Alasan Retur</span>
+                            <span class="text-sm font-semibold text-slate-800">{{ $return->renter_notes ?? 'Tidak ada alasan' }}</span>
+                        </div>
+                        @if($return->proof_returned_image)
+                        <div>
+                            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Foto / Bukti Kondisi Barang</span>
+                            <img src="{{ asset($return->proof_returned_image) }}" class="w-full max-h-48 object-cover rounded-xl border border-slate-200">
+                        </div>
+                        @endif
+                        @if($return->resi_return)
+                        <div>
+                            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest block">No. Resi / Pengiriman</span>
+                            <span class="text-sm font-semibold text-slate-800">{{ $return->resi_return }}</span>
+                        </div>
+                        @endif
+                    </div>
                 </div>
             @endif
         </div>

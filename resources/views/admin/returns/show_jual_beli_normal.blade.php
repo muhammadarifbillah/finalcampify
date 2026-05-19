@@ -56,45 +56,30 @@
             </div>
         </div>
 
-        <!-- Settlement Card -->
-        <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 space-y-8">
-            <h2 class="text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">PENYELESAIAN DANA</h2>
+        <!-- Detail Retur Card -->
+        <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 space-y-6">
+            <h2 class="text-[10px] font-black text-gray-400 uppercase tracking-widest">DETAIL PENGEMBALIAN</h2>
 
-            <div class="space-y-6">
-                <div class="bg-[#f4f9f6] p-6 rounded-2xl border border-emerald-100 text-center space-y-1">
-                    <div class="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Total Escrow (Produk)</div>
-                    <div class="text-3xl font-black text-[#0f6b52]">Rp {{ number_format((int)$return->escrow_total, 0, ',', '.') }}</div>
+            <div class="space-y-4 text-sm">
+                <div>
+                    <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest block">Alasan Retur</span>
+                    <p class="font-bold text-slate-800 mt-1">{{ $return->renter_notes ?? 'Tidak ada alasan' }}</p>
                 </div>
 
-                <div class="space-y-4">
-                    @if($return->to_seller > 0)
-                        <div class="flex justify-between items-center text-sm">
-                            <span class="text-gray-500 font-medium">Kompensasi Penjual</span>
-                            <span class="font-bold text-gray-900">Rp {{ number_format((int)$return->to_seller, 0, ',', '.') }}</span>
-                        </div>
-                    @endif
-                    <div class="flex justify-between items-center text-sm pt-4 border-t border-dashed border-gray-100">
-                        <span class="text-gray-500 font-bold italic">Refund ke Pembeli</span>
-                        <span class="text-lg font-black text-[#0f6b52]">Rp {{ number_format((int)$return->to_buyer, 0, ',', '.') }}</span>
-                    </div>
+                @if($return->proof_returned_image)
+                <div class="pt-4 border-t border-gray-50">
+                    <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Foto / Bukti Kondisi Barang</span>
+                    <a href="{{ asset($return->proof_returned_image) }}" target="_blank" class="block rounded-lg overflow-hidden border border-gray-200 hover:border-emerald-500 transition-colors">
+                        <img src="{{ asset($return->proof_returned_image) }}" class="w-full h-48 object-cover">
+                    </a>
                 </div>
-            </div>
+                @endif
 
-            <div class="pt-6 space-y-3">
-                @if($return->status !== 'completed')
-                    <form method="POST" action="{{ route('admin.returns.finalize', $return->id) }}">
-                        @csrf
-                        <input type="hidden" name="final_status" value="completed">
-                        <button type="submit" class="w-full py-4 bg-[#0f6b52] text-white text-sm font-black rounded-xl hover:bg-[#0c5843] transition-all active:scale-95 shadow-lg flex items-center justify-center gap-3 group">
-                            <i data-lucide="check-circle" style="width: 20px; height: 20px;"></i>
-                            SETUJUI & REFUND PENUH
-                        </button>
-                    </form>
-                @else
-                    <div class="p-4 bg-emerald-50 border border-emerald-100 rounded-xl flex items-center gap-3">
-                        <i data-lucide="check-circle" class="text-emerald-600" style="width: 20px; height: 20px;"></i>
-                        <div class="text-[11px] font-bold text-emerald-800 uppercase tracking-wider">Refund Telah Selesai</div>
-                    </div>
+                @if($return->resi_return)
+                <div class="pt-4 border-t border-gray-50">
+                    <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest block">Nomor Resi / Pengiriman</span>
+                    <p class="font-bold text-slate-800 mt-1">{{ $return->resi_return }}</p>
+                </div>
                 @endif
             </div>
         </div>

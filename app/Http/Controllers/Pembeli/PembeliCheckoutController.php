@@ -60,9 +60,9 @@ class PembeliCheckoutController extends Controller
             'kecamatan'        => 'required|string|max:255',
             'kode_pos'         => 'required|string|max:20',
             'telepon'          => 'required|string|max:25',
-            'metode_pembayaran' => 'required|string|in:transfer,cod',
+            'metode_pembayaran' => 'required|string|in:transfer',
             'shipping_method'  => ['required', 'string', \Illuminate\Validation\Rule::in($validServices)],
-            'bukti_pembayaran' => 'required_if:metode_pembayaran,transfer|nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'bukti_pembayaran' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
 
         $user->update([

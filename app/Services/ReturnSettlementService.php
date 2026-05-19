@@ -171,12 +171,11 @@ class ReturnSettlementService
                 if ($expected) $return->expected_date = $expected;
             }
         } elseif ($return->type === ReturnEscrow::TYPE_JUAL_BELI) {
-            // Pada Jual Beli, Escrow Total biasanya 100% harga produk
-            // Denda/Potongan (damage_fee) mengurangi refund pembeli
-            $return->total_fines = (string) $damageFee;
-            $return->to_seller = (string) $damageFee;
-            $return->to_buyer = (string) max(0, $return->escrow_total - $damageFee);
-            $return->deficit = '0'; // Jual beli biasanya tidak ada defisit karena potong dari escrow 100%
+            // Pada Jual Beli, tidak ada escrow admin karena pembeli transfer langsung ke seller.
+            $return->total_fines = '0';
+            $return->to_seller = '0';
+            $return->to_buyer = '0';
+            $return->deficit = '0';
         }
 
             if (empty($return->actual_date) && in_array($return->status, [ReturnEscrow::STATUS_CHECKING, ReturnEscrow::STATUS_COMPLETED])) {
@@ -200,9 +199,14 @@ class ReturnSettlementService
         $this->applyAutoCalculations($return);
 
         if ($finalStatus === ReturnEscrow::STATUS_REJECTED) {
-            // Jika ditolak (misal barang dibawa lari), semua escrow (sewa + deposit) kasih ke penjual
-            $return->to_seller = $return->escrow_total;
-            $return->to_buyer = '0';
+            // Jika ditolak (misal barang dibawa lari), semua escrow (sewa + deposit) kasih ke penjual (khusus sewa)
+            if ($return->type === ReturnEscrow::TYPE_SEWA) {
+                $return->to_seller = $return->escrow_total;
+                $return->to_buyer = '0';
+            } else {
+                $return->to_seller = '0';
+                $return->to_buyer = '0';
+            }
         }
 
         return $return;
