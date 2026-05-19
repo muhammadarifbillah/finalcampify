@@ -442,7 +442,7 @@
                         <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
                     </div>
                     <h3 class="text-2xl font-black text-slate-900 mb-2">Permintaan Retur Terkirim!</h3>
-                    <p class="text-slate-500 mb-4">Pengajuan retur barang sedang diproses dan menunggu mediasi dari pihak Admin.</p>
+                    <p class="text-slate-500 mb-4">Pengajuan retur barang sedang diproses dan menunggu persetujuan dari penjual.</p>
                 </div>
             @endif
         </div>

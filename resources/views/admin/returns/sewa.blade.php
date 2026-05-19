@@ -8,7 +8,6 @@
 @php
     $badgeMap = [
         'pending' => 'bg-blue-100 text-blue-600',
-        'dispute' => 'bg-red-100 text-red-600',
         'checking' => 'bg-indigo-100 text-indigo-600',
         'completed' => 'bg-green-100 text-green-600',
         'rejected' => 'bg-gray-200 text-gray-600',
@@ -92,7 +91,7 @@
                 <i data-lucide="filter" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" style="width: 14px; height: 14px;"></i>
                 <select class="admin-form-control text-sm py-2 pl-9 rounded-md bg-white border border-gray-200 w-[150px]" name="status" onchange="this.form.submit()">
                     <option value="">Filter Status</option>
-                    @foreach(['pending', 'dispute', 'checking', 'completed', 'rejected'] as $st)
+                    @foreach(['pending', 'checking', 'completed', 'rejected'] as $st)
                         <option value="{{ $st }}" @selected(request('status') === $st)>{{ ucfirst($st) }}</option>
                     @endforeach
                 </select>
@@ -151,7 +150,6 @@
                             $liveTotalLateFee = ($item->late_fee > 0) ? (int)$item->late_fee : ($liveLateFeeDays * $liveFinePerDay);
                             
                             $statusMap = [
-                                'dispute' => ['text' => 'SENGKETA', 'class' => 'bg-red-100 text-red-600'],
                                 'pending' => ['text' => $isOverdue ? 'TERLAMBAT' : 'AKTIF', 'class' => $isOverdue ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'],
                                 'checking' => ['text' => 'PEMERIKSAAN', 'class' => 'bg-indigo-100 text-indigo-600'],
                                 'completed' => ['text' => 'SELESAI', 'class' => 'bg-gray-100 text-gray-600'],
@@ -221,20 +219,10 @@
                                 <span class="inline-block px-2.5 py-1 text-[9px] font-bold tracking-wider rounded-full {{ $statusInfo['class'] }}">{{ $statusInfo['text'] }}</span>
                             </td>
                             <td class="py-4 px-4 text-center">
-                                @php
-                                    $isActualDispute = $item->status === 'dispute' || ($item->status === 'completed' && ($item->damage_fee > 0 || !empty($item->dispute_chat_log)));
-                                @endphp
-                                @if($isActualDispute && $item->status !== 'completed')
-                                    <a href="{{ route('admin.returns.show', $item->id) }}"
-                                       class="inline-flex items-center justify-center w-36 h-9 bg-red-600 hover:bg-red-700 text-white text-[9.5px] font-bold rounded-lg shadow-sm transition-all duration-200 hover:-translate-y-0.5 active:scale-95 whitespace-nowrap px-2">
-                                        Resolusi Sengketa
-                                    </a>
-                                @else
                                     <a href="{{ route('admin.returns.show', $item->id) }}"
                                        class="inline-flex items-center justify-center w-36 h-9 bg-[#0f6b52] hover:bg-[#0c5843] text-white text-[9.5px] font-bold rounded-lg shadow-sm transition-all duration-200 hover:-translate-y-0.5 active:scale-95 whitespace-nowrap px-2">
                                         Proses
                                     </a>
-                                @endif
                             </td>
                         </tr>
                     @empty

@@ -224,8 +224,8 @@ class PembeliOrderController extends Controller
             'tanggal_pengembalian' => now(),
             'actual_date' => now(),
             'denda' => 0, 
-            'kondisi_barang' => $detail->type === 'buy' ? 'dispute' : 'baik',
-            'status' => $detail->type === 'buy' ? 'dispute' : 'pending',
+            'kondisi_barang' => $detail->type === 'buy' ? 'belum_dicek' : 'baik',
+            'status' => 'pending',
             'escrow_total' => (string) ($detail->type === 'buy' ? ($detail->harga * $detail->qty) : ($pesanan->total ?? 0)),
             'expected_date' => $detail->type === 'rent' ? (isset($endDate) ? $endDate : null) : null,
             'late_fee' => '0',
@@ -241,7 +241,7 @@ class PembeliOrderController extends Controller
 
         return redirect()
             ->route('orders.detail', $pesanan->id)
-            ->with('success', 'Permintaan retur berhasil dikirim. Menunggu mediasi Admin.');
+            ->with('success', 'Permintaan retur berhasil dikirim. Menunggu konfirmasi penjual.');
     }
 
     public function submitShipping(Request $request, $return_id)

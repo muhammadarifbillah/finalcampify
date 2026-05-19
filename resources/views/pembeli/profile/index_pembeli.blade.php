@@ -170,7 +170,6 @@
                                             @php
                                                 $retStatus = $order->returnRequest->status;
                                                 $retColor = match($retStatus) {
-                                                    'dispute' => 'bg-rose-100 text-rose-700',
                                                     'checking' => 'bg-amber-100 text-amber-700',
                                                     'pending' => 'bg-blue-100 text-blue-700',
                                                     'completed' => 'bg-emerald-100 text-emerald-700',
@@ -178,7 +177,6 @@
                                                     default => 'bg-gray-100 text-gray-700'
                                                 };
                                                 $retLabel = match($retStatus) {
-                                                    'dispute' => 'Mediasi Admin',
                                                     'checking' => 'Sedang Dicek',
                                                     'pending' => 'Menunggu Seller',
                                                     'completed' => 'Selesai',
@@ -246,7 +244,6 @@
                                             @php
                                                 $retStatus = $order->returnRequest->status;
                                                 $retColor = match($retStatus) {
-                                                    'dispute' => 'bg-rose-100 text-rose-700',
                                                     'checking' => 'bg-amber-100 text-amber-700',
                                                     'pending' => 'bg-blue-100 text-blue-700',
                                                     'completed' => 'bg-emerald-100 text-emerald-700',
@@ -254,7 +251,6 @@
                                                     default => 'bg-gray-100 text-gray-700'
                                                 };
                                                 $retLabel = match($retStatus) {
-                                                    'dispute' => 'Mediasi Admin',
                                                     'checking' => 'Sedang Dicek',
                                                     'pending' => 'Menunggu Seller',
                                                     'completed' => 'Selesai',
