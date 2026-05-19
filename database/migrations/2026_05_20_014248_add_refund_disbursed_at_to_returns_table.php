@@ -12,7 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('returns', function (Blueprint $table) {
-            $table->timestamp('refund_disbursed_at')->nullable()->after('status');
+            if (!Schema::hasColumn('returns', 'refund_disbursed_at')) {
+                $table->timestamp('refund_disbursed_at')->nullable()->after('status');
+            }
         });
     }
 
@@ -22,7 +24,9 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('returns', function (Blueprint $table) {
-            $table->dropColumn('refund_disbursed_at');
+            if (Schema::hasColumn('returns', 'refund_disbursed_at')) {
+                $table->dropColumn('refund_disbursed_at');
+            }
         });
     }
 };

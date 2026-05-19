@@ -12,9 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('returns', function (Blueprint $table) {
-            $table->string('buyer_refund_bank_name')->nullable();
-            $table->string('buyer_refund_bank_account')->nullable();
-            $table->string('buyer_refund_bank_name_owner')->nullable();
+            if (!Schema::hasColumn('returns', 'buyer_refund_bank_name')) {
+                $table->string('buyer_refund_bank_name')->nullable();
+            }
+            if (!Schema::hasColumn('returns', 'buyer_refund_bank_account')) {
+                $table->string('buyer_refund_bank_account')->nullable();
+            }
+            if (!Schema::hasColumn('returns', 'buyer_refund_bank_name_owner')) {
+                $table->string('buyer_refund_bank_name_owner')->nullable();
+            }
         });
     }
 
@@ -24,11 +30,19 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('returns', function (Blueprint $table) {
-            $table->dropColumn([
-                'buyer_refund_bank_name',
-                'buyer_refund_bank_account',
-                'buyer_refund_bank_name_owner',
-            ]);
+            $cols = [];
+            if (Schema::hasColumn('returns', 'buyer_refund_bank_name')) {
+                $cols[] = 'buyer_refund_bank_name';
+            }
+            if (Schema::hasColumn('returns', 'buyer_refund_bank_account')) {
+                $cols[] = 'buyer_refund_bank_account';
+            }
+            if (Schema::hasColumn('returns', 'buyer_refund_bank_name_owner')) {
+                $cols[] = 'buyer_refund_bank_name_owner';
+            }
+            if (!empty($cols)) {
+                $table->dropColumn($cols);
+            }
         });
     }
 };
