@@ -195,6 +195,7 @@ Route::middleware(['auth', 'role:buyer'])->group(function () {
     Route::post('/orders/return/{detail_id}', [PembeliOrderController::class, 'returnStore'])->name('orders.return.store');
     Route::post('/orders/return-submit-shipping/{return_id}', [PembeliOrderController::class, 'submitShipping'])->name('orders.return.submit-shipping');
     Route::post('/orders/return-upload-bukti/{return_id}', [PembeliOrderController::class, 'uploadBuktiDenda'])->name('orders.return.upload-bukti');
+    Route::post('/orders/return-confirm-replacement/{return_id}', [PembeliOrderController::class, 'confirmReplacementReceipt'])->name('orders.return.confirm-replacement');
     Route::get('/orders', [PembeliOrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{id}', [PembeliOrderController::class, 'detail'])->name('orders.detail');
     Route::post('/orders/{id}/cancel', [PembeliOrderController::class, 'cancel'])->name('orders.cancel');
@@ -228,6 +229,9 @@ Route::middleware(['auth', 'role:seller'])->prefix('seller')->name('seller.')->g
     Route::post('/rentals/{rental}/approve-return', [RentalController_seller::class, 'approveRequest'])->name('rentals.approve-return');
     Route::post('/rentals/{rental}/receive-item', [RentalController_seller::class, 'receiveItem'])->name('rentals.receive-item');
     Route::post('/rentals/{rental}/verify-denda', [RentalController_seller::class, 'verifyDendaPayment'])->name('rentals.verify-denda');
+    Route::post('/returns/{return_id}/review-complaint', [RentalController_seller::class, 'reviewComplaint'])->name('returns.review-complaint');
+    Route::post('/returns/{return_id}/send-replacement', [RentalController_seller::class, 'sendReplacementItem'])->name('returns.send-replacement');
+    Route::post('/returns/{return_id}/confirm-refund', [RentalController_seller::class, 'confirmRefundTransferred'])->name('returns.confirm-refund');
 
     // Store Profile
     Route::get('/store-profile', [StoreProfileController_seller::class, 'index'])->name('store-profile.index');
