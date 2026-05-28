@@ -62,9 +62,16 @@ class StoreController extends Controller
         // Riwayat Retur
         $returns = \App\Models\Pembeli\Return_pembeli::whereHas('order.details.product', function($q) use ($store) {
             $q->where('store_id', $store->id);
-        })->with('order.buyer')->latest()->get();
+        })
+        ->with('order.buyer')
+        ->latest()
+        ->get();
 
-        return view('admin.store_detail', compact('store', 'stats', 'activities', 'pendingProducts', 'reports', 'sellerProducts', 'returns'));
+        // Calculate return statistics for this store
+        $returnCount = $returns->count();
+        $returnReasons = $returns->pluck('alasan')->filter()->unique();
+
+        return view('admin.store_detail', compact('store', 'stats', 'activities', 'pendingProducts', 'reports', 'sellerProducts', 'returns', 'returnCount', 'returnReasons'));
     }
 
     public function approveProduct(Store $store, Product $product)
