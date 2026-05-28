@@ -117,8 +117,9 @@
                     @endif
 
                     @if(in_array($store->status, ['rejected', 'suspended', 'banned']))
-                        <form method="POST" action="{{ route('admin.stores.activate', $store->id) }}">
+                        <form method="POST" action="{{ route('admin.stores.activate', $store->id) }}" class="space-y-2">
                             @csrf
+                            <textarea class="admin-form-control" name="klarifikasi" placeholder="Catatan klarifikasi unban (opsional)..."></textarea>
                             <button class="admin-button admin-button-primary w-full" type="submit">Aktifkan Kembali</button>
                         </form>
                     @endif
@@ -203,6 +204,30 @@
                         </div>
                     @empty
                         <div class="admin-empty">Belum ada laporan untuk toko ini.</div>
+                    @endforelse
+                </div>
+            </div>
+
+            <div class="admin-card p-6">
+                <h2 class="text-2xl font-extrabold mb-5">Riwayat Retur (Pengembalian)</h2>
+                <div class="space-y-3 max-h-80 overflow-y-auto">
+                    @forelse($returns as $return)
+                        <div class="rounded-lg border border-amber-100 bg-amber-50 p-4">
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <div>
+                                    <span class="admin-badge admin-badge-warning uppercase">{{ $return->type }}</span>
+                                    <span class="admin-badge admin-badge-muted">{{ $return->status }}</span>
+                                </div>
+                                <span class="text-xs text-slate-500">{{ $return->created_at?->diffForHumans() }}</span>
+                            </div>
+                            <div class="mt-3 text-sm">
+                                <strong>Order:</strong> {{ $return->order->order_number ?? '#ORD-' . $return->order_id }} <br>
+                                <strong>Pembeli:</strong> {{ $return->order->buyer->name ?? '-' }} <br>
+                                <strong>Alasan Retur:</strong> {{ $return->alasan_return }}
+                            </div>
+                        </div>
+                    @empty
+                        <div class="admin-empty">Belum ada riwayat retur untuk toko ini.</div>
                     @endforelse
                 </div>
             </div>

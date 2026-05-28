@@ -186,6 +186,14 @@ class RentalController_seller extends Controller
             'resi_pengganti' => $request->resi_pengganti,
         ]);
 
+        $order = \App\Models\Pembeli\Order_pembeli::find($return->order_id);
+        if ($order) {
+            $currentNumber = $order->order_number ?? $order->id;
+            if (!str_ends_with((string)$currentNumber, '-RESEND')) {
+                $order->update(['order_number' => $currentNumber . '-RESEND']);
+            }
+        }
+
         return back()->with('success', 'Barang pengganti telah dikirim dengan nomor resi ' . $request->resi_pengganti);
     }
 

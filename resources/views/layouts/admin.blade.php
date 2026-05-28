@@ -44,6 +44,12 @@
                         ['label' => 'Pengembalian Sewa',      'href' => route('admin.returns.sewa'),      'active' => Request::is('admin/returns/sewa')],
                     ],
                 ],
+                [
+                    'label'  => 'Pencairan Dana',
+                    'icon'   => 'banknote',
+                    'href'   => route('admin.disbursements.index'),
+                    'active' => Request::is('admin/disbursements*'),
+                ],
             ],
         ],
         ['label' => 'Users',      'icon' => 'users',                 'href' => route('admin.users.index'),    'active' => Request::is('admin/users*')],

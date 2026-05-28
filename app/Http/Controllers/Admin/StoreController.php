@@ -59,7 +59,12 @@ class StoreController extends Controller
             ['type' => 'product_added', 'message' => 'Menambah ' . $stats['total_products'] . ' produk', 'date' => $store->updated_at],
         ];
 
-        return view('admin.store_detail', compact('store', 'stats', 'activities', 'pendingProducts', 'reports', 'sellerProducts'));
+        // Riwayat Retur
+        $returns = \App\Models\Pembeli\Return_pembeli::whereHas('order.details.product', function($q) use ($store) {
+            $q->where('store_id', $store->id);
+        })->with('order.buyer')->latest()->get();
+
+        return view('admin.store_detail', compact('store', 'stats', 'activities', 'pendingProducts', 'reports', 'sellerProducts', 'returns'));
     }
 
     public function approveProduct(Store $store, Product $product)
@@ -139,12 +144,19 @@ class StoreController extends Controller
         return back()->with('success', 'Seller berhasil diban.');
     }
 
-    public function activate($id)
+    public function activate(Request $request, $id)
     {
-        Store::findOrFail($id)->update([
-            'status' => 'active',
-            'catatan_admin' => null
-        ]);
+        $store = Store::findOrFail($id);
+        
+        $updateData = ['status' => 'active'];
+        
+        if ($request->has('klarifikasi') && $request->filled('klarifikasi')) {
+            $updateData['catatan_admin'] = "Klarifikasi Unban: " . $request->klarifikasi;
+        } else {
+            $updateData['catatan_admin'] = null;
+        }
+
+        $store->update($updateData);
 
         return back()->with('success', 'Seller berhasil diaktifkan kembali.');
     }
@@ -155,9 +167,9 @@ class StoreController extends Controller
         return $this->ban(request(), $id);
     }
 
-    public function unban($id)
+    public function unban(Request $request, $id)
     {
-        return $this->activate($id);
+        return $this->activate($request, $id);
     }
 
     private function sellerProductsQuery(Store $store)

@@ -153,7 +153,7 @@
             @if($detail->type === 'rent')
                 <!-- ================== ALUR SEWA (RENTAL - UNTOUCHED & ORIGINAL) ================== -->
                 @if(!$return)
-                    <form action="{{ route('orders.return.store', $detail->id) }}" method="POST" class="space-y-6">
+                    <form action="{{ route('orders.return.store', $detail->id) }}" method="POST" enctype="multipart/form-data" class="space-y-6">
                         @csrf
                         <div>
                             <label class="block text-sm font-bold text-slate-700 mb-2">Alamat Toko (Tujuan Pengembalian)</label>
@@ -179,19 +179,34 @@
                             <label class="block text-sm font-bold text-slate-700 mb-2">Metode Pengembalian</label>
                             <div class="grid grid-cols-2 gap-3 mb-4">
                                 <label class="flex items-center gap-3 p-4 border border-slate-200 rounded-2xl cursor-pointer hover:border-emerald-500 transition-colors">
-                                    <input type="radio" name="metode_return" value="antar" checked class="text-emerald-600 focus:ring-emerald-500">
+                                    <input type="radio" name="metode_return" value="antar" checked class="text-emerald-600 focus:ring-emerald-500" onchange="toggleKurir(false)">
                                     <div>
                                         <span class="text-sm font-bold block text-slate-800">Antar Langsung</span>
                                         <span class="text-[10px] text-slate-400 block">Selesaikan di tempat seller</span>
                                     </div>
                                 </label>
                                 <label class="flex items-center gap-3 p-4 border border-slate-200 rounded-2xl cursor-pointer hover:border-emerald-500 transition-colors">
-                                    <input type="radio" name="metode_return" value="kurir" class="text-emerald-600 focus:ring-emerald-500">
+                                    <input type="radio" name="metode_return" value="kurir" class="text-emerald-600 focus:ring-emerald-500" onchange="toggleKurir(true)">
                                     <div>
                                         <span class="text-sm font-bold block text-slate-800">Kirim via Kurir</span>
                                         <span class="text-[10px] text-slate-400 block">Kirim paket ke alamat toko</span>
                                     </div>
                                 </label>
+                            </div>
+                        </div>
+
+                        <!-- Kurir Details -->
+                        <div id="kurir_details_container" class="hidden space-y-4 bg-slate-50 p-6 rounded-[24px] border border-slate-100">
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-2">Input Resi Pengiriman Balik</label>
+                                <input type="text" name="resi_return" id="resi_return_input" class="w-full rounded-2xl border-slate-200 p-4 focus:ring-emerald-500 focus:border-emerald-500" placeholder="Masukkan nomor resi ekspedisi (misal: JNE, J&T, SiCepat)">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-2">Foto / Bukti Kondisi Barang Saat Ini</label>
+                                <div class="border-2 border-dashed border-slate-200 rounded-2xl p-6 text-center hover:border-emerald-400 transition cursor-pointer relative bg-white">
+                                    <input type="file" name="foto_kondisi" id="foto_kondisi_input" accept="image/*" class="w-full text-sm text-slate-600" />
+                                    <p class="mt-2 text-[10px] text-slate-500">Wajib diisi sebagai bukti dokumentasi barang dikirim balik dalam kondisi aman.</p>
+                                </div>
                             </div>
                         </div>
 
@@ -220,70 +235,16 @@
                             Ajukan Permintaan Pengembalian
                         </button>
                     </form>
-
-                <!-- ------------------ STAGE 2: PENDING (MENUNGGU PERSETUJUAN SELLER) ------------------ -->
-                @elseif($return && $return->status === 'pending')
-                    <div class="text-center py-10">
-                        <div class="w-20 h-20 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <svg class="w-10 h-10 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        </div>
-                        <h3 class="text-xl font-bold text-slate-800 mb-2">Menunggu Persetujuan Penjual</h3>
-                        <p class="text-slate-500 max-w-md mx-auto text-sm">
-                            Permintaan pengembalian sewa Anda telah diajukan. Harap tunggu Penjual menyetujui permintaan pengiriman Anda sebelum mengirim barang.
-                        </p>
-                        
-                        <div class="mt-8 bg-slate-50 p-6 rounded-2xl text-left border border-slate-100 space-y-3">
-                            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400">Detail Rekening Refund Terinput</h4>
-                            <div class="grid grid-cols-3 gap-2 text-xs">
-                                <span class="text-slate-400">Bank:</span>
-                                <span class="col-span-2 font-bold text-slate-800">{{ $return->buyer_refund_bank_name }}</span>
-                                <span class="text-slate-400">No. Rekening:</span>
-                                <span class="col-span-2 font-bold text-slate-800">{{ $return->buyer_refund_bank_account }}</span>
-                                <span class="text-slate-400">Atas Nama:</span>
-                                <span class="col-span-2 font-bold text-slate-800">{{ $return->buyer_refund_bank_name_owner }}</span>
-                            </div>
-                        </div>
-                    </div>
-
-                <!-- ------------------ STAGE 3: APPROVED (BISA INPUT RESI & FOTO KONDISI) ------------------ -->
-                @elseif($return && $return->status === 'approved')
-                    <div class="mb-6 p-4 bg-emerald-50 border border-emerald-100 rounded-2xl">
-                        <p class="text-sm font-bold text-emerald-800">✅ Permintaan Pengembalian Disetujui!</p>
-                        <p class="text-xs text-emerald-600 mt-1">Penjual menyetujui pengembalian Anda. Silakan kirim barang ke alamat toko dan isi resi di bawah ini.</p>
-                    </div>
-
-                    <form action="{{ route('orders.return.submit-shipping', $return->id) }}" method="POST" enctype="multipart/form-data" class="space-y-6">
-                        @csrf
-                        <div>
-                            <label class="block text-sm font-bold text-slate-700 mb-2">Alamat Toko (Kirim Paket Ke Sini)</label>
-                            <div class="p-4 bg-slate-50 text-slate-700 rounded-2xl text-sm border border-slate-200">
-                                <p class="font-bold text-base">{{ $detail->product->store->nama_toko ?? 'Toko Campify' }}</p>
-                                <p class="mt-1 text-slate-600">{{ $detail->product->store->alamat ?? 'Alamat Toko' }}</p>
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-bold text-slate-700 mb-2">Input Resi Pengiriman Balik</label>
-                            <input type="text" name="resi_return" class="w-full rounded-2xl border-slate-200 p-4 focus:ring-emerald-500 focus:border-emerald-500" placeholder="Masukkan nomor resi ekspedisi (misal: JNE, J&T, SiCepat)" required>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-bold text-slate-700 mb-2">Foto / Bukti Kondisi Barang Saat Ini</label>
-                            <div class="border-2 border-dashed border-slate-200 rounded-2xl p-6 text-center hover:border-emerald-400 transition cursor-pointer relative bg-slate-50">
-                                <input type="file" name="foto_kondisi" accept="image/*" class="w-full text-sm text-slate-600" required />
-                                <p class="mt-2 text-[10px] text-slate-500">Wajib diisi sebagai bukti dokumentasi barang dikirim balik dalam kondisi aman.</p>
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-bold text-slate-700 mb-2">Catatan Tambahan (Opsional)</label>
-                            <textarea name="renter_notes" rows="2" class="w-full rounded-2xl border-slate-200 p-4 focus:ring-emerald-500 focus:border-emerald-500 text-sm" placeholder="Contoh: Barang sudah dibersihkan dan dipacking rapi."></textarea>
-                        </div>
-
-                        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-4 rounded-2xl font-bold shadow-lg shadow-emerald-200 transition-all transform hover:-translate-y-1">
-                            Kirim Informasi Pengiriman
-                        </button>
-                    </form>
+                    <script>
+                        function toggleKurir(show) {
+                            const container = document.getElementById('kurir_details_container');
+                            const resi = document.getElementById('resi_return_input');
+                            const foto = document.getElementById('foto_kondisi_input');
+                            container.classList.toggle('hidden', !show);
+                            resi.required = show;
+                            foto.required = show;
+                        }
+                    </script>
 
                 <!-- ------------------ STAGE 4: SHIPPING (MENUNGGU BARANG DITERIMA SELLER) ------------------ -->
                 @elseif($return && $return->status === 'shipping')
@@ -684,22 +645,7 @@
                             @include('pembeli.produk.partials.review_pembeli', ['produk' => $detail->product])
                         </div>
                     </div>
-<<<<<<< HEAD
                 @endif
-=======
-                </div>
-            @endif
-
-            <!-- ------------------ LEGACY JUAL BELI VIEW Fallback ------------------ -->
-            @if($return && $detail->type === 'buy')
-                <div class="text-center py-10">
-                    <div class="w-20 h-20 bg-emerald-500 text-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-                        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-                    </div>
-                    <h3 class="text-2xl font-black text-slate-900 mb-2">Permintaan Retur Terkirim!</h3>
-                    <p class="text-slate-500 mb-4">Pengajuan retur barang sedang diproses dan menunggu persetujuan dari penjual.</p>
-                </div>
->>>>>>> c1119f10a6e970f0943e456c6dd7cf4eb8fd64da
             @endif
         </div>
     </div>

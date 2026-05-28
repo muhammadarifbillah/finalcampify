@@ -40,12 +40,32 @@ class OrderController_seller extends Controller
             'cancelled' => 'dibatalkan',
         ];
 
-        $status = $statusMap[$request->status] ?? $request->status;
-
-        $order->update([
-            'status' => $status,
-            'no_resi' => $request->resi ?? $request->no_resi,
+        $request->validate([
+            'status' => 'required',
+            'resi' => 'nullable|string|max:255',
+            'video_pengiriman' => 'nullable|file|mimes:mp4,mov,avi|max:20480',
         ]);
+
+        $status = $statusMap[$request->status] ?? $request->status;
+        $resi = $request->resi ?? $request->no_resi;
+
+        $updateData = [
+            'status' => $status,
+            'no_resi' => $resi,
+        ];
+
+        // If status changing to 'dikirim' or already 'dikirim'/'selesai' and a video is uploaded
+        if ($request->hasFile('video_pengiriman')) {
+            $file = $request->file('video_pengiriman');
+            $updateData['video_pengiriman_hash'] = md5_file($file->getRealPath());
+            $filename = 'kirim_' . time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('assets/videos'), $filename);
+            $updateData['video_pengiriman'] = 'assets/videos/' . $filename;
+        } else if ($status === 'dikirim' && !$order->video_pengiriman) {
+             return back()->with('error', 'Video bukti pengiriman wajib diunggah saat mengubah status menjadi Dikirim.');
+        }
+
+        $order->update($updateData);
 
         return redirect('/seller/orders')->with('success', 'Pesanan berhasil diupdate');
     }
@@ -66,15 +86,29 @@ class OrderController_seller extends Controller
     {
         $request->validate([
             'resi' => 'required|string|max:255',
+            'video_pengiriman' => 'required|file|mimes:mp4,mov,avi|max:20480',
         ]);
 
         $order = $this->sellerOrders()->findOrFail($order);
+
+        $videoPath = null;
+        $videoHash = null;
+        if ($request->hasFile('video_pengiriman')) {
+            $file = $request->file('video_pengiriman');
+            $videoHash = md5_file($file->getRealPath());
+            $filename = 'kirim_' . time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('assets/videos'), $filename);
+            $videoPath = 'assets/videos/' . $filename;
+        }
+
         $order->update([
             'no_resi' => $request->resi,
             'status' => $order->status === 'selesai' ? 'selesai' : 'dikirim',
+            'video_pengiriman' => $videoPath,
+            'video_pengiriman_hash' => $videoHash,
         ]);
 
-        return back()->with('success', 'Resi berhasil diupdate');
+        return back()->with('success', 'Resi dan video bukti pengiriman berhasil diupdate');
     }
 
     private function sellerOrders()

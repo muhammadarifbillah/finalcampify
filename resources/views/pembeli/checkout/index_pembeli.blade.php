@@ -81,17 +81,19 @@
                     {{-- INFO REKENING --}}
                     <div id="checkout_payment_info" class="mt-4 p-4 bg-gray-50 rounded-lg hidden">
                         <div id="checkout_info_transfer" class="hidden">
-                            <p class="text-sm font-bold mb-2">Transfer ke Rekening Toko:</p>
-                            @php $uniqueStores = $cart->pluck('product.store')->unique('id')->filter(); @endphp
-                            <div class="space-y-3">
-                                @foreach($uniqueStores as $store)
-                                    <div class="p-3 bg-white border rounded">
-                                        <p class="text-xs font-bold text-green-600 uppercase">{{ $store->nama_toko }}</p>
-                                        <p class="text-sm font-bold">{{ $store->bank_name }}: {{ $store->bank_account_number }}</p>
-                                        <p class="text-xs text-gray-500">A/N: {{ $store->bank_account_name }}</p>
+                            <p class="text-sm font-bold mb-2">Transfer ke Rekening Admin:</p>
+                            @if(isset($admin) && $admin->bank_account_number)
+                                <div class="p-3 bg-white border rounded flex justify-between items-center">
+                                    <div>
+                                        <p class="text-xs font-bold text-green-600 uppercase">{{ $admin->bank_name ?? 'Transfer Bank' }}</p>
+                                        <p class="text-sm font-bold text-lg text-slate-800">{{ $admin->bank_account_number }}</p>
+                                        <p class="text-xs text-gray-500">A/N: {{ $admin->bank_account_name }}</p>
                                     </div>
-                                @endforeach
-                            </div>
+                                    <button type="button" onclick="navigator.clipboard.writeText('{{ $admin->bank_account_number }}').then(() => alert('Nomor rekening disalin!'))" class="text-green-600 font-bold text-xs hover:underline">Salin</button>
+                                </div>
+                            @else
+                                <p class="text-sm text-gray-500 italic">Admin belum mengatur informasi rekening tujuan.</p>
+                            @endif
                         </div>
 
                         <div id="checkout_info_cod" class="hidden text-sm">

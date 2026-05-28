@@ -104,6 +104,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     // 🚚 KURIR (READ-ONLY - Hanya data saja)
     Route::get('/couriers', [CourierController::class, 'index']);
 
+    // DISBURSEMENTS
+    Route::get('/disbursements', [OrderController::class, 'disbursements'])->name('admin.disbursements.index');
+    Route::post('/disbursements/{order}/disburse', [OrderController::class, 'disburse'])->name('admin.disbursements.disburse');
+
     // ORDERS (UNIFIED)
     Route::get('/orders', [OrderController::class, 'index'])->name('admin.orders.index');
 

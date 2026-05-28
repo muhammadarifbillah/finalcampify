@@ -44,4 +44,47 @@ class OrderController extends Controller
             'orders', 'totalRevenue', 'totalOrders', 'pendingOrders', 'selesaiOrders'
         ));
     }
+
+    public function disbursements(Request $request)
+    {
+        $query = Order::with(['buyer', 'details.product.store'])
+            ->where('status', 'selesai')
+            ->latest('updated_at');
+
+        // Filter by disbursement status
+        if ($request->filled('status')) {
+            if ($request->status === 'disbursed') {
+                $query->where('is_disbursed', true);
+            } elseif ($request->status === 'pending') {
+                $query->where('is_disbursed', false);
+            }
+        } else {
+            $query->where('is_disbursed', false); // Default to pending
+        }
+
+        $orders = $query->paginate(15)->withQueryString();
+
+        $totalTertahan = Order::where('status', 'selesai')->where('is_disbursed', false)->sum('total');
+        $totalDicairkan = Order::where('is_disbursed', true)->sum('total');
+
+        return view('admin.disbursements', compact('orders', 'totalTertahan', 'totalDicairkan'));
+    }
+
+    public function disburse(Order $order)
+    {
+        if ($order->status !== 'selesai') {
+            return back()->with('error', 'Pesanan belum selesai. Dana tidak dapat dicairkan.');
+        }
+
+        if ($order->is_disbursed) {
+            return back()->with('error', 'Dana untuk pesanan ini sudah dicairkan sebelumnya.');
+        }
+
+        $order->update([
+            'is_disbursed' => true,
+            'disbursed_at' => now()
+        ]);
+
+        return back()->with('success', 'Dana pesanan ' . ($order->order_number ?? '#'.$order->id) . ' berhasil ditandai telah dicairkan ke penjual.');
+    }
 }
