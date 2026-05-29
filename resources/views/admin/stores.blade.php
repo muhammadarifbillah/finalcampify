@@ -19,7 +19,7 @@
             <p class="admin-section-subtitle">Kelola seller, status toko, dan validasi produk yang dikirim penjual.</p>
         </div>
 
-        <div class="grid gap-5 md:grid-cols-3">
+        <div class="grid gap-5 md:grid-cols-4">
             <div class="admin-card admin-stat-card">
                 <p class="admin-stat-label">Total Seller</p>
                 <h2 class="admin-stat-value">{{ number_format($stores->count()) }}</h2>
@@ -35,6 +35,11 @@
                 <h2 class="admin-stat-value">{{ number_format($stores->sum('admin_approved_products_count')) }}</h2>
                 <p class="admin-stat-meta">Tampil ke buyer</p>
             </div>
+            <div class="admin-card admin-stat-card bg-red-700 text-white">
+                <p class="admin-stat-label text-red-100">Seller Banned</p>
+                <h2 class="admin-stat-value text-white">{{ $stores->where('status', 'banned')->count() }}</h2>
+                <p class="admin-stat-meta text-red-100">Diblokir admin</p>
+            </div>
         </div>
 
         <div class="admin-card">
@@ -49,6 +54,7 @@
                             <th>Nama Toko</th>
                             <th>Status</th>
                             <th>Produk</th>
+                            <th>Retur</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
@@ -69,6 +75,20 @@
                                     <div class="text-xs text-slate-500">{{ $store->admin_approved_products_count }} approved, {{ $store->admin_waiting_products_count }} waiting</div>
                                 </td>
                                 <td>
+                                    @if(($store->admin_return_count ?? 0) >= 3)
+                                        <span class="inline-flex items-center gap-1 rounded-full bg-red-100 px-2.5 py-1 text-xs font-bold text-red-700 ring-1 ring-red-400">
+                                            <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+                                            {{ $store->admin_return_count }}× ⚠
+                                        </span>
+                                    @elseif(($store->admin_return_count ?? 0) > 0)
+                                        <span class="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-700">
+                                            {{ $store->admin_return_count }}×
+                                        </span>
+                                    @else
+                                        <span class="text-xs text-slate-400">-</span>
+                                    @endif
+                                </td>
+                                <td>
                                     <a href="{{ route('admin.stores.show', $store->id) }}" class="admin-button admin-button-primary">
                                         Detail
                                     </a>
@@ -76,7 +96,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5">
+                                <td colspan="6">
                                     <div class="admin-empty">Tidak ada seller yang terdaftar.</div>
                                 </td>
                             </tr>

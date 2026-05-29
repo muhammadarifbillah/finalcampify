@@ -89,6 +89,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::post('/stores/{id}/suspend', [StoreController::class, 'suspend'])->name('admin.stores.suspend');
     Route::post('/stores/{id}/ban', [StoreController::class, 'ban'])->name('admin.stores.ban');
     Route::post('/stores/{id}/activate', [StoreController::class, 'activate'])->name('admin.stores.activate');
+    Route::post('/stores/{id}/klarifikasi', [StoreController::class, 'simpanKlarifikasi'])->name('admin.stores.klarifikasi');
     Route::post('/stores/{store}/products/{product}/approve', [StoreController::class, 'approveProduct'])->name('admin.stores.products.approve');
     Route::post('/stores/{store}/products/{product}/reject', [StoreController::class, 'rejectProduct'])->name('admin.stores.products.reject');
 
@@ -240,6 +241,7 @@ Route::middleware(['auth', 'role:seller'])->prefix('seller')->name('seller.')->g
     Route::get('/store-profile', [StoreProfileController_seller::class, 'index'])->name('store-profile.index');
     Route::get('/store-profile/show', [StoreProfileController_seller::class, 'show'])->name('store-profile.show');
     Route::post('/store-profile', [StoreProfileController_seller::class, 'update'])->name('store-profile.update');
+    Route::post('/store-profile/klarifikasi', [StoreProfileController_seller::class, 'submitKlarifikasi'])->name('store-profile.klarifikasi');
 
     // Chat
     Route::get('/chat', [ChatController_seller::class, 'index'])->name('chat.index');
