@@ -111,18 +111,14 @@
                     </div>
                     <div>
                         <h2 class="text-3xl font-extrabold text-[#064e3b] tracking-tight">Rp {{ number_format($totalEscrow, 0, ',', '.') }}</h2>
-                        <span class="text-[10px] text-slate-400 font-bold block mt-1">(Gabungan Sewa & Retur)</span>
                     </div>
                 </div>
-                <div class="mt-5 space-y-2 border-t border-slate-100 pt-4">
-                    <div class="flex justify-between text-[11px] font-bold text-slate-500 uppercase tracking-tight">
-                        <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>Jaminan Sewa:</span>
-                        <span class="text-slate-800 font-extrabold">Rp {{ number_format($jaminanSewaEscrow, 0, ',', '.') }}</span>
-                    </div>
-                    <div class="flex justify-between text-[11px] font-bold text-slate-500 uppercase tracking-tight">
-                        <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-[#10b981]"></span>Dana Retur:</span>
-                        <span class="text-slate-800 font-extrabold">Rp {{ number_format($danaReturEscrow, 0, ',', '.') }}</span>
-                    </div>
+                <div class="mt-5 border-t border-slate-100 pt-4 flex items-center gap-2">
+                    <span class="flex h-2 w-2 relative">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-[#059669]"></span>
+                    </span>
+                    <p class="text-xs font-extrabold text-[#059669]">Status Aktif</p>
                 </div>
             </div>
         </div>
@@ -130,57 +126,50 @@
         {{-- Row 2: Secondary Metrics --}}
         <div class="flex gap-4 overflow-x-auto pb-3 flex-nowrap custom-scrollbar">
             <!-- Card 2.1: Jaminan Sewa -->
-            <div class="premium-glass-card premium-glass-card-emerald p-5 flex items-center gap-4 min-w-[260px] flex-shrink-0 flex-1 group">
+            <div class="premium-glass-card premium-glass-card-emerald p-5 flex items-center gap-4 min-w-[280px] flex-shrink-0 flex-1 group">
                 <div class="p-3 bg-[#f0fdf4] text-[#059669] rounded-xl group-hover:bg-[#059669] group-hover:text-white transition-colors duration-300 flex-shrink-0">
                     <i data-lucide="wallet" class="w-5 h-5"></i>
                 </div>
                 <div>
                     <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1.5">Jaminan Sewa (Escrow)</p>
                     <p class="text-base font-extrabold text-slate-800 leading-none">Rp {{ number_format($jaminanSewaEscrow, 0, ',', '.') }}</p>
-                </div>
-            </div>
-
-            <!-- Card 2.2: Dana Retur -->
-            <div class="premium-glass-card premium-glass-card-emerald p-5 flex items-center gap-4 min-w-[260px] flex-shrink-0 flex-1 group">
-                <div class="p-3 bg-[#f0fdf4] text-[#059669] rounded-xl group-hover:bg-[#059669] group-hover:text-white transition-colors duration-300 flex-shrink-0">
-                    <i data-lucide="hand-coins" class="w-5 h-5"></i>
-                </div>
-                <div>
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1.5">Dana Retur (Escrow)</p>
-                    <p class="text-base font-extrabold text-slate-800 leading-none">Rp {{ number_format($danaReturEscrow, 0, ',', '.') }}</p>
+                    <p class="text-[9px] text-slate-400 font-bold mt-1">Uang jaminan sewa aktif di platform</p>
                 </div>
             </div>
 
             <!-- Card 2.3: Rata-rata Durasi -->
-            <div class="premium-glass-card premium-glass-card-emerald p-5 flex items-center gap-4 min-w-[260px] flex-shrink-0 flex-1 group">
+            <div class="premium-glass-card premium-glass-card-emerald p-5 flex items-center gap-4 min-w-[280px] flex-shrink-0 flex-1 group">
                 <div class="p-3 bg-[#f0fdf4] text-[#059669] rounded-xl group-hover:bg-[#059669] group-hover:text-white transition-colors duration-300 flex-shrink-0">
                     <i data-lucide="timer" class="w-5 h-5"></i>
                 </div>
                 <div>
                     <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1.5">Rata-rata Durasi Penyelesaian</p>
                     <p class="text-base font-extrabold text-slate-800 leading-none">{{ $avgResolutionTime }} Hari</p>
+                    <p class="text-[9px] text-slate-400 font-bold mt-1">Kecepatan rata-rata penyelesaian retur sewa</p>
                 </div>
             </div>
 
             <!-- Card 2.4: Pendapatan Admin -->
-            <div class="premium-glass-card premium-glass-card-emerald p-5 flex items-center gap-4 min-w-[260px] flex-shrink-0 flex-1 group">
+            <div class="premium-glass-card premium-glass-card-emerald p-5 flex items-center gap-4 min-w-[280px] flex-shrink-0 flex-1 group">
                 <div class="p-3 bg-[#f0fdf4] text-[#059669] rounded-xl group-hover:bg-[#059669] group-hover:text-white transition-colors duration-300 flex-shrink-0">
                     <i data-lucide="trending-up" class="w-5 h-5"></i>
                 </div>
                 <div>
                     <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1.5">Pendapatan Admin (Fee)</p>
                     <p class="text-base font-extrabold text-slate-800 leading-none">Rp {{ number_format($adminRentalRevenue, 0, ',', '.') }}</p>
+                    <p class="text-[9px] text-slate-400 font-bold mt-1">Dipotong 10% dari setiap biaya sewa</p>
                 </div>
             </div>
 
             <!-- Card 2.5: Denda Keterlambatan -->
-            <div class="premium-glass-card premium-glass-card-emerald p-5 flex items-center gap-4 min-w-[260px] flex-shrink-0 flex-1 group">
+            <div class="premium-glass-card premium-glass-card-emerald p-5 flex items-center gap-4 min-w-[280px] flex-shrink-0 flex-1 group">
                 <div class="p-3 bg-[#f0fdf4] text-[#059669] rounded-xl group-hover:bg-[#059669] group-hover:text-white transition-colors duration-300 flex-shrink-0">
                     <i data-lucide="shield-alert" class="w-5 h-5"></i>
                 </div>
                 <div>
                     <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1.5">Denda Keterlambatan</p>
                     <p class="text-base font-extrabold text-slate-800 leading-none">Rp {{ number_format($totalLateFees, 0, ',', '.') }}</p>
+                    <p class="text-[9px] text-slate-400 font-bold mt-1">Akumulasi denda dari pengembalian telat</p>
                 </div>
             </div>
         </div>

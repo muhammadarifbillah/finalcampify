@@ -218,10 +218,6 @@ class BuyerOrderChatReportSeeder extends Seeder
             $order->total = $subtotal + $shippingCost;
             $order->save();
 
-            // Sebagian transaksi dibuatkan chat yang ditandai sistem
-            if (($seed + $i) % 3 === 0) {
-                $this->seedFlaggedChat($buyer, $order, $items->first(), $seed + $i);
-            }
 
             // Sebagian buyer melaporkan toko (tidak semua)
             if (($seed + $i) % 4 === 0) {
@@ -389,28 +385,7 @@ class BuyerOrderChatReportSeeder extends Seeder
         }
     }
 
-    private function seedFlaggedChat(User $buyer, Order $order, ?Product $product, int $seed): void
-    {
-        $sellerId = $product?->sellerUserId();
 
-        $flaggedMessages = [
-            'Sistem mendeteksi kata terlarang pada chat. Mohon ditinjau.',
-            'Chat terindikasi spam / promosi di luar platform.',
-            'Terdeteksi pola percakapan mencurigakan (ajakan transaksi di luar aplikasi).',
-        ];
-
-        Chat::create([
-            'user_id' => $buyer->id,
-            'sender' => 'system',
-            'sender_id' => null,
-            'receiver_id' => $sellerId,
-            'order_id' => $order->id,
-            'message' => $flaggedMessages[$seed % count($flaggedMessages)],
-            'type' => 'system',
-            'is_read' => false,
-            'is_flagged' => true,
-        ]);
-    }
 
     private function seedStoreReport(User $buyer, ?Product $product, $createdAt, int $seed): void
     {

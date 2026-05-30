@@ -24,6 +24,7 @@ class PembeliArticleController extends Controller
     public function show($id)
     {
         $article = Article_pembeli::findOrFail($id);
+        $article->increment('views');
 
         return view('pembeli.articles.show_pembeli', compact('article'));
     }

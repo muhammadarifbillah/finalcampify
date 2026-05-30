@@ -101,9 +101,8 @@
                 </div>
             @endif
 
-            <!-- ------------------ STAGE 1: BELUM DIAJUKAN (PILIH METODE & REKENING) ------------------ -->
             @if(!$return)
-                <form action="{{ route('orders.return.store', $detail->id) }}" method="POST" class="space-y-6">
+                <form action="{{ route('orders.return.store', $detail->id) }}" method="POST" enctype="multipart/form-data" class="space-y-6">
                     @csrf
                     <div>
                         <label class="block text-sm font-bold text-slate-700 mb-2">Alamat Toko (Tujuan Pengembalian)</label>
@@ -156,11 +155,16 @@
                             </label>
                         </div>
                     </div>
+                    @endif
 
-                    <!-- Input Informasi Rekening Bank Pembeli (Untuk Refund Jaminan) -->
+                    <!-- Input Informasi Rekening Bank Pembeli (Untuk Refund) -->
                     <div class="bg-slate-50 p-6 rounded-[24px] border border-slate-100 space-y-4">
-                        <h4 class="text-sm font-bold text-slate-800">Rekening Pengembalian Dana Jaminan</h4>
-                        <p class="text-xs text-slate-500">Uang jaminan sewa Anda akan ditransfer balik oleh Admin ke rekening ini setelah pengembalian barang selesai.</p>
+                        <h4 class="text-sm font-bold text-slate-800">
+                            {{ $detail->type === 'rent' ? 'Rekening Pengembalian Dana Jaminan' : 'Rekening Pengembalian Dana (Refund)' }}
+                        </h4>
+                        <p class="text-xs text-slate-500">
+                            {{ $detail->type === 'rent' ? 'Uang jaminan sewa Anda akan ditransfer balik oleh Admin ke rekening ini setelah pengembalian barang selesai.' : 'Uang pembayaran transaksi Anda akan ditransfer balik oleh Admin ke rekening ini setelah retur barang disetujui.' }}
+                        </p>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
@@ -177,9 +181,16 @@
                             </div>
                         </div>
                     </div>
-                    @endif
 
                     @if($detail->type === 'buy')
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">Foto / Bukti Kondisi Barang (Rusak/Salah)</label>
+                        <div class="border-2 border-dashed border-slate-200 rounded-2xl p-6 text-center hover:border-red-400 transition bg-slate-50">
+                            <input type="file" name="foto_kondisi" accept="image/*" class="w-full text-sm text-slate-600" required />
+                            <p class="mt-2 text-[10px] text-slate-500">Wajib diunggah sebagai bukti kondisi barang yang ingin diretur.</p>
+                        </div>
+                    </div>
+
                     <div>
                         <label class="block text-sm font-bold text-slate-700 mb-2">Alasan Retur / Masalah Barang</label>
                         <textarea name="alasan_return" rows="3" class="w-full rounded-2xl border-slate-200 p-4 focus:ring-red-500 focus:border-red-500 text-sm" placeholder="Jelaskan detail masalah barang (misal: rusak, tidak sesuai deskripsi, dll)" required></textarea>

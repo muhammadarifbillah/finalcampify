@@ -17,14 +17,33 @@ class ProductSeeder extends Seeder
         $seller = User::where('email', 'seller@campify.com')->first();
         if (!$seller) {
             $seller = User::create([
-                'name' => 'Campify Store',
+                'name' => 'Campify Store Owner',
+                'nama' => 'Campify Store Owner',
                 'email' => 'seller@campify.com',
                 'password' => bcrypt('password123'),
                 'role' => 'seller',
                 'phone' => '081234567890',
                 'address' => 'Jl. Petualangan No. 123, Bandung',
+                'status' => 'active',
             ]);
         }
+
+        // Ensure the seller has a store associated
+        $store = \App\Models\Store::updateOrCreate(
+            ['user_id' => $seller->id],
+            [
+                'nama_toko' => 'Campify Adventure Hub',
+                'status' => 'active',
+                'alamat' => 'Jl. Petualangan No. 123, Bandung',
+                'deskripsi' => 'Toko resmi Campify Hub penyedia perlengkapan camping dan trekking terlengkap.',
+                'bank_name' => 'BCA',
+                'bank_account_number' => '8887776665',
+                'bank_account_name' => 'Campify Store Owner',
+                'last_active' => now(),
+                'latitude' => -6.20000000,
+                'longitude' => 106.81666667,
+            ]
+        );
 
         $products = [
             [
@@ -152,6 +171,7 @@ class ProductSeeder extends Seeder
         foreach ($products as $product) {
             $product['buy_price'] = $product['price'];
             $product['jenis_produk'] = 'sewa';
+            $product['store_id'] = $store->id;
             Product::create($product);
         }
     }

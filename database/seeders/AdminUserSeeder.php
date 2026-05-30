@@ -37,9 +37,9 @@ class AdminUserSeeder extends Seeder
         );
 
         User::updateOrCreate(
-            ['email' => 'buyer@campify.com'],
+            ['email' => 'rina.safitri@gmail.com'],
             [
-                'name' => 'Sample Buyer',
+                'name' => 'Rina Safitri',
                 'password' => Hash::make('buyer123'),
                 'role' => 'buyer',
                 'status' => 'active',
@@ -49,9 +49,9 @@ class AdminUserSeeder extends Seeder
         );
 
         User::updateOrCreate(
-            ['email' => 'seller@campify.com'],
+            ['email' => 'bagus.outdoor@gmail.com'],
             [
-                'name' => 'Sample Seller',
+                'name' => 'Bagus Prasetyo',
                 'password' => Hash::make('seller123'),
                 'role' => 'seller',
                 'status' => 'active',

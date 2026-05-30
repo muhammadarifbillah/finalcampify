@@ -165,11 +165,12 @@ class PembeliProductController extends Controller
     {
         $produk = Product_pembeli::findOrFail($id);
 
-        // arahkan sesuai tipe
-        if ($produk->buy_price > 0) {
-            return redirect()->route('produk.detail.buy', $id);
-        } elseif ($produk->rent_price > 0) {
+        // Prioritaskan jenis_produk / is_rental sebagai penentu tipe
+        // buy_price pada produk sewa dipakai sebagai nilai deposit/escrow, bukan harga jual
+        if ($produk->jenis_produk === 'sewa' || $produk->is_rental) {
             return redirect()->route('produk.detail.rent', $id);
+        } elseif ($produk->jenis_produk === 'jual') {
+            return redirect()->route('produk.detail.buy', $id);
         }
 
         abort(404);
@@ -179,6 +180,11 @@ class PembeliProductController extends Controller
     public function detailBuy($id)
     {
         $produk = Product_pembeli::with('productRatings.user')->findOrFail($id);
+
+        // Jika produk bertipe sewa/rental, redirect ke halaman sewa
+        if ($produk->jenis_produk === 'sewa' || $produk->is_rental) {
+            return redirect()->route('produk.detail.rent', $id);
+        }
 
         // kunci: harus produk beli
         if (!$produk->buy_price || $produk->buy_price <= 0) {
@@ -204,6 +210,11 @@ class PembeliProductController extends Controller
     public function detailRent($id)
     {
         $produk = Product_pembeli::with('productRatings.user')->findOrFail($id);
+
+        // Jika produk bertipe jual, redirect ke halaman beli
+        if ($produk->jenis_produk === 'jual' && !$produk->is_rental) {
+            return redirect()->route('produk.detail.buy', $id);
+        }
 
         // kunci: harus produk sewa
         if (!$produk->rent_price || $produk->rent_price <= 0) {

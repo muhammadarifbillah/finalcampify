@@ -37,7 +37,7 @@ class ReturnComprehensiveSeeder extends Seeder
                 'status' => 'completed',
                 'buyer_idx' => 0,
                 'seller_idx' => 0,
-                'reason' => 'Barang sudah sampai tapi warna sedikit pudar dari foto. Seller ramah dan setuju refund sebagian.',
+                'reason' => 'Barang sudah sampai tapi warna sedikit pudar dari foto. Seller ramah dan setuju refund.',
             ],
             [
                 'status' => 'rejected',
@@ -45,12 +45,29 @@ class ReturnComprehensiveSeeder extends Seeder
                 'seller_idx' => 1,
                 'reason' => 'Pembeli mengklaim barang cacat, tapi setelah dicek video unboxing, kerusakan terjadi karena pembukaan paket yang ceroboh.',
             ],
+            [
+                'status' => 'pending',
+                'buyer_idx' => 2,
+                'seller_idx' => 2,
+                'reason' => 'Ukuran sepatu kekecilan, pembeli ingin menukar ukuran atau mengajukan retur dana.',
+            ],
+            [
+                'status' => 'checking',
+                'buyer_idx' => 3,
+                'seller_idx' => 0,
+                'reason' => 'Kemasan luar sobek saat diterima, pembeli mengajukan retur dana untuk kompensasi.',
+            ],
+            [
+                'status' => 'completed',
+                'buyer_idx' => 4,
+                'seller_idx' => 1,
+                'reason' => 'Barang yang dikirim salah tipe, seller menyetujui pengembalian dana penuh.',
+            ],
         ];
 
         foreach ($scenarios as $idx => $s) {
-
-            $buyer = $buyers[$idx % $buyers->count()];
-            $seller = $sellers[$idx % $sellers->count()];
+            $buyer = $buyers[$s['buyer_idx'] % $buyers->count()];
+            $seller = $sellers[$s['seller_idx'] % $sellers->count()];
 
             $product = Product::where('store_id', $seller->store->id)
                 ->where('jenis_produk', 'jual')
@@ -69,7 +86,7 @@ class ReturnComprehensiveSeeder extends Seeder
                 'metode_pembayaran' => 'transfer',
                 'status' => 'selesai',
                 'kurir' => 'jne',
-                'created_at' => now()->subDays(15),
+                'created_at' => now()->subDays(15 - $idx),
             ]);
 
             OrderDetail::create([
@@ -80,6 +97,9 @@ class ReturnComprehensiveSeeder extends Seeder
                 'type' => 'buy',
             ]);
 
+            $isCompleted = $s['status'] === 'completed';
+            $isRejected = $s['status'] === 'rejected';
+
             ReturnEscrow::create([
                 'order_id' => $order->id,
                 'type' => 'jual_beli',
@@ -89,37 +109,86 @@ class ReturnComprehensiveSeeder extends Seeder
                 'rental_fee_amount' => 0,
                 'total_fines' => 0,
                 'deficit' => 0,
-                'to_seller' => $s['status'] === 'rejected' ? $product->price : 0,
-                'to_buyer' => $s['status'] === 'completed' ? $product->price : 0,
-                'expected_date' => now()->subDays(10),
-                'created_at' => now()->subDays(12),
+                'to_seller' => $isRejected ? $product->price : 0,
+                'to_buyer' => $isCompleted ? $product->price : 0,
+                'expected_date' => now()->subDays(10 - $idx),
+                'actual_date' => ($isCompleted || $isRejected) ? now()->subDays(5 - $idx) : null,
+                'created_at' => now()->subDays(12 - $idx),
             ]);
         }
     }
 
     private function seedSewaReturns($buyers, $sellers)
     {
-
-        // RANDOM RETURNS
         $otherScenarios = [
             [
                 'status' => 'checking',
-                'notes' => 'Barang baru sampai, sedang dicek kelengkapannya.'
+                'buyer_idx' => 1,
+                'seller_idx' => 1,
+                'expected_days_ago' => 1,
+                'created_days_ago' => 5,
+                'actual_days_ago' => null,
+                'late_fee' => 0,
             ],
             [
                 'status' => 'completed',
-                'notes' => 'Transaksi selesai, semua barang kembali lengkap.'
+                'buyer_idx' => 2,
+                'seller_idx' => 2,
+                'expected_days_ago' => 3,
+                'created_days_ago' => 6,
+                'actual_days_ago' => 2, // 4 hari durasi penyelesaian (6 - 2)
+                'late_fee' => 0,
             ],
             [
                 'status' => 'pending',
-                'notes' => 'Penyewa belum update resi pengembalian.'
+                'buyer_idx' => 3,
+                'seller_idx' => 0,
+                'expected_days_ago' => -5, // belum jatuh tempo (5 hari kedepan)
+                'created_days_ago' => 2,
+                'actual_days_ago' => null,
+                'late_fee' => 0,
+            ],
+            [
+                'status' => 'completed',
+                'buyer_idx' => 4,
+                'seller_idx' => 1,
+                'expected_days_ago' => 5,
+                'created_days_ago' => 9,
+                'actual_days_ago' => 1, // 8 hari durasi penyelesaian (9 - 1)
+                'late_fee' => 50000,
+            ],
+            [
+                'status' => 'completed',
+                'buyer_idx' => 5,
+                'seller_idx' => 2,
+                'expected_days_ago' => 7,
+                'created_days_ago' => 10,
+                'actual_days_ago' => 3, // 7 hari durasi penyelesaian (10 - 3)
+                'late_fee' => 75000,
+            ],
+            [
+                'status' => 'pending',
+                'buyer_idx' => 6,
+                'seller_idx' => 0,
+                'expected_days_ago' => 3, // OVERDUE (telat 3 hari)
+                'created_days_ago' => 8,
+                'actual_days_ago' => null,
+                'late_fee' => 0,
+            ],
+            [
+                'status' => 'checking',
+                'buyer_idx' => 7,
+                'seller_idx' => 1,
+                'expected_days_ago' => 4, // OVERDUE (telat 4 hari)
+                'created_days_ago' => 9,
+                'actual_days_ago' => null,
+                'late_fee' => 0,
             ],
         ];
 
         foreach ($otherScenarios as $idx => $os) {
-
-            $buyer = $buyers[($idx + 1) % $buyers->count()];
-            $seller = $sellers[($idx + 1) % $sellers->count()];
+            $buyer = $buyers[$os['buyer_idx'] % $buyers->count()];
+            $seller = $sellers[$os['seller_idx'] % $sellers->count()];
 
             $product = Product::where('store_id', $seller->store->id)
                 ->where('is_rental', true)
@@ -133,11 +202,11 @@ class ReturnComprehensiveSeeder extends Seeder
                 'user_id' => $buyer->id,
                 'receiver_name' => $buyer->name,
                 'total' => ($product->price * 2) + 10000,
-                'shipping_address' => 'Jl. Kebon Jeruk No. ' . ($idx + 10),
+                'shipping_address' => 'Jl. Kebon Jeruk No. ' . ($idx + 10) . ', ' . $buyer->city,
                 'metode_pembayaran' => 'transfer',
                 'status' => 'selesai',
                 'kurir' => 'jne',
-                'created_at' => now()->subDays(20),
+                'created_at' => now()->subDays($os['created_days_ago'] + 5),
             ]);
 
             OrderDetail::create([
@@ -147,7 +216,7 @@ class ReturnComprehensiveSeeder extends Seeder
                 'harga' => $product->price,
                 'type' => 'rent',
                 'duration' => 2,
-                'start_date' => now()->subDays(18),
+                'start_date' => now()->subDays($os['created_days_ago'] + 3),
             ]);
 
             ReturnEscrow::create([
@@ -157,14 +226,15 @@ class ReturnComprehensiveSeeder extends Seeder
                 'escrow_total' => $product->price * 2,
                 'deposit_amount' => $product->price * 0.5,
                 'rental_fee_amount' => $product->price * 1.5,
-                'expected_date' => now()->subDays(5),
-                'late_fee' => 0,
+                'expected_date' => now()->subDays($os['expected_days_ago']),
+                'actual_date' => $os['actual_days_ago'] !== null ? now()->subDays($os['actual_days_ago']) : null,
+                'late_fee' => $os['late_fee'],
                 'damage_fee' => 0,
-                'total_fines' => 0,
+                'total_fines' => $os['late_fee'],
                 'deficit' => 0,
-                'to_seller' => 0,
-                'to_buyer' => 0,
-                'created_at' => now()->subDays(10),
+                'to_seller' => $os['status'] === 'completed' ? ($product->price * 1.5) : 0,
+                'to_buyer' => $os['status'] === 'completed' ? ($product->price * 0.5 - $os['late_fee']) : 0,
+                'created_at' => now()->subDays($os['created_days_ago']),
             ]);
         }
     }

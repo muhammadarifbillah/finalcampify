@@ -144,16 +144,16 @@ class SellerStoreProductSeeder extends Seeder
                 'category' => 'Tenda',
                 'jenis_produk' => 'jual',
                 'buy_price' => 750000,
-                'rent_price' => 50000,
+                'rent_price' => 85000,
                 'stock' => 12,
                 'image_file' => 'tenda1.jpg',
             ],
             [
-                'name' => 'Sleeping Bag Thermal',
+                'name' => 'Sleeping Bag Thermal Mummy',
                 'category' => 'Sleeping Bag',
                 'jenis_produk' => 'jual',
                 'buy_price' => 350000,
-                'rent_price' => 25000,
+                'rent_price' => 40000,
                 'stock' => 25,
                 'image_file' => 'sleepingbag1.jpeg',
             ],
@@ -162,16 +162,16 @@ class SellerStoreProductSeeder extends Seeder
                 'category' => 'Alat Masak',
                 'jenis_produk' => 'jual',
                 'buy_price' => 180000,
-                'rent_price' => 15000,
+                'rent_price' => 25000,
                 'stock' => 18,
                 'image_file' => 'alatmasak1.jpeg',
             ],
             [
-                'name' => 'Matras Camping',
-                'category' => 'Aksesoris',
+                'name' => 'Sleeping Bag Premium Cabin',
+                'category' => 'Sleeping Bag',
                 'jenis_produk' => 'sewa',
-                'buy_price' => 150000,
-                'rent_price' => 15000,
+                'buy_price' => 500000,
+                'rent_price' => 55000,
                 'stock' => 30,
                 'image_file' => 'sleepingbag2.jpeg',
             ],
@@ -180,16 +180,16 @@ class SellerStoreProductSeeder extends Seeder
                 'category' => 'Tas Gunung',
                 'jenis_produk' => 'jual',
                 'buy_price' => 850000,
-                'rent_price' => 60000,
+                'rent_price' => 95000,
                 'stock' => 10,
                 'image_file' => 'tasgunung1.jpeg',
             ],
             [
-                'name' => 'Jaket Outdoor Waterproof',
-                'category' => 'Pakaian',
+                'name' => 'Tenda Camping 4 Orang',
+                'category' => 'Tenda',
                 'jenis_produk' => 'jual',
-                'buy_price' => 450000,
-                'rent_price' => 35000,
+                'buy_price' => 1200000,
+                'rent_price' => 130000,
                 'stock' => 14,
                 'image_file' => 'tenda2.jpg',
             ],
@@ -198,34 +198,34 @@ class SellerStoreProductSeeder extends Seeder
                 'category' => 'Sepatu',
                 'jenis_produk' => 'jual',
                 'buy_price' => 950000,
-                'rent_price' => 75000,
+                'rent_price' => 120000,
                 'stock' => 8,
                 'image_file' => 'sepatu1.jpeg',
             ],
             [
-                'name' => 'Headlamp LED Rechargeable',
-                'category' => 'Aksesoris',
+                'name' => 'Lampu LED Camping Lantern',
+                'category' => 'Alat Masak',
                 'jenis_produk' => 'jual',
                 'buy_price' => 150000,
-                'rent_price' => 10000,
+                'rent_price' => 15000,
                 'stock' => 40,
                 'image_file' => 'alatmasak3.jpeg',
             ],
             [
-                'name' => 'Kursi Lipat Camping',
-                'category' => 'Aksesoris',
+                'name' => 'Sepatu Trekking Waterproof',
+                'category' => 'Sepatu',
                 'jenis_produk' => 'sewa',
-                'buy_price' => 250000,
-                'rent_price' => 20000,
+                'buy_price' => 1100000,
+                'rent_price' => 140000,
                 'stock' => 16,
-                'image_file' => 'sleepingbag3.jpeg',
+                'image_file' => 'sepatu2.jpeg',
             ],
             [
-                'name' => 'Trekking Pole (Sepasang)',
-                'category' => 'Aksesoris',
+                'name' => 'Carrier Adventure 45L',
+                'category' => 'Tas Gunung',
                 'jenis_produk' => 'sewa',
-                'buy_price' => 300000,
-                'rent_price' => 25000,
+                'buy_price' => 600000,
+                'rent_price' => 65000,
                 'stock' => 22,
                 'image_file' => 'tasgunung3.jpeg',
             ],
@@ -239,11 +239,32 @@ class SellerStoreProductSeeder extends Seeder
 
         $statusPattern = ['waiting', 'waiting', 'approved', 'approved', 'rejected', 'approved'];
 
+        $descriptions = [
+            'Tenda Dome 2 Orang' => 'Tenda Dome premium berkapasitas 2 orang dengan struktur double layer tangguh. Memiliki indeks waterproof flysheet PU 3000mm tahan hujan deras, frame fiberglass solid berdiameter 7.9mm yang kokoh menahan angin kencang gunung, ventilasi jaring anti-nyamuk B3 yang breathable, serta berat ultra-ringan hanya 2.4kg. Sangat ideal untuk kenyamanan istirahat maksimal selama camping santai maupun trekking gunung.',
+            'Tenda Camping 4 Orang' => 'Tenda camping keluarga berkapasitas 4 orang dengan pintu masuk ganda berlapis kelambu antinyamuk. Frame duralumin alloy super kokoh serta flysheet poliester PU 3000mm yang andal melindungi seluruh anggota keluarga dari angin kencang dan hujan lebat di dataran tinggi.',
+            'Sleeping Bag Thermal Mummy' => 'Sleeping Bag (kantung tidur) tipe mummy kelas profesional dengan teknologi serat hollow fiber thermal insulation. Mampu menahan suhu ekstrim dingin hingga 5 derajat Celcius sekaligus tetap sejuk saat digunakan di udara hangat tropis. Dilengkapi resleting YKK anti-nyangkut di kedua sisi, tudung kepala ergonomis dengan tali pengencang, serta dilapisi bahan ripstop nylon 210T tahan air.',
+            'Sleeping Bag Premium Cabin' => 'Sleeping Bag tipe cabin yang luas dan empuk dengan lapisan dalam katun flanel ekstra lembut. Sangat nyaman, menghangatkan tubuh di malam dingin pegunungan, serta dapat dibuka sepenuhnya untuk dijadikan selimut tebal saat berkemah bersama keluarga.',
+            'Kompor Portable Camping' => 'Kompor portable ultra-kompak dengan sistem pemantik piezo-electric otomatis yang andal di segala kondisi cuaca. Dibuat dari material stainless steel dan aluminium alloy kualitas pesawat terbang yang anti-karat dan sangat kuat menahan beban wadah masak hingga 10kg. Sangat hemat gas butana dengan pelindung angin built-in terintegrasi, cocok untuk memasak cepat di area berkemah.',
+            'Lampu LED Camping Lantern' => 'Lampu LED camping multifungsi berkekuatan 300 lumens dengan fitur rechargeable USB-C dan proteksi air IPX4. Sangat praktis digantung di dalam tenda atau ditaruh di atas meja untuk memberikan pencahayaan hangat 360 derajat selama malam hari di perkemahan.',
+            'Backpack Hiking 60L' => 'Backpack/Carrier gunung berkapasitas 60 liter dengan teknologi ergonomis Airback Suspension System. Rangka internal aluminium ringan mendistribusikan beban secara merata ke pinggul untuk mencegah kelelahan punggung selama perjalanan panjang. Memiliki banyak kompartemen akses cepat, kantong hidrasi air, sabuk pinggang dengan bantalan tebal, serta dilengkapi rain cover 100% waterproof.',
+            'Carrier Adventure 45L' => 'Tas carrier berkapasitas medium 45 liter yang didesain tangguh untuk petualangan akhir pekan atau weekend trekking. Dilengkapi backsystem dengan ventilasi udara optimal untuk meminimalkan keringat berlebih di punggung.',
+            'Sepatu Hiking Trail' => 'Sepatu trekking gunung profesional berkontur tangguh dengan sol karet Vibram anti-selip yang mencengkeram kuat medan basah, licin, maupun berbatu. Bagian atas dilapisi kulit nubuck premium anti-air dipadu mesh bersirkulasi udara baik. Memiliki pelindung jari kaki karet tebal dan bantalan insole EVA empuk untuk menyerap benturan medan terjal.',
+            'Sepatu Trekking Waterproof' => 'Sepatu gunung tahan air dengan membran bernapas berkualitas tinggi untuk melindungi kaki tetap kering di medan berlumpur maupun saat menyeberang sungai kecil. Dirancang dengan bantalan tumit anatomis untuk stabilitas maksimum di jalan curam.',
+        ];
+
         foreach ($selected as $index => $base) {
             $isRental = $base['jenis_produk'] === 'sewa';
             $status = $isRental ? 'approved' : ($statusPattern[$index] ?? 'approved');
-            $description = 'Produk outdoor berkualitas untuk aktivitas camping & hiking. ' . Str::ucfirst(Str::random(8));
+            $description = $descriptions[$base['name']] ?? 'Produk outdoor premium berkualitas tinggi untuk mendukung aktivitas petualangan camping, hiking, dan trekking Anda dengan aman dan nyaman.';
             $price = $base['buy_price'] > 0 ? $base['buy_price'] : $base['rent_price'];
+
+            // Hitung dana jaminan: 25% harga barang jika ada, atau 3x harga sewa harian
+            $escrowAmount = 0;
+            if ($isRental) {
+                $escrowAmount = $base['buy_price'] > 0
+                    ? (int) round($base['buy_price'] * 0.25)
+                    : (int) round($base['rent_price'] * 3);
+            }
 
             $product = Product::firstOrCreate(
                 [
@@ -261,6 +282,7 @@ class SellerStoreProductSeeder extends Seeder
                     'harga' => $price,
                     'buy_price' => $base['buy_price'],
                     'rent_price' => $base['rent_price'],
+                    'escrow_amount' => $escrowAmount,
                     'status' => $status,
                     'jenis_produk' => $base['jenis_produk'],
                     'is_rental' => $isRental,

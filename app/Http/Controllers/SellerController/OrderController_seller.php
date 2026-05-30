@@ -13,6 +13,10 @@ class OrderController_seller extends Controller
     {
         $query = $this->sellerOrders();
 
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -95,13 +99,22 @@ class OrderController_seller extends Controller
 
     private function sellerOrders()
     {
-        return Order_seller::with(['details.product', 'product', 'buyer'])
-            ->whereHas('details.product', function ($query) {
-                $query->where('user_id', \Illuminate\Support\Facades\Auth::id())
-                    ->orWhereHas('store', fn ($store) => $store->where('user_id', \Illuminate\Support\Facades\Auth::id()));
-            })
-            ->whereDoesntHave('details', function ($query) {
-                $query->where('type', 'rent');
+        $userId = \Illuminate\Support\Facades\Auth::id();
+
+        return Order_seller::with(['details' => function ($query) use ($userId) {
+                $query->where('type', 'buy')
+                    ->whereHas('product', function ($pQuery) use ($userId) {
+                        $pQuery->where('user_id', $userId)
+                            ->orWhereHas('store', fn ($store) => $store->where('user_id', $userId));
+                    })
+                    ->with('product');
+            }, 'product', 'buyer'])
+            ->whereHas('details', function ($query) use ($userId) {
+                $query->where('type', 'buy')
+                    ->whereHas('product', function ($pQuery) use ($userId) {
+                        $pQuery->where('user_id', $userId)
+                            ->orWhereHas('store', fn ($store) => $store->where('user_id', $userId));
+                    });
             });
     }
 }

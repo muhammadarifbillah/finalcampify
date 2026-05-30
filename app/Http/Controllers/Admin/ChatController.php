@@ -15,13 +15,6 @@ class ChatController extends Controller
                 ->where('type', 'chat')
                 ->latest()
                 ->get(),
-            'chats' => Chat::where('is_flagged', true)->latest()->get(),
         ]);
-    }
-
-    public function flag($id)
-    {
-        Chat::findOrFail($id)->update(['is_flagged'=>true]);
-        return back();
     }
 }

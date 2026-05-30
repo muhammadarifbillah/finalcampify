@@ -291,45 +291,129 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
                 </div>
                 <div class="modal-body terms-body">
-                    <p>Dengan mendaftar sebagai Seller di platform ini, Anda menyatakan telah membaca, memahami, dan menyetujui seluruh syarat dan ketentuan berikut:</p>
+                    <p class="mb-4">Dengan mendaftar sebagai Seller di platform ini, Anda menyatakan telah membaca, memahami, dan menyetujui seluruh syarat dan ketentuan berikut:</p>
 
-                    <h6 class="fw-bold mt-4">1. Kewajiban Seller</h6>
-                    <p>Seller wajib memberikan informasi yang benar, akurat, dan terbaru terkait identitas, produk, dan toko.</p>
-                    <p>Seller bertanggung jawab penuh atas seluruh aktivitas yang dilakukan melalui akun miliknya.</p>
-                    <p>Seller wajib menjaga kualitas produk dan pelayanan kepada pembeli.</p>
+                    <h6 class="fw-bold mt-4 text-success">
+                        <span class="me-1">📋</span> 1. Kewajiban Seller
+                    </h6>
+                    <ul class="list-unstyled ps-2 mt-2">
+                        <li class="mb-2 d-flex align-items-start">
+                            <span class="text-success me-2">✔</span>
+                            <span>Seller wajib memberikan informasi yang benar, akurat, dan terbaru terkait identitas, produk, dan toko.</span>
+                        </li>
+                        <li class="mb-2 d-flex align-items-start">
+                            <span class="text-success me-2">✔</span>
+                            <span>Seller bertanggung jawab penuh atas seluruh aktivitas yang dilakukan melalui akun miliknya.</span>
+                        </li>
+                        <li class="mb-2 d-flex align-items-start">
+                            <span class="text-success me-2">✔</span>
+                            <span>Seller wajib menjaga kualitas produk dan pelayanan kepada pembeli.</span>
+                        </li>
+                    </ul>
 
-                    <h6 class="fw-bold mt-4">2. Ketentuan Produk</h6>
-                    <p>Produk yang dijual harus legal, tidak melanggar hukum, dan tidak termasuk barang terlarang.</p>
-                    <p>Dilarang menjual produk palsu, ilegal, berbahaya, atau melanggar hak kekayaan intelektual.</p>
-                    <p>Informasi produk (deskripsi, harga, gambar) harus sesuai dengan kondisi sebenarnya.</p>
+                    <h6 class="fw-bold mt-4 text-success">
+                        <span class="me-1">📦</span> 2. Ketentuan Produk
+                    </h6>
+                    <ul class="list-unstyled ps-2 mt-2">
+                        <li class="mb-2 d-flex align-items-start">
+                            <span class="text-success me-2">✔</span>
+                            <span>Produk yang dijual harus legal, tidak melanggar hukum, dan tidak termasuk barang terlarang.</span>
+                        </li>
+                        <li class="mb-2 d-flex align-items-start">
+                            <span class="text-success me-2">✔</span>
+                            <span>Dilarang menjual produk palsu, ilegal, berbahaya, atau melanggar hak kekayaan intelektual.</span>
+                        </li>
+                        <li class="mb-2 d-flex align-items-start">
+                            <span class="text-success me-2">✔</span>
+                            <span>Informasi produk (deskripsi, harga, gambar) harus sesuai dengan kondisi sebenarnya.</span>
+                        </li>
+                    </ul>
 
-                    <h6 class="fw-bold mt-4">3. Larangan</h6>
-                    <p>Seller dilarang untuk:</p>
-                    <p>Melakukan penipuan, manipulasi transaksi, atau aktivitas yang merugikan pengguna lain.</p>
-                    <p>Menggunakan kata-kata terlarang, menyesatkan, atau tidak pantas pada produk maupun komunikasi.</p>
-                    <p>Melakukan spam, duplikasi produk secara berlebihan, atau praktik tidak sehat lainnya.</p>
-                    <p>Menentukan harga yang tidak wajar atau menyesatkan.</p>
-                    <p>Menyalahgunakan sistem platform untuk keuntungan pribadi yang melanggar aturan.</p>
+                    <h6 class="fw-bold mt-4 text-danger">
+                        <span class="me-1">🚫</span> 3. Larangan
+                    </h6>
+                    <p class="small text-muted ps-2 mb-2">Seller dilarang keras untuk:</p>
+                    <ul class="list-unstyled ps-2">
+                        <li class="mb-2 d-flex align-items-start">
+                            <span class="text-danger me-2">❌</span>
+                            <span>Melakukan penipuan, manipulasi transaksi, atau aktivitas yang merugikan pengguna lain.</span>
+                        </li>
+                        <li class="mb-2 d-flex align-items-start">
+                            <span class="text-danger me-2">❌</span>
+                            <span>Menggunakan kata-kata terlarang, menyesatkan, atau tidak pantas pada produk maupun komunikasi.</span>
+                        </li>
+                        <li class="mb-2 d-flex align-items-start">
+                            <span class="text-danger me-2">❌</span>
+                            <span>Melakukan spam, duplikasi produk secara berlebihan, atau praktik tidak sehat lainnya.</span>
+                        </li>
+                        <li class="mb-2 d-flex align-items-start">
+                            <span class="text-danger me-2">❌</span>
+                            <span>Menentukan harga yang tidak wajar atau menyesatkan.</span>
+                        </li>
+                        <li class="mb-2 d-flex align-items-start">
+                            <span class="text-danger me-2">❌</span>
+                            <span>Menyalahgunakan sistem platform untuk keuntungan pribadi yang melanggar aturan.</span>
+                        </li>
+                    </ul>
 
-                    <h6 class="fw-bold mt-4">4. Sistem Pelaporan dan Pengawasan</h6>
-                    <p>Platform memiliki hak untuk menerima laporan dari pengguna lain terkait dugaan pelanggaran.</p>
-                    <p>Sistem dapat melakukan deteksi otomatis terhadap aktivitas mencurigakan.</p>
-                    <p>Semua aktivitas Seller dapat dipantau melalui sistem untuk menjaga keamanan dan kualitas platform.</p>
+                    <h6 class="fw-bold mt-4 text-primary">
+                        <span class="me-1">🔍</span> 4. Sistem Pelaporan dan Pengawasan
+                    </h6>
+                    <ul class="list-unstyled ps-2 mt-2">
+                        <li class="mb-2 d-flex align-items-start">
+                            <span class="text-primary me-2">✔</span>
+                            <span>Platform memiliki hak untuk menerima laporan dari pengguna lain terkait dugaan pelanggaran.</span>
+                        </li>
+                        <li class="mb-2 d-flex align-items-start">
+                            <span class="text-primary me-2">✔</span>
+                            <span>Sistem dapat melakukan deteksi otomatis terhadap aktivitas mencurigakan.</span>
+                        </li>
+                        <li class="mb-2 d-flex align-items-start">
+                            <span class="text-primary me-2">✔</span>
+                            <span>Semua aktivitas Seller dapat dipantau melalui sistem untuk menjaga keamanan dan kualitas platform.</span>
+                        </li>
+                    </ul>
 
-                    <h6 class="fw-bold mt-4">5. Sanksi dan Tindakan</h6>
-                    <p>Jika Seller terbukti melanggar ketentuan, maka platform berhak memberikan:</p>
-                    <p>Peringatan (warning)</p>
-                    <p>Pembatasan fitur</p>
-                    <p>Suspend akun sementara</p>
-                    <p>Pemblokiran (ban) akun secara permanen</p>
-                    <p>Sistem sanksi dapat menggunakan mekanisme strike (peringatan bertahap).</p>
-                    <p>Dalam kasus pelanggaran berat, akun dapat langsung diblokir tanpa peringatan.</p>
+                    <h6 class="fw-bold mt-4 text-warning">
+                        <span class="me-1">⚠️</span> 5. Sanksi dan Tindakan
+                    </h6>
+                    <p class="small text-muted ps-2 mb-2">Jika Seller terbukti melanggar ketentuan, platform berhak memberikan sanksi berupa:</p>
+                    <ul class="list-unstyled ps-2">
+                        <li class="mb-2 d-flex align-items-start">
+                            <span class="text-warning me-2">⚠</span>
+                            <span>Peringatan (warning) atau pembatasan fitur tertentu pada toko.</span>
+                        </li>
+                        <li class="mb-2 d-flex align-items-start">
+                            <span class="text-warning me-2">⚠</span>
+                            <span>Penangguhan (suspend) akun sementara atau pemblokiran (ban) secara permanen.</span>
+                        </li>
+                        <li class="mb-2 d-flex align-items-start">
+                            <span class="text-warning me-2">⚠</span>
+                            <span>Pemberlakuan mekanisme strike (sanksi bertahap sesuai rekam jejak pelanggaran).</span>
+                        </li>
+                        <li class="mb-2 d-flex align-items-start">
+                            <span class="text-warning me-2">⚠</span>
+                            <span>Pemblokiran akun langsung tanpa peringatan untuk jenis pelanggaran berat (fraud/penipuan).</span>
+                        </li>
+                    </ul>
 
-                    <h6 class="fw-bold mt-4">6. Persetujuan</h6>
-                    <p>Dengan mendaftar sebagai Seller, Anda menyatakan:</p>
-                    <p>Bersedia mematuhi seluruh aturan yang berlaku.</p>
-                    <p>Bersedia menerima sanksi termasuk pemblokiran akun (ban) jika melanggar ketentuan.</p>
-                    <p>Memahami bahwa keputusan platform bersifat final dalam menjaga keamanan dan kenyamanan pengguna.</p>
+                    <h6 class="fw-bold mt-4 text-dark">
+                        <span class="me-1">🤝</span> 6. Persetujuan
+                    </h6>
+                    <ul class="list-unstyled ps-2 mt-2">
+                        <li class="mb-2 d-flex align-items-start">
+                            <span class="text-dark me-2">✔</span>
+                            <span>Bersedia mematuhi seluruh aturan dan tata tertib yang berlaku di platform Campify.</span>
+                        </li>
+                        <li class="mb-2 d-flex align-items-start">
+                            <span class="text-dark me-2">✔</span>
+                            <span>Bersedia menerima sanksi hukum maupun operasional jika terbukti melakukan pelanggaran.</span>
+                        </li>
+                        <li class="mb-2 d-flex align-items-start">
+                            <span class="text-dark me-2">✔</span>
+                            <span>Memahami sepenuhnya bahwa keputusan platform bersifat final demi menjaga kenyamanan pengguna.</span>
+                        </li>
+                    </ul>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-success" data-bs-dismiss="modal">Saya Mengerti</button>

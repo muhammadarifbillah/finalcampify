@@ -25,6 +25,7 @@ class Product extends Model
         'harga',
         'buy_price',
         'rent_price',
+        'escrow_amount',
         'status',
         'flag_reason',
         'reviewed_by',
@@ -43,6 +44,7 @@ class Product extends Model
     protected $casts = [
         'reviewed_at' => 'datetime',
         'is_rental' => 'boolean',
+        'escrow_amount' => 'integer',
     ];
 
     public function seller()

@@ -14,7 +14,7 @@
 
     <div class="bg-white rounded-3xl shadow-sm overflow-hidden border border-forest-100">
         @if($article->image)
-            <img src="{{ asset($article->image) }}" alt="{{ $article->title }}" class="w-full object-cover max-h-[420px]">
+            <img src="{{ Str::startsWith($article->image, 'http') ? $article->image : asset($article->image) }}" alt="{{ $article->title }}" class="w-full object-cover max-h-[420px]">
         @endif
 
         <div class="p-10 prose max-w-none text-earth-700">

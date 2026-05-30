@@ -217,7 +217,7 @@
             </thead>
             <tbody>
                 @forelse($orders->take(5) as $o)
-                <tr style="cursor: pointer;" onclick="window.location='/seller/orders/{{ $o->id }}'">
+                <tr style="cursor: pointer;" onclick="window.location='{{ $o->rental ? '/seller/rentals/' . $o->rental->id : '/seller/orders/' . $o->id }}'">
                     <td class="px-4 py-4 fw-bold text-dark">#{{ $o->id }}</td>
                     <td class="px-4 py-4">
                         <div class="d-flex align-items-center gap-3">
