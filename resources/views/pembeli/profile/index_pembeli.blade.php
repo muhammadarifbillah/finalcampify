@@ -164,7 +164,7 @@
                             @foreach($rentalOrders as $order)
                                 <div class="rounded-3xl border p-6 shadow-sm bg-blue-50/30">
                                     <div class="flex justify-between items-center mb-4 border-b border-blue-100 pb-3">
-                                        <p class="font-bold text-slate-800">Pesanan #{{ $order->id }}</p>
+                                        <p class="font-bold text-slate-800">Pesanan #{{ $order->order_number ?? $order->id }}</p>
                                         <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-[10px] font-bold uppercase">{{ $order->status }}</span>
                                         @if($order->returnRequest)
                                             @php
@@ -238,7 +238,7 @@
                             @foreach($purchaseOrders as $order)
                                 <div class="rounded-3xl border p-6 shadow-sm bg-emerald-50/30">
                                     <div class="flex justify-between items-center mb-4 border-b border-emerald-100 pb-3">
-                                        <p class="font-bold text-slate-800">Pesanan #{{ $order->id }}</p>
+                                        <p class="font-bold text-slate-800">Pesanan #{{ $order->order_number ?? $order->id }}</p>
                                         <span class="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-[10px] font-bold uppercase">{{ $order->status }}</span>
                                         @if($order->returnRequest)
                                             @php

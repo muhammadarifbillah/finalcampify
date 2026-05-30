@@ -1,6 +1,120 @@
 @extends('SellerView.layouts.app_seller')
 
 @section('content')
+
+{{-- 🚫 BANNER TOKO DI-BAN --}}
+@if(isset($store) && $store && in_array($store->status, ['banned', 'suspended', 'rejected']))
+@php
+    $isBanned    = $store->status === 'banned';
+    $isSuspended = $store->status === 'suspended';
+    $isRejected  = $store->status === 'rejected';
+    $bannerColor = $isBanned ? '#dc2626' : ($isSuspended ? '#d97706' : '#6b7280');
+    $bannerBg    = $isBanned ? '#fef2f2' : ($isSuspended ? '#fffbeb' : '#f9fafb');
+    $bannerIcon  = $isBanned ? '🚫' : ($isSuspended ? '⏸️' : '❌');
+    $statusLabel = $isBanned ? 'DI-BAN' : ($isSuspended ? 'DISUSPEND' : 'DITOLAK');
+    // Cek apakah klarifikasi sudah dikirim sebelumnya
+    $sudahKlarifikasi = $store->catatan_admin && str_starts_with($store->catatan_admin, 'Klarifikasi Seller:');
+    $isiKlarifikasi   = $sudahKlarifikasi ? substr($store->catatan_admin, strlen('Klarifikasi Seller: ')) : '';
+@endphp
+
+<div class="mb-5 rounded-3 border-start border-5 shadow-sm overflow-hidden"
+     style="border-color: {{ $bannerColor }} !important; background: {{ $bannerBg }};">
+
+    {{-- Header Alert --}}
+    <div class="d-flex align-items-start gap-3 p-4" style="border-bottom: 1px solid {{ $bannerColor }}22;">
+        <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+             style="width:50px;height:50px;background:{{ $bannerColor }};font-size:1.4rem;">
+            {{ $bannerIcon }}
+        </div>
+        <div class="flex-grow-1">
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="badge fw-bold px-3 py-2" style="background:{{ $bannerColor }};font-size:0.75rem;letter-spacing:1px;">
+                    TOKO {{ $statusLabel }}
+                </span>
+                @if($sudahKlarifikasi)
+                    <span class="badge bg-info text-white fw-semibold" style="font-size:0.7rem;">
+                        ✓ Klarifikasi Terkirim
+                    </span>
+                @endif
+            </div>
+            <h5 class="fw-bold mb-1" style="color:{{ $bannerColor }};">
+                Toko Anda tidak dapat beroperasi saat ini
+            </h5>
+            <p class="mb-0 small text-muted">
+                @if($isBanned)
+                    Toko <strong>{{ $store->nama_toko }}</strong> telah diblokir oleh admin.
+                    Anda tidak dapat menerima pesanan baru selama status ini aktif.
+                @elseif($isSuspended)
+                    Toko <strong>{{ $store->nama_toko }}</strong> sedang disuspend sementara oleh admin.
+                @else
+                    Pendaftaran toko <strong>{{ $store->nama_toko }}</strong> ditolak oleh admin.
+                @endif
+            </p>
+
+            {{-- Tampilkan alasan admin jika ada --}}
+            @if($store->catatan_admin && !$sudahKlarifikasi)
+            <div class="mt-3 rounded-2 p-3 small" style="background:{{ $bannerColor }}11;border:1px solid {{ $bannerColor }}33;">
+                <strong style="color:{{ $bannerColor }};">Alasan dari Admin:</strong><br>
+                {{ $store->catatan_admin }}
+            </div>
+            @endif
+        </div>
+    </div>
+
+    {{-- Form Klarifikasi --}}
+    <div class="p-4">
+        @if(session('success'))
+            <div class="alert alert-success rounded-3 mb-3 d-flex align-items-center gap-2 small">
+                <i class="bi bi-check-circle-fill text-success"></i>
+                {{ session('success') }}
+            </div>
+        @endif
+
+        @if($sudahKlarifikasi)
+            {{-- Klarifikasi sudah terkirim — tampilkan & beri opsi edit --}}
+            <div class="rounded-3 p-3 mb-3 small" style="background:#f0fdf4;border:1px solid #bbf7d0;">
+                <p class="fw-bold text-success mb-1">
+                    <i class="bi bi-send-check-fill me-1"></i>Klarifikasi Anda telah dikirim ke admin:
+                </p>
+                <p class="text-muted mb-0" style="white-space:pre-line;">{{ $isiKlarifikasi }}</p>
+            </div>
+            <button class="btn btn-sm btn-outline-secondary rounded-pill px-3"
+                    onclick="document.getElementById('editKlarifikasiForm').classList.toggle('d-none')">
+                <i class="bi bi-pencil me-1"></i>Edit Klarifikasi
+            </button>
+            <div id="editKlarifikasiForm" class="d-none mt-3">
+        @endif
+
+        <form method="POST" action="{{ route('seller.store-profile.klarifikasi') }}">
+            @csrf
+            <label class="form-label fw-bold small" style="color:{{ $bannerColor }};">
+                <i class="bi bi-chat-left-text me-1"></i>
+                {{ $sudahKlarifikasi ? 'Perbarui Klarifikasi' : 'Kirim Klarifikasi ke Admin' }}
+            </label>
+            <textarea name="klarifikasi" rows="4" required minlength="20" maxlength="1000"
+                      class="form-control rounded-3 mb-2 @error('klarifikasi') is-invalid @enderror"
+                      style="border-color:{{ $bannerColor }}55;font-size:0.9rem;resize:none;"
+                      placeholder="Jelaskan mengapa toko Anda seharusnya dibuka kembali. Sertakan informasi relevan yang dapat membantu admin meninjau kasus Anda...">{{ old('klarifikasi', $sudahKlarifikasi ? $isiKlarifikasi : '') }}</textarea>
+            @error('klarifikasi')
+                <div class="invalid-feedback d-block small">{{ $message }}</div>
+            @enderror
+            <div class="d-flex align-items-center justify-content-between gap-3 mt-2">
+                <small class="text-muted">Minimal 20 karakter. Admin akan membalas melalui email atau membuka ban.</small>
+                <button type="submit" class="btn btn-sm fw-bold rounded-pill px-4 text-white flex-shrink-0"
+                        style="background:{{ $bannerColor }};">
+                    <i class="bi bi-send me-1"></i>
+                    {{ $sudahKlarifikasi ? 'Perbarui' : 'Kirim Klarifikasi' }}
+                </button>
+            </div>
+        </form>
+
+        @if($sudahKlarifikasi)
+            </div>{{-- end editKlarifikasiForm --}}
+        @endif
+    </div>
+</div>
+@endif
+
 {{-- HEADER DASHBOARD --}}
 <div class="dashboard-header mb-5">
     <div class="row align-items-center">

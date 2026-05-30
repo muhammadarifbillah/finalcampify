@@ -85,6 +85,9 @@ class PembeliOrderController extends Controller
                 'buyer_refund_bank_name' => 'required|string|max:255',
                 'buyer_refund_bank_account' => 'required|string|max:255',
                 'buyer_refund_bank_name_owner' => 'required|string|max:255',
+                'resi_return' => 'required_if:metode_return,kurir|nullable|string|max:255',
+                'foto_kondisi' => 'required_if:metode_return,kurir|nullable|file|mimes:jpg,jpeg,png,webp,mp4,mov,avi|max:10240',
+                'renter_notes' => 'nullable|string|max:500',
             ]);
 
             $depositAmount = ($detail->product->escrow_amount > 0) ? $detail->product->escrow_amount : (($detail->product->buy_price ?? 0) * 0.25);
@@ -118,8 +121,21 @@ class PembeliOrderController extends Controller
                 return back()->with('error', 'Pengembalian untuk pesanan ini sudah pernah diajukan.');
             }
 
+            $fotoKondisiPath = null;
+            if ($request->hasFile('foto_kondisi')) {
+                $file = $request->file('foto_kondisi');
+                $fileHash = md5_file($file->getRealPath());
+
+                if ($pesanan->video_pengiriman_hash && $pesanan->video_pengiriman_hash === $fileHash) {
+                    return back()->with('error', 'Video/Foto pengembalian tidak boleh sama dengan bukti yang dikirim oleh penjual.');
+                }
+
+                $filename = 'return_' . time() . '_' . $file->getClientOriginalName();
+                $file->move(public_path('assets/images'), $filename);
+                $fotoKondisiPath = 'assets/images/' . $filename;
+            }
+
             if ($request->metode_return === 'antar') {
-                $adminFee = $rentalFeeAmount * 0.1; // 10% admin fee
                 $return->fill([
                     'rental_id' => $rental->id,
                     'resi_return' => 'DIANTAR_LANGSUNG',
@@ -127,44 +143,8 @@ class PembeliOrderController extends Controller
                     'tanggal_pengembalian' => now(),
                     'actual_date' => now(),
                     'denda' => 0,
-                    'kondisi_barang' => 'baik',
-                    'status' => 'completed',
-                    'escrow_total' => (string) $escrowTotal,
-                    'deposit_amount' => (string) $depositAmount,
-                    'rental_fee_amount' => (string) $rentalFeeAmount,
-                    'expected_date' => $endDate,
-                    'late_fee' => '0',
-                    'damage_fee' => '0',
-                    'to_seller' => (string) ($rentalFeeAmount - $adminFee),
-                    'to_buyer' => (string) $depositAmount,
-                    'total_fines' => '0',
-                    'deficit' => '0',
-                    'buyer_refund_bank_name' => $request->buyer_refund_bank_name,
-                    'buyer_refund_bank_account' => $request->buyer_refund_bank_account,
-                    'buyer_refund_bank_name_owner' => $request->buyer_refund_bank_name_owner,
-                    'renter_notes' => 'Pengembalian Antar Langsung ke Toko.',
-                ]);
-                $return->save();
-
-                $rental->status = 'completed';
-                $rental->save();
-
-                $pesanan->status = 'selesai';
-                $pesanan->save();
-
-                return redirect()
-                    ->route('orders.detail', $pesanan->id)
-                    ->with('success', 'Pengembalian sewa (Antar Langsung) berhasil diajukan dan diselesaikan.');
-            } else {
-                $return->fill([
-                    'rental_id' => $rental->id,
-                    'resi_return' => null,
-                    'proof_returned_image' => null,
-                    'tanggal_pengembalian' => null,
-                    'actual_date' => null,
-                    'denda' => 0,
                     'kondisi_barang' => 'belum_dicek',
-                    'status' => 'pending',
+                    'status' => 'shipping',
                     'escrow_total' => (string) $escrowTotal,
                     'deposit_amount' => (string) $depositAmount,
                     'rental_fee_amount' => (string) $rentalFeeAmount,
@@ -178,7 +158,7 @@ class PembeliOrderController extends Controller
                     'buyer_refund_bank_name' => $request->buyer_refund_bank_name,
                     'buyer_refund_bank_account' => $request->buyer_refund_bank_account,
                     'buyer_refund_bank_name_owner' => $request->buyer_refund_bank_name_owner,
-                    'renter_notes' => null,
+                    'renter_notes' => $request->renter_notes ?: 'Pengembalian Antar Langsung ke Toko.',
                 ]);
                 $return->save();
 
@@ -187,13 +167,46 @@ class PembeliOrderController extends Controller
 
                 return redirect()
                     ->route('orders.detail', $pesanan->id)
-                    ->with('success', 'Permintaan pengembalian sewa berhasil diajukan. Menunggu persetujuan Seller.');
+                    ->with('success', 'Pengembalian sewa (Antar Langsung) berhasil diajukan. Menunggu konfirmasi penerimaan oleh penjual.');
+            } else {
+                $return->fill([
+                    'rental_id' => $rental->id,
+                    'resi_return' => $request->resi_return,
+                    'proof_returned_image' => $fotoKondisiPath,
+                    'tanggal_pengembalian' => now(),
+                    'actual_date' => now(),
+                    'denda' => 0,
+                    'kondisi_barang' => 'belum_dicek',
+                    'status' => 'shipping',
+                    'escrow_total' => (string) $escrowTotal,
+                    'deposit_amount' => (string) $depositAmount,
+                    'rental_fee_amount' => (string) $rentalFeeAmount,
+                    'expected_date' => $endDate,
+                    'late_fee' => '0',
+                    'damage_fee' => '0',
+                    'to_seller' => '0',
+                    'to_buyer' => '0',
+                    'total_fines' => '0',
+                    'deficit' => '0',
+                    'buyer_refund_bank_name' => $request->buyer_refund_bank_name,
+                    'buyer_refund_bank_account' => $request->buyer_refund_bank_account,
+                    'buyer_refund_bank_name_owner' => $request->buyer_refund_bank_name_owner,
+                    'renter_notes' => $request->renter_notes,
+                ]);
+                $return->save();
+
+                $rental->status = 'returning';
+                $rental->save();
+
+                return redirect()
+                    ->route('orders.detail', $pesanan->id)
+                    ->with('success', 'Pengembalian sewa berhasil diajukan dan paket sedang dikirim via kurir.');
             }
         }
 
         // --- Alur Retur Jual Beli / Buy Return (Sesuai BPMN) ---
         $request->validate([
-            'foto_kondisi' => 'required|file|mimes:jpg,jpeg,png,webp|max:10240',
+            'foto_kondisi' => 'required|file|mimes:jpg,jpeg,png,webp,mp4,mov,avi|max:10240',
             'alasan_return' => 'required|string|max:500',
             'buyer_refund_bank_name' => 'required|string|max:255',
             'buyer_refund_bank_account' => 'required|string|max:255',
@@ -203,6 +216,12 @@ class PembeliOrderController extends Controller
         $fotoKondisiPath = null;
         if ($request->hasFile('foto_kondisi')) {
             $file = $request->file('foto_kondisi');
+            $fileHash = md5_file($file->getRealPath());
+
+            if ($pesanan->video_pengiriman_hash && $pesanan->video_pengiriman_hash === $fileHash) {
+                return back()->with('error', 'Video/Foto pengembalian tidak boleh sama dengan bukti yang dikirim oleh penjual.');
+            }
+
             $filename = 'return_' . time() . '_' . $file->getClientOriginalName();
             $file->move(public_path('assets/images'), $filename);
             $fotoKondisiPath = 'assets/images/' . $filename;
@@ -265,6 +284,12 @@ class PembeliOrderController extends Controller
         $fotoKondisiPath = null;
         if ($request->hasFile('foto_kondisi')) {
             $file = $request->file('foto_kondisi');
+            $fileHash = md5_file($file->getRealPath());
+
+            if ($pesanan->video_pengiriman_hash && $pesanan->video_pengiriman_hash === $fileHash) {
+                return back()->with('error', 'Video/Foto pengembalian tidak boleh sama dengan bukti yang dikirim oleh penjual.');
+            }
+
             $filename = 'return_' . time() . '_' . $file->getClientOriginalName();
             $file->move(public_path('assets/images'), $filename);
             $fotoKondisiPath = 'assets/images/' . $filename;

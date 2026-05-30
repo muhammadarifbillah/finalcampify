@@ -7,6 +7,7 @@ use App\Models\SellerModels\Product_seller;
 use App\Models\SellerModels\Order_seller;
 use App\Models\SellerModels\StoreRating_seller;
 use App\Models\SellerModels\Rental_seller;
+use App\Models\Store;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardController_seller extends Controller
@@ -14,6 +15,9 @@ class DashboardController_seller extends Controller
     public function index()
     {
         $userId = Auth::id();
+
+        // Ambil status toko seller (untuk notifikasi banned/suspended)
+        $store = Store::where('user_id', $userId)->first();
 
         // 1. Ambil Produk Seller
         $products = Product_seller::where('user_id', $userId)->get();
@@ -95,6 +99,7 @@ class DashboardController_seller extends Controller
         });
 
         return view('SellerView.seller.dashboard_seller', compact(
+            'store',
             'products',
             'orders',
             'pendingOrdersCount',

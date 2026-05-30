@@ -9,6 +9,13 @@ class Return_pembeli extends Model
 {
     use HasFactory;
 
+    // Relasi ke Order
+    public function order()
+    {
+        return $this->belongsTo(\App\Models\Pembeli\Order_pembeli::class, 'order_id');
+    }
+    use HasFactory;
+
     protected $table = 'returns';
 
     protected $fillable = [

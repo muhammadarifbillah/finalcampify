@@ -26,8 +26,9 @@ class PembeliCheckoutController extends Controller
         }
 
         $couriers = \App\Models\Courier::where('status', 'aktif')->get();
+        $admin = \App\Models\User::where('role', 'admin')->first();
 
-        return view('pembeli.checkout.index_pembeli', compact('cart', 'couriers'));
+        return view('pembeli.checkout.index_pembeli', compact('cart', 'couriers', 'admin'));
     }
 
     public function produk($id)
@@ -130,6 +131,7 @@ class PembeliCheckoutController extends Controller
         }
 
         $pesanan = Order_pembeli::create($pesananData);
+        $pesanan->update(['order_number' => '#ORD-' . $pesanan->id]);
 
         foreach ($cart as $item) {
             $price = $item->type === 'buy' 

@@ -81,4 +81,26 @@ class StoreProfileController_seller extends Controller
 
         return redirect('/seller/store-profile/show')->with('success', 'Profil toko berhasil disimpan' . (isset($data['latitude']) ? '' : ' (Gagal mendapatkan koordinat otomatis)'));
     }
+
+    /**
+     * Seller mengirimkan klarifikasi ke admin setelah toko di-ban/suspend.
+     * Disimpan ke catatan_admin agar admin bisa review dan membuka ban.
+     */
+    public function submitKlarifikasi(\Illuminate\Http\Request $request)
+    {
+        $request->validate([
+            'klarifikasi' => 'required|string|min:20|max:1000',
+        ], [
+            'klarifikasi.required' => 'Klarifikasi tidak boleh kosong.',
+            'klarifikasi.min'      => 'Klarifikasi minimal 20 karakter.',
+        ]);
+
+        $store = \App\Models\Store::where('user_id', \Illuminate\Support\Facades\Auth::id())->firstOrFail();
+
+        $store->update([
+            'catatan_admin' => 'Klarifikasi Seller: ' . trim($request->klarifikasi),
+        ]);
+
+        return back()->with('success', 'Klarifikasi berhasil dikirim! Tim admin akan meninjau dan menghubungi Anda.');
+    }
 }

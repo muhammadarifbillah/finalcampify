@@ -19,6 +19,11 @@ class StoreController extends Controller
             $store->admin_products_count = $products->count();
             $store->admin_approved_products_count = $products->where('status', 'approved')->count();
             $store->admin_waiting_products_count = $products->whereIn('status', ['waiting', 'pending'])->count();
+
+            // Hitung jumlah retur di toko ini (deteksi kenakalan)
+            $store->admin_return_count = \App\Models\Pembeli\Return_pembeli::whereHas('order.details.product', function ($q) use ($store) {
+                $q->where('store_id', $store->id);
+            })->count();
         });
 
         return view('admin.stores', compact('stores'));
@@ -59,7 +64,40 @@ class StoreController extends Controller
             ['type' => 'product_added', 'message' => 'Menambah ' . $stats['total_products'] . ' produk', 'date' => $store->updated_at],
         ];
 
-        return view('admin.store_detail', compact('store', 'stats', 'activities', 'pendingProducts', 'reports', 'sellerProducts'));
+        // Riwayat Retur - deteksi kenakalan seller
+        $returns = \App\Models\Pembeli\Return_pembeli::whereHas('order.details.product', function($q) use ($store) {
+            $q->where('store_id', $store->id);
+        })
+        ->with('order.buyer')
+        ->latest()
+        ->get();
+
+        // Hitung statistik retur untuk deteksi kenakalan
+        $returnCount = $returns->count();
+
+        // Ambil semua alasan retur (stored in renter_notes field)
+        $returnReasons = $returns
+            ->pluck('renter_notes')
+            ->filter()
+            ->map(fn($r) => trim($r))
+            ->filter()
+            ->values();
+
+        // Threshold mencurigakan: >= 3 return di toko yang sama
+        $suspiciousThreshold = 3;
+        $isSuspicious = $returnCount >= $suspiciousThreshold;
+
+        // Kelompokkan alasan retur yang paling sering muncul
+        $topReasons = $returnReasons
+            ->countBy()
+            ->sortByDesc(fn($count) => $count)
+            ->take(5);
+
+        return view('admin.store_detail', compact(
+            'store', 'stats', 'activities', 'pendingProducts', 'reports',
+            'sellerProducts', 'returns', 'returnCount', 'returnReasons',
+            'isSuspicious', 'suspiciousThreshold', 'topReasons'
+        ));
     }
 
     public function approveProduct(Store $store, Product $product)
@@ -139,14 +177,40 @@ class StoreController extends Controller
         return back()->with('success', 'Seller berhasil diban.');
     }
 
-    public function activate($id)
+    public function activate(Request $request, $id)
     {
-        Store::findOrFail($id)->update([
-            'status' => 'active',
-            'catatan_admin' => null
-        ]);
+        $store = Store::findOrFail($id);
+        
+        $updateData = ['status' => 'active'];
+        
+        if ($request->has('klarifikasi') && $request->filled('klarifikasi')) {
+            $updateData['catatan_admin'] = "Klarifikasi Unban: " . $request->klarifikasi;
+        } else {
+            $updateData['catatan_admin'] = null;
+        }
+
+        $store->update($updateData);
 
         return back()->with('success', 'Seller berhasil diaktifkan kembali.');
+    }
+
+    /**
+     * Seller mengajukan klarifikasi ke admin — admin menyimpan klarifikasi
+     * sebagai catatan sebelum memutuskan untuk membuka ban.
+     */
+    public function simpanKlarifikasi(Request $request, $id)
+    {
+        $request->validate([
+            'klarifikasi_seller' => 'required|string|max:1000',
+        ]);
+
+        $store = Store::findOrFail($id);
+
+        $store->update([
+            'catatan_admin' => 'Klarifikasi Seller: ' . $request->klarifikasi_seller,
+        ]);
+
+        return back()->with('success', 'Klarifikasi seller telah disimpan. Admin dapat meninjau dan membuka ban.');
     }
 
     // Legacy methods (untuk backward compatibility)
@@ -155,9 +219,9 @@ class StoreController extends Controller
         return $this->ban(request(), $id);
     }
 
-    public function unban($id)
+    public function unban(Request $request, $id)
     {
-        return $this->activate($id);
+        return $this->activate($request, $id);
     }
 
     private function sellerProductsQuery(Store $store)

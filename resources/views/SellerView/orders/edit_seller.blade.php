@@ -23,7 +23,7 @@
                 <p class="text-muted small mb-0">Produk: <strong class="text-emerald">{{ optional($order->product)->nama_produk ?? '-' }}</strong></p>
             </div>
 
-            <form method="POST" action="/seller/orders/{{ $order->id }}">
+            <form method="POST" action="/seller/orders/{{ $order->id }}" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
 
@@ -41,8 +41,16 @@
                 <div class="mb-4">
                     <label class="form-label fw-bold text-muted small text-uppercase ls-1">Nomor Resi Pengiriman</label>
                     <input type="text" name="resi" class="form-control border-0 bg-light rounded-3 px-3 py-2 shadow-sm" 
-                           value="{{ $order->resi ?? '' }}" 
+                           value="{{ $order->resi ?? $order->no_resi ?? '' }}" 
                            placeholder="Masukkan nomor resi pengiriman">
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold text-muted small text-uppercase ls-1">Video Bukti Pengiriman (Wajib saat Dikirim)</label>
+                    <input type="file" name="video_pengiriman" accept="video/mp4,video/quicktime,video/x-msvideo" class="form-control border-0 bg-light rounded-3 px-3 py-2 shadow-sm">
+                    @if($order->video_pengiriman)
+                        <small class="text-success mt-2 d-block"><i class="bi bi-check-circle"></i> Video sudah diunggah</small>
+                    @endif
                 </div>
 
                 <div class="mt-4">

@@ -82,7 +82,7 @@
         <!-- HEADER -->
         <div class="mb-6 flex items-center justify-between">
             <h1 class="text-2xl font-bold text-slate-800">
-                {{ isset($detailId) ? 'Detail Barang' : 'Detail Pesanan' }} #{{ $pesanan->id }}
+                {{ isset($detailId) ? 'Detail Barang' : 'Detail Pesanan' }} #{{ $pesanan->order_number ?? $pesanan->id }}
             </h1>
 
             @php
