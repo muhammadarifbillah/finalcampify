@@ -25,34 +25,9 @@
                 <div class="flex-grow-1">
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <h5 class="fw-bold m-0 text-white">⚠️ Verifikasi KTP Diperlukan (RISIKO TINGGI)</h5>
-                        <span class="badge bg-white text-danger px-3 py-2 rounded-pill fw-bold animate-pulse">ACTION REQUIRED</span>
+                        <span class="badge bg-white text-danger px-3 py-2 rounded-pill fw-bold animate-pulse">MENUNGGU ADMIN</span>
                     </div>
-                    <p class="small text-white opacity-90 mb-3">Sesuai kebijakan keamanan Campify, Anda <strong>WAJIB</strong> memvalidasi identitas penyewa sebelum memproses barang. Tombol update status akan terkunci hingga identitas diverifikasi.</p>
-                    
-                    @if($rental->user->ktp_image)
-                        <div class="bg-white bg-opacity-10 p-3 rounded-4 border border-white border-opacity-20">
-                            <div class="row align-items-center">
-                                <div class="col-md-4">
-                                    <a href="{{ asset($rental->user->ktp_image) }}" target="_blank">
-                                        <img src="{{ asset($rental->user->ktp_image) }}" class="img-fluid rounded-3 border" style="max-height: 120px;">
-                                    </a>
-                                </div>
-                                <div class="col-md-8">
-                                    <p class="small text-white mb-3">Silakan periksa apakah foto KTP di samping sesuai dengan data penyewa.</p>
-                                    <form action="{{ route('seller.user.verify', $rental->user->id) }}" method="POST">
-                                        @csrf
-                                        <button type="submit" class="btn btn-light text-danger fw-bold rounded-pill px-4">
-                                            <i class="bi bi-check-circle-fill me-2"></i>Verifikasi & Buka Kunci
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    @else
-                        <div class="bg-danger bg-opacity-25 p-3 rounded-4 border border-white border-opacity-20">
-                            <p class="small text-white m-0 italic fw-bold"><i class="bi bi-x-circle-fill me-2"></i>Penyewa belum mengunggah foto KTP. Hubungi penyewa melalui chat.</p>
-                        </div>
-                    @endif
+                    <p class="small text-white opacity-90 mb-0">Penyewa belum memverifikasi identitasnya. Anda <strong>tidak dapat memproses penyewaan</strong> sebelum Admin memvalidasi KTP penyewa. Silakan hubungi Admin untuk mempercepat proses verifikasi.</p>
                 </div>
             </div>
         @endif
@@ -417,7 +392,7 @@
                     <button class="btn btn-secondary rounded-4 py-3 fw-bold border-0 shadow-sm opacity-50 cursor-not-allowed" disabled>
                         <i class="bi bi-lock-fill me-2"></i>Status Terkunci
                     </button>
-                    <small class="text-danger text-center fw-bold" style="font-size: 10px;">Lakukan verifikasi KTP untuk membuka kunci.</small>
+                    <small class="text-danger text-center fw-bold" style="font-size: 10px;">Menunggu verifikasi KTP oleh Admin untuk membuka kunci.</small>
                 @endif
                 
                 <a href="/seller/chat?user={{ $rental->user_id }}" class="btn btn-light rounded-4 py-3 fw-bold text-muted border">

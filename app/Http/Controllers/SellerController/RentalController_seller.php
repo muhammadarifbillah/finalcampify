@@ -180,16 +180,6 @@ class RentalController_seller extends Controller
         return back()->with('success', 'Pembayaran sisa denda berhasil diverifikasi. Menunggu Admin mentransfer dana refund.');
     }
 
-    public function verifyUserKtp($userId)
-    {
-        $user = \App\Models\User::findOrFail($userId);
-        
-        $user->update([
-            'ktp_verified_at' => now()
-        ]);
-
-        return back()->with('success', 'Identitas Pembeli Berhasil Diverifikasi! Pesanan kini dapat diproses.');
-    }
 
     public function reviewComplaint(Request $request, $return_id)
     {

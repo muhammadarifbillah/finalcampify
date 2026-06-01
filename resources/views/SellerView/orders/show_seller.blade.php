@@ -25,34 +25,9 @@
                 <div class="flex-grow-1">
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <h5 class="fw-bold m-0 text-white">⚠️ Verifikasi KTP Diperlukan (RISIKO TINGGI)</h5>
-                        <span class="badge bg-white text-danger px-3 py-2 rounded-pill fw-bold animate-pulse">ACTION REQUIRED</span>
+                        <span class="badge bg-white text-danger px-3 py-2 rounded-pill fw-bold animate-pulse">MENUNGGU ADMIN</span>
                     </div>
-                    <p class="small text-white opacity-90 mb-3">Penyewa belum memverifikasi identitasnya. Anda <strong>tidak dapat memproses pesanan</strong> sebelum memvalidasi KTP penyewa demi keamanan aset Anda.</p>
-                    
-                    @if($order->buyer->ktp_image)
-                        <div class="bg-white bg-opacity-10 p-3 rounded-4 border border-white border-opacity-20">
-                            <div class="row align-items-center">
-                                <div class="col-md-4">
-                                    <a href="{{ asset($order->buyer->ktp_image) }}" target="_blank">
-                                        <img src="{{ asset($order->buyer->ktp_image) }}" class="img-fluid rounded-3 border" style="max-height: 120px;">
-                                    </a>
-                                </div>
-                                <div class="col-md-8">
-                                    <p class="small text-white mb-3">Silakan periksa apakah foto KTP di samping sesuai dengan data pembeli.</p>
-                                    <form action="{{ route('seller.user.verify', $order->buyer->id) }}" method="POST">
-                                        @csrf
-                                        <button type="submit" class="btn btn-light text-danger fw-bold rounded-pill px-4">
-                                            <i class="bi bi-check-circle-fill me-2"></i>Verifikasi & Buka Kunci
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    @else
-                        <div class="bg-danger bg-opacity-25 p-3 rounded-4 border border-white border-opacity-20">
-                            <p class="small text-white m-0 italic fw-bold"><i class="bi bi-x-circle-fill me-2"></i>Pembeli belum mengunggah foto KTP. Hubungi pembeli melalui chat.</p>
-                        </div>
-                    @endif
+                    <p class="small text-white opacity-90 mb-0">Penyewa belum memverifikasi identitasnya. Anda <strong>tidak dapat memproses pesanan</strong> sebelum Admin memvalidasi KTP penyewa. Silakan hubungi Admin untuk mempercepat proses verifikasi.</p>
                 </div>
             </div>
         @endif
@@ -459,7 +434,7 @@
         {{-- TIPS --}}
         <div class="card card-modern border-0 p-4 bg-dark text-white text-opacity-75 shadow-sm">
             <h6 class="fw-bold text-white mb-2"><i class="bi bi-shield-check me-2 text-emerald"></i>Keamanan Seller</h6>
-            <p class="small m-0">Pastikan untuk memverifikasi KTP pembeli sebelum mengirimkan barang bernilai tinggi.</p>
+            <p class="small m-0">Pastikan KTP pembeli sudah diverifikasi Admin sebelum mengirimkan barang bernilai tinggi.</p>
         </div>
     </div>
 </div>

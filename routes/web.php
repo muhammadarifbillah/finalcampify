@@ -272,8 +272,6 @@ Route::middleware(['auth', 'role:seller'])->prefix('seller')->name('seller.')->g
     Route::get('/reports/sales', [ReportController_seller::class, 'salesReport'])->name('reports.sales');
     Route::get('/reports/rentals', [ReportController_seller::class, 'rentalReport'])->name('reports.rentals');
 
-    // User Verification by Seller
-    Route::post('/users/{id}/verify-ktp', [RentalController_seller::class, 'verifyUserKtp'])->name('user.verify');
     Route::get('/reports/export-pdf/{type}', [ReportController_seller::class, 'exportPdf'])->name('reports.exportPdf');
 });
 
