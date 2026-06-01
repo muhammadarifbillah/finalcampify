@@ -4,8 +4,12 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
-use App\Models\OrderDetail;
+use App\Models\Payout;
+use App\Models\SellerOrder;
+use App\Services\OrderDisbursementService;
+use App\Services\SellerOrderService;
 use Illuminate\Http\Request;
+use RuntimeException;
 
 class OrderController extends Controller
 {
@@ -21,7 +25,13 @@ class OrderController extends Controller
 
         // Filter by type (buy/rent)
         if ($request->filled('type')) {
-            $query->whereHas('details', fn($q) => $q->where('type', $request->type));
+            if ($request->type === 'buy') {
+                $query->whereHas('details', fn($q) => $q->where('type', 'buy'))
+                    ->whereDoesntHave('details', fn($q) => $q->where('type', 'rent'));
+            } elseif ($request->type === 'rent') {
+                $query->whereHas('details', fn($q) => $q->where('type', 'rent'))
+                    ->whereDoesntHave('details', fn($q) => $q->where('type', 'buy'));
+            }
         }
 
         // Filter by search (buyer name or order id)
@@ -29,62 +39,135 @@ class OrderController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('id', 'like', "%$search%")
-                  ->orWhereHas('buyer', fn($q2) => $q2->where('name', 'like', "%$search%"));
+                    ->orWhereHas('buyer', fn($q2) => $q2->where('name', 'like', "%$search%"));
             });
         }
 
         $orders = $query->paginate(15)->withQueryString();
 
-        $totalRevenue   = Order::sum('total');
-        $totalOrders    = Order::count();
-        $pendingOrders  = Order::where('status', 'menunggu')->count();
-        $selesaiOrders  = Order::where('status', 'selesai')->count();
+        // Stats untuk Penyewaan
+        $totalRentOrders = Order::whereHas('details', fn($q) => $q->where('type', 'rent'))
+            ->whereDoesntHave('details', fn($q) => $q->where('type', 'buy'))
+            ->count();
+        $totalRentRevenue = Order::whereHas('details', fn($q) => $q->where('type', 'rent'))
+            ->whereDoesntHave('details', fn($q) => $q->where('type', 'buy'))
+            ->sum('total');
+        $pendingRentOrders = Order::whereHas('details', fn($q) => $q->where('type', 'rent'))
+            ->whereDoesntHave('details', fn($q) => $q->where('type', 'buy'))
+            ->where('status', 'menunggu')
+            ->count();
+        $selesaiRentOrders = Order::whereHas('details', fn($q) => $q->where('type', 'rent'))
+            ->whereDoesntHave('details', fn($q) => $q->where('type', 'buy'))
+            ->where('status', 'selesai')
+            ->count();
+
+        // Stats untuk Pembelian
+        $totalBuyOrders = Order::whereHas('details', fn($q) => $q->where('type', 'buy'))
+            ->whereDoesntHave('details', fn($q) => $q->where('type', 'rent'))
+            ->count();
+        $totalBuyRevenue = Order::whereHas('details', fn($q) => $q->where('type', 'buy'))
+            ->whereDoesntHave('details', fn($q) => $q->where('type', 'rent'))
+            ->sum('total');
+        $pendingBuyOrders = Order::whereHas('details', fn($q) => $q->where('type', 'buy'))
+            ->whereDoesntHave('details', fn($q) => $q->where('type', 'rent'))
+            ->where('status', 'menunggu')
+            ->count();
+        $selesaiBuyOrders = Order::whereHas('details', fn($q) => $q->where('type', 'buy'))
+            ->whereDoesntHave('details', fn($q) => $q->where('type', 'rent'))
+            ->where('status', 'selesai')
+            ->count();
+
+        $currentType = $request->type;
 
         return view('admin.orders', compact(
-            'orders', 'totalRevenue', 'totalOrders', 'pendingOrders', 'selesaiOrders'
+            'orders',
+            'totalRentOrders',
+            'totalRentRevenue',
+            'pendingRentOrders',
+            'selesaiRentOrders',
+            'totalBuyOrders',
+            'totalBuyRevenue',
+            'pendingBuyOrders',
+            'selesaiBuyOrders',
+            'currentType'
         ));
     }
 
-    public function disbursements(Request $request)
+    public function disbursements(Request $request, OrderDisbursementService $disbursements)
     {
-        $query = Order::with(['buyer', 'details.product.store'])
-            ->where('status', 'selesai')
+        $status = $request->input('status', 'pending');
+        if (!in_array($status, ['pending', 'WAITING_DELIVERY', 'WAITING_HOLD', 'READY_TO_DISBURSE', 'DISBURSED', 'DITERIMA', 'DELIVERED'], true)) {
+            $status = 'pending';
+        }
+
+        $query = SellerOrder::with(['order.buyer', 'store.user', 'seller', 'items.product', 'payout'])
             ->latest('updated_at');
 
-        // Filter by disbursement status
-        if ($request->filled('status')) {
-            if ($request->status === 'disbursed') {
-                $query->where('is_disbursed', true);
-            } elseif ($request->status === 'pending') {
-                $query->where('is_disbursed', false);
-            }
-        } else {
-            $query->where('is_disbursed', false); // Default to pending
-        }
+        $disbursements->applyStatusFilter($query, $status);
 
-        $orders = $query->paginate(15)->withQueryString();
+        $sellerOrders = $query->paginate(15)->withQueryString();
+        $eligibilityBySellerOrderId = $sellerOrders->getCollection()
+            ->mapWithKeys(fn ($sellerOrder) => [$sellerOrder->id => $disbursements->eligibility($sellerOrder)])
+            ->all();
 
-        $totalTertahan = Order::where('status', 'selesai')->where('is_disbursed', false)->sum('total');
-        $totalDicairkan = Order::where('is_disbursed', true)->sum('total');
+        $totalTertahanQuery = SellerOrder::query();
+        $disbursements->applyPurchaseSellerOrderFilter($totalTertahanQuery);
+        $disbursements->applyNotDisbursedFilter($totalTertahanQuery);
 
-        return view('admin.disbursements', compact('orders', 'totalTertahan', 'totalDicairkan'));
+        $totalDicairkanQuery = Payout::query()
+            ->where('status', Payout::STATUS_DISBURSED)
+            ->whereHas('sellerOrder', fn ($q) => $disbursements->applyPurchaseSellerOrderFilter($q));
+
+        $totalSiapCairQuery = SellerOrder::query();
+        $disbursements->applyReadyToDisburseFilter($totalSiapCairQuery);
+
+        $deliveredQuery = SellerOrder::query();
+        $disbursements->applyDeliveredFilter($deliveredQuery);
+
+        $totalTertahan = $totalTertahanQuery->sum('subtotal');
+        $totalDicairkan = $totalDicairkanQuery->sum('amount');
+        $totalSiapCair = (clone $totalSiapCairQuery)->sum('subtotal');
+        $readyCount = (clone $totalSiapCairQuery)->count();
+        $deliveredCount = (clone $deliveredQuery)->count();
+
+        return view('admin.disbursements', compact('sellerOrders', 'eligibilityBySellerOrderId', 'totalTertahan', 'totalDicairkan', 'totalSiapCair', 'readyCount', 'deliveredCount', 'status'));
     }
 
-    public function disburse(Order $order)
+    public function disburse(SellerOrder $sellerOrder, Request $request, OrderDisbursementService $disbursements)
     {
-        if ($order->status !== 'selesai') {
-            return back()->with('error', 'Pesanan belum selesai. Dana tidak dapat dicairkan.');
+        try {
+            $disbursements->disburse($sellerOrder, $request->user(), 'manual');
+        } catch (RuntimeException $exception) {
+            return back()->with('error', $exception->getMessage());
         }
 
-        if ($order->is_disbursed) {
-            return back()->with('error', 'Dana untuk pesanan ini sudah dicairkan sebelumnya.');
+        return back()->with('success', 'Dana seller order ' . ($sellerOrder->seller_order_number ?? '#' . $sellerOrder->id) . ' berhasil ditandai telah dicairkan ke penjual.');
+    }
+
+    public function resyncSellerOrders(SellerOrderService $sellerOrderService)
+    {
+        $orders = Order::with(['details.product.store'])->get();
+
+        foreach ($orders as $order) {
+            $sellerOrderService->syncForOrder($order);
         }
 
-        $order->update([
-            'is_disbursed' => true,
-            'disbursed_at' => now()
-        ]);
+        return back()->with('success', 'Semua seller order berhasil di-sync ulang dari data order terbaru.');
+    }
 
-        return back()->with('success', 'Dana pesanan ' . ($order->order_number ?? '#'.$order->id) . ' berhasil ditandai telah dicairkan ke penjual.');
+    public function showDisbursement(SellerOrder $sellerOrder, OrderDisbursementService $disbursements)
+    {
+        $sellerOrder->load(['order.buyer', 'store.user', 'seller', 'items.product', 'payout']);
+
+        $eligibility = $disbursements->eligibility($sellerOrder);
+        $readyToDisburse = $eligibility['ready'];
+        $readyAt = $eligibility['ready_at'];
+        $daysUntilReady = $eligibility['days_until_ready'];
+        $store = $sellerOrder->store;
+        $bankName = $store?->bank_name ?? $store?->user?->bank_name ?? '-';
+        $bankAccount = $store?->bank_account_number ?? $store?->user?->bank_account_number ?? '-';
+        $bankOwner = $store?->bank_account_name ?? $store?->user?->bank_account_name ?? '-';
+
+        return view('admin.disbursements.show', compact('sellerOrder', 'eligibility', 'readyToDisburse', 'readyAt', 'daysUntilReady', 'bankName', 'bankAccount', 'bankOwner'));
     }
 }

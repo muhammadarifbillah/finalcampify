@@ -7,7 +7,7 @@
             <i class="bi bi-arrow-left fs-4"></i>
         </a>
         <div>
-            <h2 class="fw-bold m-0 text-dark">Detail Pesanan #{{ $order->id }}</h2>
+            <h2 class="fw-bold m-0 text-dark">Detail Seller Order {{ $order->seller_order_number ?? '#'.$order->id }}</h2>
             <p class="text-muted">Kelola proses pengiriman dan informasi transaksi pesanan ini.</p>
         </div>
     </div>
@@ -59,7 +59,7 @@
 
         {{-- PANEL PENGEMBALIAN BARANG JUAL BELI (BPMN BASED) --}}
         @php
-            $returnRequest = \App\Models\SellerModels\Return_seller::where('order_id', $order->id)
+            $returnRequest = \App\Models\SellerModels\Return_seller::where('order_id', $order->order_id)
                 ->where('type', 'jual_beli')
                 ->first();
         @endphp
@@ -396,16 +396,16 @@
             <div class="text-center py-2">
                 @php
                     $statusClass = match($order->status) {
-                        'menunggu' => 'bg-warning-subtle text-warning',
-                        'diproses' => 'bg-info-subtle text-info',
-                        'dikirim' => 'bg-primary-subtle text-primary',
-                        'selesai' => 'bg-emerald-soft text-emerald',
-                        'dibatalkan' => 'bg-danger-subtle text-danger',
+                        'pending' => 'bg-warning-subtle text-warning',
+                        'processing' => 'bg-info-subtle text-info',
+                        'shipped' => 'bg-primary-subtle text-primary',
+                        'delivered' => 'bg-emerald-soft text-emerald',
+                        'cancelled' => 'bg-danger-subtle text-danger',
                         default => 'bg-light text-dark'
                     };
                 @endphp
                 <span class="badge rounded-pill px-5 py-3 fw-bold text-uppercase ls-1 fs-6 {{ $statusClass }} w-100 mb-4">
-                    {{ $order->status }}
+                    {{ $order->status_label }}
                 </span>
                 
                 <div class="d-grid gap-2">

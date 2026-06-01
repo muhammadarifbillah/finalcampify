@@ -22,20 +22,20 @@
            class="btn rounded-pill px-4 py-2 fw-semibold {{ request('status') == null ? 'btn-emerald' : 'btn-light text-muted' }}">
            Semua
         </a>
-        <a href="{{ route('seller.orders.index', ['status' => 'menunggu']) }}" 
-           class="btn rounded-pill px-4 py-2 fw-semibold {{ request('status') == 'menunggu' ? 'btn-warning text-dark' : 'btn-light text-muted' }}">
+        <a href="{{ route('seller.orders.index', ['status' => 'pending']) }}"
+           class="btn rounded-pill px-4 py-2 fw-semibold {{ in_array(request('status'), ['pending', 'menunggu']) ? 'btn-warning text-dark' : 'btn-light text-muted' }}">
            Menunggu Konfirmasi
         </a>
-        <a href="{{ route('seller.orders.index', ['status' => 'diproses']) }}" 
-           class="btn rounded-pill px-4 py-2 fw-semibold {{ request('status') == 'diproses' ? 'btn-info text-white' : 'btn-light text-muted' }}">
+        <a href="{{ route('seller.orders.index', ['status' => 'processing']) }}"
+           class="btn rounded-pill px-4 py-2 fw-semibold {{ in_array(request('status'), ['processing', 'diproses']) ? 'btn-info text-white' : 'btn-light text-muted' }}">
            Sedang Diproses
         </a>
-        <a href="{{ route('seller.orders.index', ['status' => 'dikirim']) }}" 
-           class="btn rounded-pill px-4 py-2 fw-semibold {{ request('status') == 'dikirim' ? 'btn-primary' : 'btn-light text-muted' }}">
+        <a href="{{ route('seller.orders.index', ['status' => 'shipped']) }}"
+           class="btn rounded-pill px-4 py-2 fw-semibold {{ in_array(request('status'), ['shipped', 'dikirim']) ? 'btn-primary' : 'btn-light text-muted' }}">
            Dalam Pengiriman
         </a>
-        <a href="{{ route('seller.orders.index', ['status' => 'selesai']) }}" 
-           class="btn rounded-pill px-4 py-2 fw-semibold {{ request('status') == 'selesai' ? 'btn-emerald' : 'btn-light text-muted' }}">
+        <a href="{{ route('seller.orders.index', ['status' => 'delivered']) }}"
+           class="btn rounded-pill px-4 py-2 fw-semibold {{ in_array(request('status'), ['delivered', 'selesai']) ? 'btn-emerald' : 'btn-light text-muted' }}">
            Selesai
         </a>
     </div>
@@ -61,16 +61,16 @@
             <div>
                 @php
                     $statusClass = match($order->status) {
-                        'menunggu' => 'bg-warning-subtle text-warning',
-                        'diproses' => 'bg-info-subtle text-info',
-                        'dikirim' => 'bg-primary-subtle text-primary',
-                        'selesai' => 'bg-emerald-soft text-emerald',
-                        'dibatalkan' => 'bg-danger-subtle text-danger',
+                        'pending' => 'bg-warning-subtle text-warning',
+                        'processing' => 'bg-info-subtle text-info',
+                        'shipped' => 'bg-primary-subtle text-primary',
+                        'delivered' => 'bg-emerald-soft text-emerald',
+                        'cancelled' => 'bg-danger-subtle text-danger',
                         default => 'bg-light text-dark'
                     };
                 @endphp
                 <span class="badge rounded-pill px-4 py-2 fw-bold text-uppercase ls-1 {{ $statusClass }}">
-                    {{ $order->status }}
+                    {{ $order->status_label }}
                 </span>
             </div>
         </div>
@@ -114,11 +114,11 @@
                         </div>
                         
                         <div class="d-grid gap-2">
-                            @if($order->status == 'menunggu')
+                            @if($order->status == 'pending')
                                 <a href="/seller/orders/{{ $order->id }}/edit?status=diproses" class="btn btn-emerald rounded-3 py-2 fw-bold shadow-sm">
                                     Konfirmasi Pesanan
                                 </a>
-                            @elseif($order->status == 'diproses')
+                            @elseif($order->status == 'processing')
                                 <a href="/seller/orders/{{ $order->id }}/edit?status=dikirim" class="btn btn-primary rounded-3 py-2 fw-bold border-0" style="background: #3b82f6;">
                                     Kirim Barang
                                 </a>

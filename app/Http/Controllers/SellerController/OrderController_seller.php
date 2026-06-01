@@ -3,29 +3,37 @@
 namespace App\Http\Controllers\SellerController;
 
 use App\Http\Controllers\Controller;
-use App\Models\SellerModels\Product_seller;
-use App\Models\SellerModels\Order_seller;
+use App\Models\SellerOrder;
+use App\Services\SellerOrderService;
 use Illuminate\Http\Request;
 
 class OrderController_seller extends Controller
 {
+    public function __construct(private SellerOrderService $sellerOrderService)
+    {
+    }
+
     public function index(Request $request)
     {
         $query = $this->sellerOrders();
 
         if ($request->filled('status')) {
-            $query->where('status', $request->status);
+            $query->where('status', $this->sellerOrderService->mapOrderStatus($request->status));
         }
 
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('id', 'like', '%' . $search . '%')
-                  ->orWhere('receiver_name', 'like', '%' . $search . '%')
-                  ->orWhereHas('buyer', function ($bq) use ($search) {
+                  ->orWhere('seller_order_number', 'like', '%' . $search . '%')
+                  ->orWhereHas('order', function ($oq) use ($search) {
+                      $oq->where('order_number', 'like', '%' . $search . '%')
+                          ->orWhere('receiver_name', 'like', '%' . $search . '%');
+                  })
+                  ->orWhereHas('order.buyer', function ($bq) use ($search) {
                       $bq->where('name', 'like', '%' . $search . '%');
                   })
-                  ->orWhereHas('details.product', function ($pq) use ($search) {
+                  ->orWhereHas('items.product', function ($pq) use ($search) {
                       $pq->where('nama_produk', 'like', '%' . $search . '%');
                   });
             });
@@ -53,11 +61,17 @@ class OrderController_seller extends Controller
 
         // Map English status to Indonesian database values if necessary
         $statusMap = [
-            'pending' => 'menunggu',
-            'processing' => 'diproses',
-            'shipped' => 'dikirim',
-            'completed' => 'selesai',
-            'cancelled' => 'dibatalkan',
+            'menunggu' => 'pending',
+            'diproses' => 'processing',
+            'dikirim' => 'shipped',
+            'selesai' => 'delivered',
+            'pending' => 'pending',
+            'processing' => 'processing',
+            'shipped' => 'shipped',
+            'delivered' => 'delivered',
+            'completed' => 'delivered',
+            'cancelled' => 'cancelled',
+            'dibatalkan' => 'cancelled',
         ];
 
         $request->validate([
@@ -72,6 +86,8 @@ class OrderController_seller extends Controller
         $updateData = [
             'status' => $status,
             'no_resi' => $resi,
+            'shipped_at' => $status === SellerOrder::STATUS_SHIPPED ? ($order->shipped_at ?? now()) : $order->shipped_at,
+            'delivered_at' => $status === SellerOrder::STATUS_DELIVERED ? ($order->delivered_at ?? now()) : $order->delivered_at,
         ];
 
         // If status changing to 'dikirim' or already 'dikirim'/'selesai' and a video is uploaded
@@ -81,11 +97,13 @@ class OrderController_seller extends Controller
             $filename = 'kirim_' . time() . '_' . $file->getClientOriginalName();
             $file->move(public_path('assets/videos'), $filename);
             $updateData['video_pengiriman'] = 'assets/videos/' . $filename;
-        } else if ($status === 'dikirim' && !$order->video_pengiriman) {
+        } else if ($status === SellerOrder::STATUS_SHIPPED && !$order->video_pengiriman) {
              return back()->with('error', 'Video bukti pengiriman wajib diunggah saat mengubah status menjadi Dikirim.');
         }
 
         $order->update($updateData);
+        app(\App\Services\SellerOrderService::class)->syncPayout($order->fresh(['payout']));
+        $this->sellerOrderService->syncParentOrderStatus($order->order);
 
         return redirect('/seller/orders')->with('success', 'Pesanan berhasil diupdate');
     }
@@ -93,11 +111,18 @@ class OrderController_seller extends Controller
     public function updateStatus(Request $request, $order)
     {
         $request->validate([
-            'status' => 'required|in:menunggu,diproses,dikirim,selesai,dibatalkan',
+            'status' => 'required|in:menunggu,diproses,dikirim,selesai,dibatalkan,pending,processing,shipped,delivered,cancelled',
         ]);
 
         $order = $this->sellerOrders()->findOrFail($order);
-        $order->update(['status' => $request->status]);
+        $status = $this->sellerOrderService->mapOrderStatus($request->status);
+        $order->update([
+            'status' => $status,
+            'shipped_at' => $status === SellerOrder::STATUS_SHIPPED ? ($order->shipped_at ?? now()) : $order->shipped_at,
+            'delivered_at' => $status === SellerOrder::STATUS_DELIVERED ? ($order->delivered_at ?? now()) : $order->delivered_at,
+        ]);
+        $this->sellerOrderService->syncPayout($order->fresh(['payout']));
+        $this->sellerOrderService->syncParentOrderStatus($order->order);
 
         return back()->with('success', 'Status pesanan berhasil diupdate');
     }
@@ -123,10 +148,13 @@ class OrderController_seller extends Controller
 
         $order->update([
             'no_resi' => $request->resi,
-            'status' => $order->status === 'selesai' ? 'selesai' : 'dikirim',
+            'status' => $order->status === SellerOrder::STATUS_DELIVERED ? SellerOrder::STATUS_DELIVERED : SellerOrder::STATUS_SHIPPED,
+            'shipped_at' => $order->shipped_at ?? now(),
             'video_pengiriman' => $videoPath,
             'video_pengiriman_hash' => $videoHash,
         ]);
+        $this->sellerOrderService->syncPayout($order->fresh(['payout']));
+        $this->sellerOrderService->syncParentOrderStatus($order->order);
 
         return back()->with('success', 'Resi dan video bukti pengiriman berhasil diupdate');
     }
@@ -135,20 +163,15 @@ class OrderController_seller extends Controller
     {
         $userId = \Illuminate\Support\Facades\Auth::id();
 
-        return Order_seller::with(['details' => function ($query) use ($userId) {
+        return SellerOrder::with(['items' => function ($query) {
                 $query->where('type', 'buy')
-                    ->whereHas('product', function ($pQuery) use ($userId) {
-                        $pQuery->where('user_id', $userId)
-                            ->orWhereHas('store', fn ($store) => $store->where('user_id', $userId));
-                    })
                     ->with('product');
-            }, 'product', 'buyer'])
-            ->whereHas('details', function ($query) use ($userId) {
-                $query->where('type', 'buy')
-                    ->whereHas('product', function ($pQuery) use ($userId) {
-                        $pQuery->where('user_id', $userId)
-                            ->orWhereHas('store', fn ($store) => $store->where('user_id', $userId));
-                    });
+            }, 'order.buyer', 'store.user', 'seller', 'payout'])
+            ->whereHas('items', fn ($query) => $query->where('type', 'buy'))
+            ->whereDoesntHave('items', fn ($query) => $query->where('type', 'rent'))
+            ->where(function ($query) use ($userId) {
+                $query->where('seller_id', $userId)
+                    ->orWhereHas('store', fn ($store) => $store->where('user_id', $userId));
             });
     }
 }

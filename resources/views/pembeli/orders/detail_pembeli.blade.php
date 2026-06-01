@@ -236,6 +236,9 @@
                     @foreach($pesanan->details as $item)
                         @php
                             $produk = $item->product;
+                            $sellerOrderForItem = $pesanan->sellerOrders
+                                ->first(fn($sellerOrder) => $sellerOrder->items->contains('order_detail_id', $item->id));
+                            $itemDelivered = $sellerOrderForItem?->status === 'delivered' || $pesanan->status === 'selesai';
                             // Cek tipe: jika di DB 'buy' tapi nama ada '(Sewa)', anggap sewa agar tampilan benar
                             $isBuy = ($item->type === 'buy' && !str_contains(strtolower($produk->name ?? $produk->nama_produk), '(sewa)'));
                         @endphp
@@ -276,7 +279,7 @@
                                             </div>
                                             <div>
                                                 <p class="text-xs text-slate-500 uppercase font-semibold">Nomor Resi</p>
-                                                <p class="font-medium text-emerald-600">{{ $pesanan->no_resi ?? 'Menunggu Pengiriman' }}</p>
+                                                <p class="font-medium text-emerald-600">{{ $sellerOrderForItem?->no_resi ?? $pesanan->no_resi ?? 'Menunggu Pengiriman' }}</p>
                                             </div>
                                             <div>
                                                 <p class="text-xs text-slate-500 uppercase font-semibold">Subtotal</p>
@@ -292,7 +295,7 @@
                                         @endphp
                                         <div class="mt-4 pt-4 border-t border-slate-200">
                                             @if(!$buyReturn)
-                                                @if($pesanan->status === 'selesai')
+                                                @if($itemDelivered)
                                                     <a href="{{ route('orders.return', $item->id) }}" class="inline-flex items-center justify-center rounded-xl border-2 border-red-200 px-4 py-2 text-xs font-bold text-red-600 hover:bg-red-50 transition">
                                                         <i data-lucide="refresh-ccw" class="w-3 h-3 me-2"></i> AJUKAN RETUR BARANG
                                                     </a>
@@ -309,7 +312,7 @@
                                         </div>
 
                                         {{-- Rating & Review Section --}}
-                                        @if($pesanan->status == 'selesai')
+                                        @if($itemDelivered)
                                         <div class="mt-4 pt-4 border-t border-slate-200" id="review-section">
                                             <p class="text-sm font-bold text-slate-800 mb-3">Rating & Ulasan</p>
                                             @include('pembeli.produk.partials.review_pembeli', ['produk' => $produk])
@@ -536,7 +539,18 @@
 
             <!-- ACTION -->
             <div class="flex flex-col gap-3">
-                @if($pesanan->status == 'dikirim')
+                @if($pesanan->sellerOrders->isNotEmpty())
+                    @foreach($pesanan->sellerOrders->where('status', 'shipped') as $sellerOrder)
+                        <form action="{{ route('orders.confirm', $pesanan->id) }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="seller_order_id" value="{{ $sellerOrder->id }}">
+                            <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-4 rounded-2xl font-black text-sm uppercase tracking-widest transition-all shadow-lg shadow-emerald-100 flex items-center justify-center gap-3">
+                                <i data-lucide="package-check" class="w-5 h-5"></i>
+                                Konfirmasi {{ $sellerOrder->seller_order_number ?? 'Seller Order' }} Diterima
+                            </button>
+                        </form>
+                    @endforeach
+                @elseif($pesanan->status == 'dikirim')
                     <form action="{{ route('orders.confirm', $pesanan->id) }}" method="POST">
                         @csrf
                         <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-4 rounded-2xl font-black text-sm uppercase tracking-widest transition-all shadow-lg shadow-emerald-100 flex items-center justify-center gap-3">

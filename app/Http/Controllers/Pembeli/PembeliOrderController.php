@@ -24,14 +24,19 @@ class PembeliOrderController extends Controller
         $userId = \Illuminate\Support\Facades\Auth::id();
         $detailId = $request->query('detail_id');
 
-        $query = Order_pembeli::with(['details' => function($q) use ($detailId) {
-            if ($detailId) {
-                $q->where('id', $detailId);
-            }
-        }, 'details.product.store'])->where('user_id', $userId);
+        $query = Order_pembeli::with([
+            'details' => function ($q) use ($detailId) {
+                if ($detailId) {
+                    $q->where('id', $detailId);
+                }
+            },
+            'details.product.store',
+            'sellerOrders.items.product.store',
+            'sellerOrders.store',
+        ])->where('user_id', $userId);
 
         $pesanan = $query->findOrFail($id);
-        
+
         return view('pembeli.orders.detail_pembeli', compact('pesanan', 'detailId'));
     }
 
@@ -39,7 +44,7 @@ class PembeliOrderController extends Controller
     {
         $detail = OrderDetail_pembeli::with('product.store')->findOrFail($detail_id);
         $pesanan = Order_pembeli::findOrFail($detail->order_id);
-        
+
         // Cek kepemilikan
         if ($pesanan->user_id !== \Illuminate\Support\Facades\Auth::id()) {
             abort(403);
@@ -338,27 +343,62 @@ class PembeliOrderController extends Controller
         return back()->with('success', 'Bukti pembayaran denda berhasil diunggah. Menunggu verifikasi toko.');
     }
 
-    public function confirmReceipt($id)
+    public function confirmReceipt($id, Request $request)
     {
-        $pesanan = Order_pembeli::where('id', $id)->where('user_id', \Illuminate\Support\Facades\Auth::id())->firstOrFail();
-        
+        $pesanan = Order_pembeli::with('sellerOrders')
+            ->where('id', $id)
+            ->where('user_id', \Illuminate\Support\Facades\Auth::id())
+            ->firstOrFail();
+
+        if ($pesanan->sellerOrders->isNotEmpty()) {
+            $sellerOrderQuery = $pesanan->sellerOrders()->where('status', \App\Models\SellerOrder::STATUS_SHIPPED);
+
+            if ($request->filled('seller_order_id')) {
+                $sellerOrderQuery->whereKey($request->seller_order_id);
+            }
+
+            $sellerOrders = $sellerOrderQuery->get();
+
+            if ($sellerOrders->isEmpty()) {
+                return back()->with('error', 'Tidak ada seller order yang bisa dikonfirmasi diterima.');
+            }
+
+            $service = app(\App\Services\SellerOrderService::class);
+            foreach ($sellerOrders as $sellerOrder) {
+                $service->markDelivered($sellerOrder);
+            }
+
+            $pesanan->refresh();
+
+            if ($pesanan->status === 'selesai') {
+                $this->activateRentals($pesanan);
+            }
+
+            return back()->with('success', 'Seller order telah dikonfirmasi diterima.');
+        }
+
         if ($pesanan->status === 'dikirim') {
             $pesanan->status = 'selesai';
+            $pesanan->received_at = now();
             $pesanan->save();
 
-            // Aktifkan rental jika ada
-            $rentals = Rental_pembeli::where('order_id', $pesanan->id)->get();
-            foreach ($rentals as $rental) {
-                if ($rental->status === 'pending') {
-                    $rental->status = 'active';
-                    $rental->save();
-                }
-            }
+            $this->activateRentals($pesanan);
 
             return back()->with('success', 'Pesanan telah diterima. Terima kasih telah berbelanja!');
         }
-        
+
         return back()->with('error', 'Pesanan tidak dapat dikonfirmasi saat ini.');
+    }
+
+    private function activateRentals(Order_pembeli $pesanan): void
+    {
+        $rentals = Rental_pembeli::where('order_id', $pesanan->id)->get();
+        foreach ($rentals as $rental) {
+            if ($rental->status === 'pending') {
+                $rental->status = 'active';
+                $rental->save();
+            }
+        }
     }
 
     public function cancel($id)

@@ -3,190 +3,211 @@
 @section('title', 'Retur Jual-Beli')
 
 @section('content')
-@php
-    $badgeMap = [
-        'pending' => 'admin-badge-warning',
-        'checking' => 'admin-badge-info',
-        'completed' => 'admin-badge-success',
-        'rejected' => 'admin-badge-muted',
-    ];
-@endphp
+    @php
+        $badgeMap = [
+            'pending' => 'admin-badge-warning',
+            'checking' => 'admin-badge-info',
+            'completed' => 'admin-badge-success',
+            'rejected' => 'admin-badge-muted',
+        ];
+    @endphp
 
-<div class="space-y-6">
-    <div class="flex justify-between items-center">
-        <div>
-            <h1 class="admin-section-title text-2xl font-bold">Retur Jual-Beli</h1>
-            <p class="admin-section-subtitle text-gray-500">Kelola permintaan pengembalian dana dan barang dari transaksi marketplace.</p>
-        </div>
-        <a href="{{ route('admin.returns.export.jual_beli') }}" class="admin-button admin-button-primary bg-[#0f6b52] hover:bg-[#0c5843] text-white flex items-center gap-2">
-            <i data-lucide="download" style="width: 16px; height: 16px;"></i> Export Laporan
-        </a>
-    </div>
-
-    <!-- Stats -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {{-- Card 1: Total Permintaan --}}
-        <div class="bg-white border border-slate-200 hover:border-[#059669] hover:shadow-[0_12px_30px_-10px_rgba(5,150,105,0.2)] rounded-2xl p-6 shadow-sm transition-all duration-300 relative overflow-hidden flex flex-col justify-between group">
-            <div class="absolute top-0 left-0 w-full h-[4px] bg-[#059669]"></div>
-            <div class="flex items-center justify-between mb-3">
-                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Permintaan</span>
-                <div class="w-8 h-8 rounded-lg bg-[#ecfdf5] text-[#059669] flex items-center justify-center transition-colors group-hover:bg-[#059669] group-hover:text-white">
-                    <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
-                </div>
+    <div class="space-y-6">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="admin-section-title text-2xl font-bold">Retur Jual-Beli</h1>
+                <p class="admin-section-subtitle text-gray-500">Kelola permintaan pengembalian dana dan barang dari
+                    transaksi marketplace.</p>
             </div>
-            <div class="flex items-baseline gap-2">
-                <h2 class="text-4xl font-extrabold text-slate-800 tracking-tight">{{ number_format($totalPermintaan, 0, ',', '.') }}</h2>
-                <span class="text-xs font-bold text-[#059669] flex items-center"><i data-lucide="trending-up" class="w-3.5 h-3.5 mr-0.5"></i>12%</span>
-            </div>
+            <a href="{{ route('admin.dashboard.export') }}?type=return-buy&status={{ request('status') ?? '' }}"
+                class="admin-button admin-button-primary bg-[#0f6b52] hover:bg-[#0c5843] text-white flex items-center gap-2">
+                <i data-lucide="download" style="width: 16px; height: 16px;"></i> Export Laporan
+            </a>
         </div>
 
-        {{-- Card 2: Rata-rata Durasi Penyelesaian --}}
-        <div class="bg-white border border-slate-200 hover:border-[#064e3b] hover:shadow-[0_12px_30px_-10px_rgba(6,78,59,0.2)] rounded-2xl p-6 shadow-sm transition-all duration-300 relative overflow-hidden flex flex-col justify-between group">
-            <div class="absolute top-0 left-0 w-full h-[4px] bg-[#064e3b]"></div>
-            <div class="flex items-center justify-between mb-3">
-                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Rata-rata Durasi Penyelesaian</span>
-                <div class="w-8 h-8 rounded-lg bg-[#e6f4ea] text-[#047857] flex items-center justify-center transition-colors group-hover:bg-[#064e3b] group-hover:text-white">
-                    <i data-lucide="timer" class="w-4 h-4"></i>
-                </div>
-            </div>
-            <div class="flex items-baseline justify-between">
-                <h2 class="text-4xl font-extrabold text-slate-800 tracking-tight">2.4 Hari</h2>
-                <span class="text-xs font-bold text-[#064e3b] bg-[#e6f4ea] px-2 py-0.5 rounded-full">Efisien</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Filter -->
-    <div class="bg-[#f6faf8] p-5 border border-[#dcebe5] rounded-xl mb-6">
-        <form method="GET" action="{{ route('admin.returns.jual_beli') }}">
-            <div class="flex flex-wrap gap-8 items-end">
-                <div>
-                    <label class="block text-[11px] font-bold text-gray-500 mb-2" for="status">Filter Status</label>
-                    <div class="relative">
-                        <select class="w-48 text-[13px] font-medium text-gray-700 py-2.5 px-3 pr-8 rounded-md bg-white border border-[#dcebe5] appearance-none focus:outline-none focus:border-[#0f6b52]" id="status" name="status" onchange="this.form.submit()">
-                            <option value="">Semua Status</option>
-                            @foreach(['pending', 'checking', 'completed', 'rejected'] as $st)
-                                <option value="{{ $st }}" @selected(request('status') === $st)>{{ ucfirst($st) }}</option>
-                            @endforeach
-                        </select>
-                        <i data-lucide="chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" style="width: 14px; height: 14px; pointer-events: none;"></i>
+        <!-- Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {{-- Card 1: Total Permintaan --}}
+            <div
+                class="bg-white border border-slate-200 hover:border-[#059669] hover:shadow-[0_12px_30px_-10px_rgba(5,150,105,0.2)] rounded-2xl p-6 shadow-sm transition-all duration-300 relative overflow-hidden flex flex-col justify-between group">
+                <div class="absolute top-0 left-0 w-full h-[4px] bg-[#059669]"></div>
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Permintaan</span>
+                    <div
+                        class="w-8 h-8 rounded-lg bg-[#ecfdf5] text-[#059669] flex items-center justify-center transition-colors group-hover:bg-[#059669] group-hover:text-white">
+                        <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
                     </div>
                 </div>
+                <div class="flex items-baseline gap-2">
+                    <h2 class="text-4xl font-extrabold text-slate-800 tracking-tight">
+                        {{ number_format($totalPermintaan, 0, ',', '.') }}</h2>
+                    <span class="text-xs font-bold text-[#059669] flex items-center"><i data-lucide="trending-up"
+                            class="w-3.5 h-3.5 mr-0.5"></i>12%</span>
+                </div>
+            </div>
 
-                <div>
-                    <label class="block text-[11px] font-bold text-gray-500 mb-2" for="from">Rentang Tanggal</label>
-                    <div class="flex items-center gap-2">
+            {{-- Card 2: Rata-rata Durasi Penyelesaian --}}
+            <div
+                class="bg-white border border-slate-200 hover:border-[#064e3b] hover:shadow-[0_12px_30px_-10px_rgba(6,78,59,0.2)] rounded-2xl p-6 shadow-sm transition-all duration-300 relative overflow-hidden flex flex-col justify-between group">
+                <div class="absolute top-0 left-0 w-full h-[4px] bg-[#064e3b]"></div>
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Rata-rata Durasi
+                        Penyelesaian</span>
+                    <div
+                        class="w-8 h-8 rounded-lg bg-[#e6f4ea] text-[#047857] flex items-center justify-center transition-colors group-hover:bg-[#064e3b] group-hover:text-white">
+                        <i data-lucide="timer" class="w-4 h-4"></i>
+                    </div>
+                </div>
+                <div class="flex items-baseline justify-between">
+                    <h2 class="text-4xl font-extrabold text-slate-800 tracking-tight">2.4 Hari</h2>
+                    <span class="text-xs font-bold text-[#064e3b] bg-[#e6f4ea] px-2 py-0.5 rounded-full">Efisien</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter -->
+        <div class="bg-[#f6faf8] p-5 border border-[#dcebe5] rounded-xl mb-6">
+            <form method="GET" action="{{ route('admin.returns.jual_beli') }}">
+                <div class="flex flex-wrap gap-8 items-end">
+                    <div>
+                        <label class="block text-[11px] font-bold text-gray-500 mb-2" for="status">Filter Status</label>
                         <div class="relative">
-                            <input class="w-[140px] text-[13px] font-medium text-gray-700 py-2.5 px-3 pr-8 rounded-md bg-white border border-[#dcebe5] focus:outline-none focus:border-[#0f6b52]" type="text" placeholder="dd/mm/yyyy" onfocus="(this.type='date')" id="from" name="from" value="{{ request('from') }}" />
-                            <i data-lucide="calendar" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" style="width: 14px; height: 14px; pointer-events: none;"></i>
-                        </div>
-                        <span class="text-gray-400 text-sm">-</span>
-                        <div class="relative">
-                            <input class="w-[140px] text-[13px] font-medium text-gray-700 py-2.5 px-3 pr-8 rounded-md bg-white border border-[#dcebe5] focus:outline-none focus:border-[#0f6b52]" type="text" placeholder="dd/mm/yyyy" onfocus="(this.type='date')" id="to" name="to" value="{{ request('to') }}" />
-                            <i data-lucide="calendar" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" style="width: 14px; height: 14px; pointer-events: none;"></i>
+                            <select
+                                class="w-48 text-[13px] font-medium text-gray-700 py-2.5 px-3 pr-8 rounded-md bg-white border border-[#dcebe5] appearance-none focus:outline-none focus:border-[#0f6b52]"
+                                id="status" name="status" onchange="this.form.submit()">
+                                <option value="">Semua Status</option>
+                                @foreach(['pending', 'checking', 'completed', 'rejected'] as $st)
+                                    <option value="{{ $st }}" @selected(request('status') === $st)>{{ ucfirst($st) }}</option>
+                                @endforeach
+                            </select>
+                            <i data-lucide="chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+                                style="width: 14px; height: 14px; pointer-events: none;"></i>
                         </div>
                     </div>
-                </div>
 
-                <div>
-                    <label class="block text-[11px] font-bold text-gray-500 mb-2">Tipe Marketplace</label>
-                    <div class="flex border border-[#dcebe5] rounded-md overflow-hidden bg-white h-[42px]">
-                        <button type="button" onclick="document.getElementById('tipe_marketplace').value='produk_fisik'; this.form.submit()" class="px-5 text-[11px] font-bold leading-tight transition-colors {{ request('tipe_marketplace', 'produk_fisik') == 'produk_fisik' ? 'bg-[#0f6b52] text-white' : 'text-gray-500 hover:bg-gray-50 bg-white' }}">Produk<br>Fisik</button>
-                        <button type="button" onclick="document.getElementById('tipe_marketplace').value='layanan'; this.form.submit()" class="px-6 text-[12px] font-medium border-l border-[#dcebe5] transition-colors {{ request('tipe_marketplace') == 'layanan' ? 'bg-[#0f6b52] text-white' : 'text-gray-500 hover:bg-gray-50 bg-white' }}">Layanan</button>
-                        <input type="hidden" id="tipe_marketplace" name="tipe_marketplace" value="{{ request('tipe_marketplace', 'produk_fisik') }}">
+                    <div>
+                        <label class="block text-[11px] font-bold text-gray-500 mb-2" for="from">Rentang Tanggal</label>
+                        <div class="flex items-center gap-2">
+                            <div class="relative">
+                                <input
+                                    class="w-[140px] text-[13px] font-medium text-gray-700 py-2.5 px-3 pr-8 rounded-md bg-white border border-[#dcebe5] focus:outline-none focus:border-[#0f6b52]"
+                                    type="text" placeholder="dd/mm/yyyy" onfocus="(this.type='date')" id="from" name="from"
+                                    value="{{ request('from') }}" />
+                                <i data-lucide="calendar" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+                                    style="width: 14px; height: 14px; pointer-events: none;"></i>
+                            </div>
+                            <span class="text-gray-400 text-sm">-</span>
+                            <div class="relative">
+                                <input
+                                    class="w-[140px] text-[13px] font-medium text-gray-700 py-2.5 px-3 pr-8 rounded-md bg-white border border-[#dcebe5] focus:outline-none focus:border-[#0f6b52]"
+                                    type="text" placeholder="dd/mm/yyyy" onfocus="(this.type='date')" id="to" name="to"
+                                    value="{{ request('to') }}" />
+                                <i data-lucide="calendar" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+                                    style="width: 14px; height: 14px; pointer-events: none;"></i>
+                            </div>
+                        </div>
                     </div>
+
+                    <a href="{{ route('admin.returns.jual_beli') }}"
+                        class="inline-flex items-center h-[42px] px-5 border border-gray-300 text-gray-600 bg-transparent hover:bg-gray-100/50 rounded-md text-[13px] font-semibold transition-colors whitespace-nowrap">
+                        Reset Filter
+                    </a>
                 </div>
+            </form>
+        </div>
 
-                <a href="{{ route('admin.returns.jual_beli') }}" class="inline-flex items-center h-[42px] px-5 border border-gray-300 text-gray-600 bg-transparent hover:bg-gray-100/50 rounded-md text-[13px] font-semibold transition-colors whitespace-nowrap">
-                    Reset Filter
-                </a>
-            </div>
-        </form>
-    </div>
-
-    <!-- Table -->
-    <div class="admin-card border border-green-100 rounded-xl overflow-hidden">
-        <div class="admin-table-wrap">
-            <table class="admin-table w-full text-sm">
-                <thead class="bg-[#f8fbf9] border-b border-green-100 text-gray-500 text-xs tracking-wider">
-                    <tr>
-                        <th class="py-4 px-6 text-left font-bold w-[15%]">ID RETUR</th>
-                        <th class="py-4 px-6 text-left font-bold w-[15%]">ID PESANAN</th>
-                        <th class="py-4 px-6 text-left font-bold w-[20%]">PENJUAL / PEMBELI</th>
-                        <th class="py-4 px-6 text-center font-bold w-[20%]">TOTAL HARGA</th>
-                        <th class="py-4 px-6 text-center font-bold w-[15%]">STATUS</th>
-                        <th class="py-4 px-6 text-center font-bold w-[15%]">AKSI</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-100 bg-white">
-                    @forelse($returns as $item)
-                        @php
-                            $storeName = $item->order->details->first()->product->store->nama_toko ?? 'Toko';
-                            $buyerName = $item->order->user->name ?? 'Pembeli';
-                        @endphp
-                        <tr class="hover:bg-gray-50">
-                            <td class="py-4 px-6">
-                                <div class="font-bold text-[#0f6b52] text-[13px]">#RET-{{ 88200 + $item->id }}</div>
-                                <div class="text-[9px] text-gray-400 mt-0.5">{{ $item->created_at->isoFormat('D MMM Y, HH:mm') }}</div>
-                            </td>
-                            <td class="py-4 px-6 text-gray-600 text-[13px] font-medium">ORD-{{ 22900000 + $item->order_id }}</td>
-                            <td class="py-4 px-6">
-                                <div class="font-bold text-gray-800 text-[13px]">{{ $storeName }}</div>
-                                <div class="text-[10px] text-gray-500 mt-0.5">{{ $buyerName }}</div>
-                            </td>
-                            <td class="py-4 px-6 font-semibold text-gray-700 text-center text-[14px]">Rp{{ number_format((int) $item->escrow_total, 0, ',', '.') }}</td>
-                            <td class="py-4 px-6 text-center">
-                                @php
-                                    $statusClass = $badgeMap[$item->status] ?? 'admin-badge-muted';
-                                    $statusLabel = [
-                                        'pending' => 'Pending',
-                                        'checking' => 'Checking',
-                                        'completed' => 'Selesai',
-                                        'rejected' => 'Ditolak',
-                                    ][$item->status] ?? ucfirst($item->status);
-                                @endphp
-                                <span class="inline-block px-3 py-1 text-[9px] font-bold uppercase tracking-wider rounded-full {{ $statusClass }} border">
-                                    {{ $statusLabel }}
-                                </span>
-                            </td>
-                            <td class="py-4 px-4 text-center">
+        <!-- Table -->
+        <div class="admin-card border border-green-100 rounded-xl overflow-hidden">
+            <div class="admin-table-wrap">
+                <table class="admin-table w-full text-sm">
+                    <thead class="bg-[#f8fbf9] border-b border-green-100 text-gray-500 text-xs tracking-wider">
+                        <tr>
+                            <th class="py-4 px-6 text-left font-bold w-[15%]">ID RETUR</th>
+                            <th class="py-4 px-6 text-left font-bold w-[15%]">ID PESANAN</th>
+                            <th class="py-4 px-6 text-left font-bold w-[20%]">PENJUAL / PEMBELI</th>
+                            <th class="py-4 px-6 text-center font-bold w-[20%]">TOTAL HARGA</th>
+                            <th class="py-4 px-6 text-center font-bold w-[15%]">STATUS</th>
+                            <th class="py-4 px-6 text-center font-bold w-[15%]">AKSI</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 bg-white">
+                        @forelse($returns as $item)
+                            @php
+                                $storeName = $item->order->details->first()->product->store->nama_toko ?? 'Toko';
+                                $buyerName = $item->order->user->name ?? 'Pembeli';
+                            @endphp
+                            <tr class="hover:bg-gray-50">
+                                <td class="py-4 px-6">
+                                    <div class="font-bold text-[#0f6b52] text-[13px]">#RET-{{ 88200 + $item->id }}</div>
+                                    <div class="text-[9px] text-gray-400 mt-0.5">
+                                        {{ $item->created_at->isoFormat('D MMM Y, HH:mm') }}</div>
+                                </td>
+                                <td class="py-4 px-6 text-gray-600 text-[13px] font-medium">ORD-{{ 22900000 + $item->order_id }}
+                                </td>
+                                <td class="py-4 px-6">
+                                    <div class="font-bold text-gray-800 text-[13px]">{{ $storeName }}</div>
+                                    <div class="text-[10px] text-gray-500 mt-0.5">{{ $buyerName }}</div>
+                                </td>
+                                <td class="py-4 px-6 font-semibold text-gray-700 text-center text-[14px]">
+                                    Rp{{ number_format((int) $item->escrow_total, 0, ',', '.') }}</td>
+                                <td class="py-4 px-6 text-center">
+                                    @php
+                                        $statusClass = $badgeMap[$item->status] ?? 'admin-badge-muted';
+                                        $statusLabel = [
+                                            'pending' => 'Pending',
+                                            'checking' => 'Checking',
+                                            'completed' => 'Selesai',
+                                            'rejected' => 'Ditolak',
+                                        ][$item->status] ?? ucfirst($item->status);
+                                    @endphp
+                                    <span
+                                        class="inline-block px-3 py-1 text-[9px] font-bold uppercase tracking-wider rounded-full {{ $statusClass }} border">
+                                        {{ $statusLabel }}
+                                    </span>
+                                </td>
+                                <td class="py-4 px-4 text-center">
                                     <a href="{{ route('admin.returns.show', $item->id) }}"
-                                       class="inline-flex items-center justify-center w-36 h-9 bg-[#0f6b52] hover:bg-[#0c5843] text-white text-[9.5px] font-bold rounded-lg shadow-sm transition-all duration-200 hover:-translate-y-0.5 active:scale-95 whitespace-nowrap px-2">
+                                        class="inline-flex items-center justify-center w-36 h-9 bg-[#0f6b52] hover:bg-[#0c5843] text-white text-[9.5px] font-bold rounded-lg shadow-sm transition-all duration-200 hover:-translate-y-0.5 active:scale-95 whitespace-nowrap px-2">
                                         Detail
                                     </a>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="6" class="py-8 text-center text-gray-500">Tidak ada data retur.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-        <div class="p-4 border-t border-gray-100 bg-[#f8fbf9] flex items-center justify-between">
-            <div class="text-xs text-gray-500 font-medium">
-                Menampilkan {{ $returns->firstItem() ?? 0 }}-{{ $returns->lastItem() ?? 0 }} dari {{ number_format($returns->total(), 0, ',', '.') }} permintaan
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="py-8 text-center text-gray-500">Tidak ada data retur.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
-            <div class="flex gap-1">
-                {{ $returns->links() }}
+            <div class="p-4 border-t border-gray-100 bg-[#f8fbf9] flex items-center justify-between">
+                <div class="text-xs text-gray-500 font-medium">
+                    Menampilkan {{ $returns->firstItem() ?? 0 }}-{{ $returns->lastItem() ?? 0 }} dari
+                    {{ number_format($returns->total(), 0, ',', '.') }} permintaan
+                </div>
+                <div class="flex gap-1">
+                    {{ $returns->links() }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+
+            <div
+                class="admin-card bg-gray-900 border-none p-6 text-white relative overflow-hidden flex flex-col justify-end min-h-[140px]">
+                <!-- Decorative background or image could go here -->
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent z-10"></div>
+                <div class="absolute inset-0 opacity-20"
+                    style="background-image: url('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=600&auto=format&fit=crop'); background-size: cover; background-position: center;">
+                </div>
+
+                <div class="relative z-20">
+                    <h3 class="font-bold text-white mb-1">Statistik Logistik</h3>
+                    <p class="text-xs text-gray-300">94% retur berhasil diselesaikan dalam waktu kurang dari 3 hari bulan
+                        ini.</p>
+                </div>
             </div>
         </div>
     </div>
-
-    <!-- Bottom Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-
-        <div class="admin-card bg-gray-900 border-none p-6 text-white relative overflow-hidden flex flex-col justify-end min-h-[140px]">
-            <!-- Decorative background or image could go here -->
-            <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent z-10"></div>
-            <div class="absolute inset-0 opacity-20" style="background-image: url('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=600&auto=format&fit=crop'); background-size: cover; background-position: center;"></div>
-            
-            <div class="relative z-20">
-                <h3 class="font-bold text-white mb-1">Statistik Logistik</h3>
-                <p class="text-xs text-gray-300">94% retur berhasil diselesaikan dalam waktu kurang dari 3 hari bulan ini.</p>
-            </div>
-        </div>
-    </div>
-</div>
 @endsection

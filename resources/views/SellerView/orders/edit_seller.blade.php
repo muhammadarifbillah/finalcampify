@@ -30,11 +30,11 @@
                 <div class="mb-4">
                     <label class="form-label fw-bold text-muted small text-uppercase ls-1">Status Pesanan</label>
                     <select name="status" class="form-select border-0 bg-light rounded-3 px-3 py-2 shadow-sm">
-                        <option value="menunggu" {{ $order->status == 'menunggu' ? 'selected' : '' }}>Menunggu</option>
-                        <option value="diproses" {{ $order->status == 'diproses' ? 'selected' : '' }}>Diproses</option>
-                        <option value="dikirim" {{ $order->status == 'dikirim' ? 'selected' : '' }}>Dikirim</option>
-                        <option value="selesai" {{ $order->status == 'selesai' ? 'selected' : '' }}>Selesai</option>
-                        <option value="dibatalkan" {{ $order->status == 'dibatalkan' ? 'selected' : '' }}>Dibatalkan</option>
+                        <option value="pending" {{ $order->status == 'pending' ? 'selected' : '' }}>Menunggu</option>
+                        <option value="processing" {{ $order->status == 'processing' ? 'selected' : '' }}>Diproses</option>
+                        <option value="shipped" {{ $order->status == 'shipped' ? 'selected' : '' }}>Dikirim</option>
+                        <option value="delivered" {{ $order->status == 'delivered' ? 'selected' : '' }}>Delivered</option>
+                        <option value="cancelled" {{ $order->status == 'cancelled' ? 'selected' : '' }}>Dibatalkan</option>
                     </select>
                 </div>
 

@@ -149,6 +149,8 @@ class OrderController extends Controller
                 }
             }
 
+            app(\App\Services\SellerOrderService::class)->syncForOrder($order->fresh(['details.product.store']));
+
             DB::commit();
 
             return response()->json([

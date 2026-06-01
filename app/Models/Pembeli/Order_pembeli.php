@@ -9,6 +9,7 @@ class Order_pembeli extends Order
     protected $table = 'orders';
     protected $fillable = [
         'user_id',
+        'order_number',
         'receiver_name',
         'total',
         'shipping_address',
@@ -23,6 +24,9 @@ class Order_pembeli extends Order
         'bukti_pembayaran',
         'latitude',
         'longitude',
+        'is_disbursed',
+        'disbursed_at',
+        'received_at',
     ];
 
     public function user()
@@ -38,5 +42,10 @@ class Order_pembeli extends Order
     public function returnRequest()
     {
         return $this->hasOne(\App\Models\ReturnEscrow::class, 'order_id');
+    }
+
+    public function sellerOrders()
+    {
+        return $this->hasMany(\App\Models\SellerOrder::class, 'order_id');
     }
 }

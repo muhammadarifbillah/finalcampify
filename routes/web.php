@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\ChatController;
 use App\Http\Controllers\Admin\ChatbotController;
 use App\Http\Controllers\Admin\MonitoringController;
 use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\PayoutController;
 use App\Http\Controllers\Admin\ReturnEscrowController;
 use App\Http\Controllers\Admin\SettingsController;
 
@@ -62,6 +63,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
 
     // 🔥 DASHBOARD
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
+    Route::get('/dashboard/export', [DashboardController::class, 'exportReport'])->name('admin.dashboard.export');
 
     // 👤 USER
     Route::get('/users', [UserController::class, 'index'])->name('admin.users.index');
@@ -107,7 +109,13 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
 
     // DISBURSEMENTS
     Route::get('/disbursements', [OrderController::class, 'disbursements'])->name('admin.disbursements.index');
-    Route::post('/disbursements/{order}/disburse', [OrderController::class, 'disburse'])->name('admin.disbursements.disburse');
+    Route::post('/disbursements/resync', [OrderController::class, 'resyncSellerOrders'])->name('admin.disbursements.resync');
+    Route::get('/disbursements/{sellerOrder}', [OrderController::class, 'showDisbursement'])->name('admin.disbursements.show');
+    Route::post('/disbursements/{sellerOrder}/disburse', [OrderController::class, 'disburse'])->name('admin.disbursements.disburse');
+    
+    // PAYOUTS AUDIT
+    Route::get('/payouts', [PayoutController::class, 'index'])->name('admin.payouts.index');
+    Route::get('/payouts/export', [PayoutController::class, 'export'])->name('admin.payouts.export');
 
     // ORDERS (UNIFIED)
     Route::get('/orders', [OrderController::class, 'index'])->name('admin.orders.index');

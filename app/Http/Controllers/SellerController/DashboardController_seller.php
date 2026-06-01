@@ -4,7 +4,7 @@ namespace App\Http\Controllers\SellerController;
 
 use App\Http\Controllers\Controller;
 use App\Models\SellerModels\Product_seller;
-use App\Models\SellerModels\Order_seller;
+use App\Models\SellerOrder;
 use App\Models\SellerModels\StoreRating_seller;
 use App\Models\SellerModels\Rental_seller;
 use App\Models\Store;
@@ -26,16 +26,18 @@ class DashboardController_seller extends Controller
         // 2. Ambil Data Penyewaan (Rentals)
         $rentals = Rental_seller::whereIn('product_id', $productIds)->get();
 
-        // 3. Ambil Data Pesanan (Orders) - Filter pesanan yang mengandung produk seller ini
-        $orders = Order_seller::with(['details' => function($q) use ($productIds) {
-                $q->whereIn('product_id', $productIds)->with('product');
-            }, 'buyer', 'rental'])
-            ->whereHas('details', fn ($q) => $q->whereIn('product_id', $productIds))
+        // 3. Ambil Data Pesanan Seller Order per toko/seller
+        $orders = SellerOrder::with(['items.product', 'order.buyer', 'store.user', 'payout'])
+            ->whereHas('items', fn ($q) => $q->whereIn('product_id', $productIds))
+            ->where(function ($query) use ($userId) {
+                $query->where('seller_id', $userId)
+                    ->orWhereHas('store', fn ($storeQuery) => $storeQuery->where('user_id', $userId));
+            })
             ->latest()
             ->get();
 
         // 4. Hitung Statistik Dasar
-        $ordersDone = $orders->where('status', 'selesai');
+        $ordersDone = $orders->where('status', 'delivered');
         
         // Revenue murni (Hanya produk milik seller ini)
         $totalRevenue = $ordersDone->sum(function($o) use ($productIds) {
@@ -44,7 +46,7 @@ class DashboardController_seller extends Controller
             });
         });
 
-        $pendingOrdersCount = $orders->whereIn('status', ['menunggu', 'diproses'])->count();
+        $pendingOrdersCount = $orders->whereIn('status', ['pending', 'processing'])->count();
         
         // Barang rental yang status nya rental aktif (sedang disewa buyer)
         $rentedGearCount = $rentals->where('status', 'active')->count();
@@ -60,7 +62,7 @@ class DashboardController_seller extends Controller
         $qualityScore = round(($avgProductRating / 5) * 100);
 
         // 6. Sales Chart Data (7 Hari Terakhir) - Termasuk pesanan yang sedang berjalan
-        $activeOrders = $orders->whereIn('status', ['diproses', 'dikirim', 'selesai']);
+        $activeOrders = $orders->whereIn('status', ['processing', 'shipped', 'delivered']);
         $labels = [];
         $dataSales = [];
         for ($i = 6; $i >= 0; $i--) {

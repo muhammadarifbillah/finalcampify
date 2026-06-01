@@ -331,8 +331,8 @@
             </thead>
             <tbody>
                 @forelse($orders->take(5) as $o)
-                <tr style="cursor: pointer;" onclick="window.location='{{ $o->rental ? '/seller/rentals/' . $o->rental->id : '/seller/orders/' . $o->id }}'">
-                    <td class="px-4 py-4 fw-bold text-dark">#{{ $o->id }}</td>
+                <tr style="cursor: pointer;" onclick="window.location='/seller/orders/{{ $o->id }}'">
+                    <td class="px-4 py-4 fw-bold text-dark">{{ $o->seller_order_number ?? '#'.$o->id }}</td>
                     <td class="px-4 py-4">
                         <div class="d-flex align-items-center gap-3">
                             @php
@@ -370,15 +370,16 @@
                             $displayStatus = $isRental && $o->rental ? $o->rental->status : $o->status;
                             
                             $statusLabelClass = match($displayStatus) {
-                                'selesai', 'completed', 'active', 'aktif' => 'bg-emerald-soft text-emerald',
+                                'delivered', 'selesai', 'completed', 'active', 'aktif' => 'bg-emerald-soft text-emerald',
                                 'diproses', 'processing', 'pending' => 'bg-info-subtle text-info',
                                 'menunggu' => 'bg-warning-subtle text-warning',
+                                'shipped', 'dikirim' => 'bg-primary-subtle text-primary',
                                 'dibatalkan', 'cancelled' => 'bg-danger-subtle text-danger',
                                 default => 'bg-light text-muted'
                             };
                         @endphp
                         <span class="badge rounded-pill px-3 py-2 fw-bold text-uppercase ls-1 {{ $statusLabelClass }}" style="font-size: 0.65rem;">
-                            {{ $displayStatus }}
+                            {{ $o->status_label ?? $displayStatus }}
                         </span>
                     </td>
                 </tr>

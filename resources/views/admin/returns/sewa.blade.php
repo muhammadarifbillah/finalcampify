@@ -103,9 +103,11 @@
                 <a href="{{ route('admin.returns.sewa') }}" class="text-xs text-gray-400 hover:text-gray-700 ml-2">Reset</a>
             @endif
         </form>
-        <a href="{{ route('admin.returns.export.sewa') }}" class="px-4 py-2 text-sm font-semibold bg-white border border-gray-200 rounded-md text-[#0f6b52] hover:bg-gray-50 flex items-center gap-2">
-            <i data-lucide="download" style="width: 14px; height: 14px;"></i> Export CSV
-        </a>
+        <div class="flex gap-2 items-center flex-wrap">
+            <a href="{{ route('admin.dashboard.export') }}?type=return-rent&status={{ request('status') ?? '' }}" class="px-4 py-2 text-sm font-semibold bg-[#0f6b52] border border-[#0f6b52] rounded-md text-white hover:bg-[#0d6246] flex items-center gap-2">
+                <i data-lucide="file-text" style="width: 14px; height: 14px;"></i> Export Laporan
+            </a>
+        </div>
     </div>
 
     <!-- Table -->

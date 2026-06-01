@@ -149,6 +149,8 @@ class PembeliCheckoutController extends Controller
             ]);
         }
 
+        app(\App\Services\SellerOrderService::class)->syncForOrder($pesanan->fresh(['details.product.store']));
+
         Keranjang_pembeli::where('user_id', Auth::id())->delete();
 
         return redirect()

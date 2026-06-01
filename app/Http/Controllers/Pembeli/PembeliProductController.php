@@ -106,6 +106,8 @@ class PembeliProductController extends Controller
             'duration' => $request->duration,
             'start_date' => $request->start_date,
         ]);
+
+        app(\App\Services\SellerOrderService::class)->syncForOrder($pesanan->fresh(['details.product.store']));
         
         // 3. Buat Record Rental (untuk Seller)
         Rental_pembeli::create([
