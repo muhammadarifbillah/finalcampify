@@ -1,4 +1,4 @@
-@extends('admin.reports.layout')
+ @extends('admin.reports.layout')
 
 @section('title', 'Laporan Transaksi Pemesanan - CAMPIFY')
 @section('report_title', 'Laporan Transaksi Pemesanan')
@@ -43,7 +43,7 @@
                     <td>{{ $order->created_at ? $order->created_at->format('d/m/Y H:i') : '-' }}</td>
                     <td>
                         {{ $order->buyer->name ?? 'User #' . $order->user_id }}<br>
-                        <span style="font-size: 6.5pt; color: #64748b;">{{ $order->buyer->email ?? '' }}</span>
+                        <span style="font-size: 6.5pt; color: #475569;">{{ $order->buyer->email ?? '' }}</span>
                     </td>
                     <td>
                         @php
@@ -91,7 +91,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="7" class="text-center" style="padding: 15px; color: #64748b;">
+                    <td colspan="7" class="text-center" style="padding: 15px; color: #475569;">
                         Tidak ada data transaksi pemesanan pada periode ini.
                     </td>
                 </tr>
@@ -121,7 +121,7 @@
                             <td class="text-bold">{{ $order->order_number ?? '#' . $order->id }}</td>
                             <td>
                                 {{ $detail->product->name ?? 'Produk #' . $detail->product_id }}<br>
-                                <span style="font-size: 6.5pt; color: #64748b;">
+                                <span style="font-size: 6.5pt; color: #475569;">
                                     Toko: {{ $detail->product->store->nama_toko ?? 'N/A' }}
                                 </span>
                             </td>

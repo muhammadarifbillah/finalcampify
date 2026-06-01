@@ -30,12 +30,12 @@ class SellerOrderService
             $store = $product?->store;
             $storeId = $store?->id ?? $product?->store_id;
             $sellerId = $store?->user_id ?? $product?->sellerUserId();
-            $subtotal = (int) $items->sum(fn ($item) => ((int) $item->harga) * ((int) $item->qty));
+            $subtotal = (int) $items->sum(fn($item) => ((int) $item->harga) * ((int) $item->qty));
 
             $sellerOrder = SellerOrder::query()
                 ->where('order_id', $order->id)
-                ->when($storeId, fn ($query) => $query->where('store_id', $storeId), fn ($query) => $query->whereNull('store_id'))
-                ->when($sellerId, fn ($query) => $query->where('seller_id', $sellerId), fn ($query) => $query->whereNull('seller_id'))
+                ->when($storeId, fn($query) => $query->where('store_id', $storeId), fn($query) => $query->whereNull('store_id'))
+                ->when($sellerId, fn($query) => $query->where('seller_id', $sellerId), fn($query) => $query->whereNull('seller_id'))
                 ->first();
 
             if (!$sellerOrder) {
@@ -140,9 +140,9 @@ class SellerOrderService
         $status = 'menunggu';
         $receivedAt = $order->received_at;
 
-        if ($statuses->every(fn ($value) => $value === SellerOrder::STATUS_CANCELLED)) {
+        if ($statuses->every(fn($value) => $value === SellerOrder::STATUS_CANCELLED)) {
             $status = 'dibatalkan';
-        } elseif ($statuses->every(fn ($value) => $value === SellerOrder::STATUS_DELIVERED)) {
+        } elseif ($statuses->every(fn($value) => $value === SellerOrder::STATUS_DELIVERED)) {
             $status = 'selesai';
             $receivedAt = $sellerOrders->max('delivered_at') ?? $order->received_at;
         } elseif ($statuses->contains(SellerOrder::STATUS_SHIPPED) || $statuses->contains(SellerOrder::STATUS_DELIVERED)) {

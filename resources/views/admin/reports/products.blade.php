@@ -84,7 +84,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="8" class="text-center" style="padding: 15px; color: #64748b;">
+                    <td colspan="8" class="text-center" style="padding: 15px; color: #475569;">
                         Tidak ada data produk.
                     </td>
                 </tr>

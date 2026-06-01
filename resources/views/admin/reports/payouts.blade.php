@@ -1,77 +1,98 @@
-<!doctype html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <title>Laporan Pencairan</title>
-    <style>
-        @if(!empty($customFont) && isset($customFont['path']))
-            @font-face {
-                font-family: '{{ $customFont['family'] }}';
-                src: url("file://{{ $customFont['path'] }}") format('truetype');
-                font-weight: normal;
-                font-style: normal;
-            }
-            body { font-family: '{{ $customFont['family'] }}', DejaVu Sans, sans-serif; font-size: 12px; }
-        @else
-            body { font-family: DejaVu Sans, sans-serif; font-size: 12px; }
-        @endif
-        .header { text-align: center; margin-bottom: 10px }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid #ddd; padding: 6px; }
-        th { background: #f3f3f3; }
-        .right { text-align: right; }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h2>Laporan Pencairan</h2>
-        <div>Dicetak: {{ $printDate ?? now()->format('d/m/Y H:i:s') }}</div>
-        @if(!empty($filters))
-            <div style="margin-top:6px;font-size:11px;color:#666">Saring: {{ http_build_query($filters) }}</div>
-        @endif
-    </div>
+@extends('admin.reports.layout')
 
-    <table>
+@section('title', 'Laporan Pencairan Dana - CAMPIFY')
+@section('report_title', 'Laporan Pencairan Dana')
+
+@section('content')
+    {{-- Summary Cards --}}
+    <table class="stat-boxes" cellpadding="0" cellspacing="8">
+        <tr>
+            <td class="stat-box" width="33%">
+                <div class="stat-value">{{ $payouts->count() }}</div>
+                <div class="stat-label">Total Transaksi</div>
+            </td>
+            <td class="stat-box" width="33%">
+                <div class="stat-value" style="color: #059669;">Rp {{ number_format($payouts->sum('amount'), 0, ',', '.') }}</div>
+                <div class="stat-label">Total Dana Dicairkan</div>
+            </td>
+            <td class="stat-box" width="33%">
+                <div class="stat-value" style="color: #1e40af;">{{ $payouts->where('status', 'DISBURSED')->count() }}</div>
+                <div class="stat-label">Selesai (Disbursed)</div>
+            </td>
+        </tr>
+    </table>
+
+    {{-- Main Data Table --}}
+    <div class="section-title">Rincian Pencairan Dana</div>
+    <table class="data-table">
         <thead>
             <tr>
-                <th>ID</th>
-                <th>SO</th>
-                <th>Order</th>
-                <th>Seller</th>
-                <th class="right">Jumlah</th>
-                <th>Status Pencairan</th>
-                <th>Diterima</th>
-                <th>Sumber</th>
-                <th>Waktu Dicairkan</th>
+                <th width="8%">ID</th>
+                <th width="15%">No. SO / Order</th>
+                <th width="20%">Toko / Seller</th>
+                <th width="15%" class="text-right">Jumlah (Rp)</th>
+                <th width="12%" class="text-center">Status</th>
+                <th width="12%" class="text-center">Waktu Diterima</th>
+                <th width="10%">Sumber</th>
+                <th width="8%">Waktu Cair</th>
             </tr>
         </thead>
         <tbody>
-            @foreach($payouts as $p)
+            @forelse($payouts as $p)
+                @php
+                    $order = $p->sellerOrder?->order;
+                    $receivedAt = $order?->received_at ?? $p->sellerOrder?->delivered_at ?? null;
+                    $sourceLabel = 'N/A';
+                    if ($p->source) {
+                        $sourceLabel = $p->source === 'auto' ? 'Otomatis' : ($p->source === 'manual' ? 'Manual' : ucfirst($p->source));
+                    } elseif ($p->disbursed_at) {
+                        $sourceLabel = 'Manual';
+                    }
+                    
+                    $status = strtolower($p->status);
+                    $badgeClass = 'badge-gray';
+                    if ($status === 'disbursed' || $status === 'selesai') {
+                        $badgeClass = 'badge-green';
+                    } elseif ($status === 'ready' || $status === 'ready_to_disburse') {
+                        $badgeClass = 'badge-blue';
+                    } elseif ($status === 'pending' || $status === 'waiting_hold') {
+                        $badgeClass = 'badge-yellow';
+                    } elseif ($status === 'failed') {
+                        $badgeClass = 'badge-red';
+                    }
+                @endphp
                 <tr>
-                    <td>{{ $p->id }}</td>
-                    <td>{{ $p->sellerOrder?->seller_order_number ?? '-' }}</td>
-                    <td>{{ $p->sellerOrder?->order?->order_number ?? '-' }}</td>
-                    <td>{{ $p->sellerOrder?->store?->nama_toko ?? $p->sellerOrder?->seller?->name ?? '-' }}</td>
-                    <td class="right">Rp {{ number_format($p->amount, 0, ',', '.') }}</td>
-                    <td>{{ $p->status }}</td>
-                    @php
-                        $order = $p->sellerOrder?->order;
-                        $receivedAt = $order?->received_at ?? $p->sellerOrder?->delivered_at ?? null;
-                        $sourceLabel = 'Tidak tersedia';
-                        if ($p->source) {
-                            $sourceLabel = $p->source === 'auto' ? 'Otomatis (Scheduler)' : ($p->source === 'manual' ? 'Manual (Admin)' : ucfirst($p->source));
-                        } elseif ($p->disbursed_at) {
-                            $sourceLabel = 'Manual (tidak diketahui)';
-                        }
-                    @endphp
-                    <td>{{ $receivedAt?->format('d/m/Y') ?? '-' }}</td>
-                    <td>{{ $sourceLabel }}</td>
-                    <td>{{ $p->disbursed_at?->format('d/m/Y H:i') ?? '-' }}</td>
+                    <td class="text-bold">#PY-{{ $p->id }}</td>
+                    <td>
+                        <span class="text-bold" style="font-size: 7.5pt;">{{ $p->sellerOrder?->seller_order_number ?? '-' }}</span><br>
+                        <span style="font-size: 6.5pt; color: #475569;">{{ $p->sellerOrder?->order?->order_number ?? '-' }}</span>
+                    </td>
+                    <td>
+                        {{ $p->sellerOrder?->store?->nama_toko ?? $p->sellerOrder?->seller?->name ?? '-' }}
+                    </td>
+                    <td class="text-right text-bold">
+                        Rp {{ number_format($p->amount, 0, ',', '.') }}
+                    </td>
+                    <td class="text-center">
+                        <span class="badge {{ $badgeClass }}">{{ str_replace('_', ' ', strtoupper($p->status)) }}</span>
+                    </td>
+                    <td class="text-center" style="font-size: 7.5pt;">
+                        {{ $receivedAt?->format('d/m/Y') ?? '-' }}
+                    </td>
+                    <td>
+                        {{ $sourceLabel }}
+                    </td>
+                    <td style="font-size: 7.5pt;">
+                        {{ $p->disbursed_at?->format('d/m/Y H:i') ?? '-' }}
+                    </td>
                 </tr>
-            @endforeach
+            @empty
+                <tr>
+                    <td colspan="8" class="text-center" style="padding: 15px; color: #475569;">
+                        Tidak ada data pencairan dana.
+                    </td>
+                </tr>
+            @endforelse
         </tbody>
     </table>
-
-    <div style="margin-top:12px;font-size:11px;color:#444">Total: {{ $payouts->count() }} rows</div>
-</body>
-</html>
+@endsection

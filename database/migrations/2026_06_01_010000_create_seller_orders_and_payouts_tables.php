@@ -142,7 +142,7 @@ return new class extends Migration {
 
             $storeId = $first->product_store_id;
             $sellerId = $first->store_user_id ?? $first->product_seller_id ?? $first->product_user_id;
-            $subtotal = (int) $items->sum(fn ($item) => ((int) $item->harga) * ((int) $item->qty));
+            $subtotal = (int) $items->sum(fn($item) => ((int) $item->harga) * ((int) $item->qty));
             $legacyStatus = $order->status ?? 'diproses';
             $status = $this->mapOrderStatus($legacyStatus);
             $deliveredAt = $status === 'delivered'
@@ -212,8 +212,8 @@ return new class extends Migration {
             'selesai' => 'delivered',
             'dibatalkan' => 'cancelled',
             default => in_array($status, ['pending', 'processing', 'shipped', 'delivered', 'cancelled'], true)
-                ? $status
-                : 'processing',
+            ? $status
+            : 'processing',
         };
     }
 

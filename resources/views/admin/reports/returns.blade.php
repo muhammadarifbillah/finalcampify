@@ -58,10 +58,10 @@
                     $lateDays = $isLate ? round($r->expected_date->diffInDays(now())) : 0;
                 @endphp
                 <tr>
-                    <td class="text-bold">#RT-{{ $r->id }}<br><span style="font-size: 6.5pt; color: #64748b;">Order #{{ $r->order_id }}</span></td>
+                    <td class="text-bold">#RT-{{ $r->id }}<br><span style="font-size: 6.5pt; color: #475569;">Order #{{ $r->order_id }}</span></td>
                     <td>
                         {{ $r->order->buyer->name ?? 'N/A' }}<br>
-                        <span style="font-size: 6.5pt; color: #64748b;">{{ $r->order->buyer->phone ?? '' }}</span>
+                        <span style="font-size: 6.5pt; color: #475569;">{{ $r->order->buyer->phone ?? '' }}</span>
                     </td>
                     <td>
                         @php
@@ -70,7 +70,7 @@
                             $storeName = $firstDetail && $firstDetail->product && $firstDetail->product->store ? $firstDetail->product->store->nama_toko : 'N/A';
                         @endphp
                         {{ $prodName }}<br>
-                        <span style="font-size: 6.5pt; color: #64748b;">Toko: {{ $storeName }}</span>
+                        <span style="font-size: 6.5pt; color: #475569;">Toko: {{ $storeName }}</span>
                     </td>
                     <td class="text-right">
                         Rp {{ number_format($r->deposit_amount, 0, ',', '.') }}
@@ -78,7 +78,7 @@
                     <td class="text-right text-red">
                         @if($r->late_fee > 0 || $r->damage_fee > 0)
                             Rp {{ number_format($r->late_fee + $r->damage_fee, 0, ',', '.') }}
-                            <div style="font-size: 6pt; color: #64748b;">
+                            <div style="font-size: 6pt; color: #475569;">
                                 @if($r->late_fee > 0) Tl: {{ number_format($r->late_fee, 0, ',', '.') }} @endif
                                 @if($r->damage_fee > 0) Rs: {{ number_format($r->damage_fee, 0, ',', '.') }} @endif
                             </div>
@@ -118,13 +118,13 @@
                         @elseif($r->actual_date && $r->expected_date && $r->actual_date->gt($r->expected_date))
                             <span style="font-size: 7.5pt; color: #b45309;">Kembali Terlambat</span>
                         @else
-                            <span style="font-size: 7.5pt; color: #64748b;">Tepat Waktu</span>
+                            <span style="font-size: 7.5pt; color: #475569;">Tepat Waktu</span>
                         @endif
                     </td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="8" class="text-center" style="padding: 15px; color: #64748b;">
+                    <td colspan="8" class="text-center" style="padding: 15px; color: #475569;">
                         Tidak ada data retur atau escrow pada periode ini.
                     </td>
                 </tr>

@@ -14,7 +14,8 @@ $rows = SellerOrder::whereHas('items', fn($q) => $q->where('type', 'buy'))
     ->get();
 
 foreach ($rows as $s) {
-    echo sprintf("SO %s id=%d status=%s shipped=%s delivered=%s order_status=%s received=%s payout=%s source=%s\n",
+    echo sprintf(
+        "SO %s id=%d status=%s shipped=%s delivered=%s order_status=%s received=%s payout=%s source=%s\n",
         $s->seller_order_number,
         $s->id,
         $s->status,

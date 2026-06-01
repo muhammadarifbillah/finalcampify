@@ -20,8 +20,8 @@ class OrderDisbursementService
 
     public function applyPurchaseSellerOrderFilter(Builder $query): Builder
     {
-        return $query->whereHas('items', fn ($q) => $q->where('type', 'buy'))
-            ->whereDoesntHave('items', fn ($q) => $q->where('type', 'rent'));
+        return $query->whereHas('items', fn($q) => $q->where('type', 'buy'))
+            ->whereDoesntHave('items', fn($q) => $q->where('type', 'rent'));
     }
 
     public function applyPurchaseOrderFilter(Builder $query): Builder
@@ -53,7 +53,7 @@ class OrderDisbursementService
         $normalized = strtoupper($status);
 
         return match ($normalized) {
-            Payout::STATUS_DISBURSED => $query->whereHas('payout', fn ($q) => $q->where('status', Payout::STATUS_DISBURSED)),
+            Payout::STATUS_DISBURSED => $query->whereHas('payout', fn($q) => $q->where('status', Payout::STATUS_DISBURSED)),
             Payout::STATUS_READY_TO_DISBURSE => $this->applyReadyToDisburseOnly($query),
             Payout::STATUS_WAITING_HOLD => $this->applyWaitingHoldOnly($query),
             Payout::STATUS_WAITING_DELIVERY => $this->applyWaitingDeliveryOnly($query),
@@ -209,7 +209,7 @@ class OrderDisbursementService
 
         $order->load('sellerOrders.payout');
         $allDisbursed = $order->sellerOrders->isNotEmpty()
-            && $order->sellerOrders->every(fn ($item) => $item->payout?->status === Payout::STATUS_DISBURSED);
+            && $order->sellerOrders->every(fn($item) => $item->payout?->status === Payout::STATUS_DISBURSED);
 
         if ($allDisbursed) {
             $order->forceFill([

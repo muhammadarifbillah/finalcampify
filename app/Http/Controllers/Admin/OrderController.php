@@ -107,7 +107,7 @@ class OrderController extends Controller
 
         $sellerOrders = $query->paginate(15)->withQueryString();
         $eligibilityBySellerOrderId = $sellerOrders->getCollection()
-            ->mapWithKeys(fn ($sellerOrder) => [$sellerOrder->id => $disbursements->eligibility($sellerOrder)])
+            ->mapWithKeys(fn($sellerOrder) => [$sellerOrder->id => $disbursements->eligibility($sellerOrder)])
             ->all();
 
         $totalTertahanQuery = SellerOrder::query();
@@ -116,7 +116,7 @@ class OrderController extends Controller
 
         $totalDicairkanQuery = Payout::query()
             ->where('status', Payout::STATUS_DISBURSED)
-            ->whereHas('sellerOrder', fn ($q) => $disbursements->applyPurchaseSellerOrderFilter($q));
+            ->whereHas('sellerOrder', fn($q) => $disbursements->applyPurchaseSellerOrderFilter($q));
 
         $totalSiapCairQuery = SellerOrder::query();
         $disbursements->applyReadyToDisburseFilter($totalSiapCairQuery);

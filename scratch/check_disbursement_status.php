@@ -4,7 +4,7 @@ $app = require __DIR__ . '/../bootstrap/app.php';
 $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
 $kernel->bootstrap();
 
-$items = ['SO-048','SO-049','SO-051','SO-053','SO-054','SO-042','SO-045'];
+$items = ['SO-048', 'SO-049', 'SO-051', 'SO-053', 'SO-054', 'SO-042', 'SO-045'];
 foreach ($items as $so) {
     $s = App\Models\SellerOrder::where('seller_order_number', $so)
         ->with(['order.buyer', 'payout'])

@@ -28,7 +28,7 @@
         }
         .brand-tagline {
             font-size: 7.5pt;
-            color: #64748b;
+            color: #475569;
             margin-top: 2px;
         }
         .report-title-text {
@@ -41,7 +41,7 @@
         }
         .report-meta {
             font-size: 8pt;
-            color: #64748b;
+            color: #475569;
             margin-top: 4px;
         }
 
@@ -127,7 +127,7 @@
         }
         .stat-box .stat-label {
             font-size: 7pt;
-            color: #64748b;
+            color: #334155;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             margin-top: 3px;
@@ -154,7 +154,7 @@
         }
         .signature-title {
             font-size: 7pt;
-            color: #64748b;
+            color: #475569;
         }
 
         /* ===== BADGES ===== */
@@ -194,10 +194,10 @@
                     <div class="brand-tagline">Marketplace Penyewaan & Jual Beli Alat Camping</div>
                 </td>
                 <td style="text-align: right; vertical-align: top;">
-                    <div style="font-size: 7.5pt; color: #94a3b8;">Tanggal Cetak</div>
+                    <div style="font-size: 7.5pt; color: #475569;">Tanggal Cetak</div>
                     <div style="font-size: 9pt; font-weight: bold; color: #1e293b;">{{ $printDate }}</div>
                     @if(isset($from) && isset($to) && $from && $to)
-                        <div style="font-size: 7.5pt; color: #94a3b8; margin-top: 4px;">Periode Laporan</div>
+                        <div style="font-size: 7.5pt; color: #475569; margin-top: 4px;">Periode Laporan</div>
                         <div style="font-size: 8pt; font-weight: bold; color: #065f46;">{{ $from }} s/d {{ $to }}</div>
                     @endif
                 </td>
@@ -214,7 +214,7 @@
         <tr>
             <td width="50%"></td>
             <td width="50%" class="signature-box">
-                <div style="font-size: 7.5pt; color: #64748b;">Mengetahui,</div>
+                <div style="font-size: 7.5pt; color: #475569;">Mengetahui,</div>
                 <div class="signature-line"></div>
                 <div class="signature-name">Administrator CAMPIFY</div>
                 <div class="signature-title">Platform Administrator</div>
@@ -231,7 +231,7 @@
             $width = $fontMetrics->get_text_width($text, $font, $size);
             $x = ($pdf->get_width() - $width) / 2;
             $y = $pdf->get_height() - 28;
-            $pdf->page_text($x, $y, $text, $font, $size, array(0.58, 0.63, 0.69));
+            $pdf->page_text($x, $y, $text, $font, $size, array(0.27, 0.35, 0.43));
         }
     </script>
 </body>

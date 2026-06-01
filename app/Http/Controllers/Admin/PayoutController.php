@@ -26,7 +26,7 @@ class PayoutController extends Controller
             $s = $request->search;
             $query->whereHas('sellerOrder', function ($q) use ($s) {
                 $q->where('seller_order_number', 'like', "%$s%")
-                  ->orWhereHas('order', fn($oq) => $oq->where('order_number', 'like', "%$s%"));
+                    ->orWhereHas('order', fn($oq) => $oq->where('order_number', 'like', "%$s%"));
             });
         }
 
@@ -51,7 +51,7 @@ class PayoutController extends Controller
             $s = $request->search;
             $query->whereHas('sellerOrder', function ($q) use ($s) {
                 $q->where('seller_order_number', 'like', "%$s%")
-                  ->orWhereHas('order', fn($oq) => $oq->where('order_number', 'like', "%$s%"));
+                    ->orWhereHas('order', fn($oq) => $oq->where('order_number', 'like', "%$s%"));
             });
         }
 

@@ -36,7 +36,8 @@ foreach ($updates as $update) {
 
     $payout = $service->syncPayout($sellerOrder->fresh(['payout']));
 
-    echo sprintf("Updated SO %s id=%d -> status=delivered, delivered_at=%s, payout=%s\n",
+    echo sprintf(
+        "Updated SO %s id=%d -> status=delivered, delivered_at=%s, payout=%s\n",
         $sellerOrder->seller_order_number,
         $sellerOrder->id,
         $sellerOrder->delivered_at->format('Y-m-d'),

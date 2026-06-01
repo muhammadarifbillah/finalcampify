@@ -75,15 +75,15 @@
                     $storeName = $product && $product->store ? $product->store->nama_toko : 'Toko N/A';
                 @endphp
                 <tr>
-                    <td class="text-bold">#RT-{{ $r->id }}<br><span style="font-size: 6.5pt; color: #64748b;">Order
+                    <td class="text-bold">#RT-{{ $r->id }}<br><span style="font-size: 6.5pt; color: #475569;">Order
                             #{{ $r->order_id }}</span></td>
                     <td>
                         {{ $r->order->buyer->name ?? 'N/A' }}<br>
-                        <span style="font-size: 6.5pt; color: #64748b;">{{ $r->order->buyer->phone ?? '' }}</span>
+                        <span style="font-size: 6.5pt; color: #475569;">{{ $r->order->buyer->phone ?? '' }}</span>
                     </td>
                     <td>
                         {{ $productName }}<br>
-                        <span style="font-size: 6.5pt; color: #64748b;">Toko: {{ $storeName }}</span>
+                        <span style="font-size: 6.5pt; color: #475569;">Toko: {{ $storeName }}</span>
                     </td>
                     <td class="text-right">Rp {{ number_format($r->escrow_total, 0, ',', '.') }}</td>
                     <td class="text-right">Rp {{ number_format($r->to_buyer, 0, ',', '.') }}</td>
@@ -97,7 +97,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="9" class="text-center" style="padding: 15px; color: #64748b;">Tidak ada data retur pembelian
+                    <td colspan="9" class="text-center" style="padding: 15px; color: #475569;">Tidak ada data retur pembelian
                         pada periode ini.</td>
                 </tr>
             @endforelse

@@ -47,7 +47,7 @@
                     <td class="text-bold">#{{ $u->id }}</td>
                     <td>
                         <span class="text-bold">{{ $u->name ?? 'N/A' }}</span><br>
-                        <span style="font-size: 6.5pt; color: #64748b;">{{ $u->email }}</span>
+                        <span style="font-size: 6.5pt; color: #475569;">{{ $u->email }}</span>
                     </td>
                     <td>
                         @if($u->role === 'seller')
@@ -63,7 +63,7 @@
                     <td>
                         @if($u->ktp_verified_at)
                             <span class="badge badge-green" style="font-size: 6.5pt;">Verified</span>
-                            <div style="font-size: 5.5pt; color: #64748b; margin-top: 2px;">
+                            <div style="font-size: 5.5pt; color: #475569; margin-top: 2px;">
                                 {{ \Carbon\Carbon::parse($u->ktp_verified_at)->format('d/m/Y') }}
                             </div>
                         @elseif($u->ktp_image)
@@ -82,7 +82,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="8" class="text-center" style="padding: 15px; color: #64748b;">
+                    <td colspan="8" class="text-center" style="padding: 15px; color: #475569;">
                         Tidak ada data pengguna.
                     </td>
                 </tr>

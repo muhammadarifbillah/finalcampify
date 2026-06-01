@@ -19,7 +19,8 @@ foreach ($counts as $status => $count) {
 echo "--- delivered seller orders sample ---\n";
 $examples = SellerOrder::where('status', 'delivered')->with('payout', 'order.buyer')->take(10)->get();
 foreach ($examples as $s) {
-    echo sprintf("%s status=%s deliv=%s payout=%s source=%s buyer=%s\n",
+    echo sprintf(
+        "%s status=%s deliv=%s payout=%s source=%s buyer=%s\n",
         $s->seller_order_number,
         $s->status,
         $s->delivered_at?->format('Y-m-d') ?? 'null',

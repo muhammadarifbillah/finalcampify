@@ -17,17 +17,17 @@ $totalDeliveredPurchase = SellerOrder::whereHas('items', fn($q) => $q->where('ty
 $totalReady = Payout::where('status', 'READY_TO_DISBURSE')->count();
 $readyPurchase = Payout::where('status', 'READY_TO_DISBURSE')
     ->whereHas('sellerOrder', fn($q) => $q->whereHas('items', fn($q2) => $q2->where('type', 'buy'))
-        ->whereDoesntHave('items', fn($q2) => $q2->where('type','rent')))
+        ->whereDoesntHave('items', fn($q2) => $q2->where('type', 'rent')))
     ->count();
 
 $totalWaitingDelivery = Payout::where('status', 'WAITING_DELIVERY')->count();
 $waitingDeliveryPurchase = Payout::where('status', 'WAITING_DELIVERY')
     ->whereHas('sellerOrder', fn($q) => $q->whereHas('items', fn($q2) => $q2->where('type', 'buy'))
-        ->whereDoesntHave('items', fn($q2) => $q2->where('type','rent')))
+        ->whereDoesntHave('items', fn($q2) => $q2->where('type', 'rent')))
     ->count();
 
-$totalWithPurchaseItems = SellerOrder::whereHas('items', fn($q) => $q->where('type','buy'))
-    ->whereDoesntHave('items', fn($q) => $q->where('type','rent'))
+$totalWithPurchaseItems = SellerOrder::whereHas('items', fn($q) => $q->where('type', 'buy'))
+    ->whereDoesntHave('items', fn($q) => $q->where('type', 'rent'))
     ->count();
 
 echo "Total delivered: {$totalDelivered}\n";

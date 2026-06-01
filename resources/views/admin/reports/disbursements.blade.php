@@ -4,20 +4,22 @@
 @section('report_title', 'Laporan Pencairan Dana per Seller Order')
 
 @section('content')
-    <div class="stats-grid">
-        <div class="stat-box">
-            <div class="stat-value">{{ $sellerOrders->count() }}</div>
-            <div class="stat-label">Seller Order</div>
-        </div>
-        <div class="stat-box">
-            <div class="stat-value" style="color: #059669;">Rp {{ number_format($sellerOrders->sum('subtotal'), 0, ',', '.') }}</div>
-            <div class="stat-label">Total Nominal</div>
-        </div>
-        <div class="stat-box">
-            <div class="stat-value" style="color: #1d4ed8;">{{ $sellerOrders->where('payout.status', 'READY_TO_DISBURSE')->count() }}</div>
-            <div class="stat-label">Ready</div>
-        </div>
-    </div>
+    <table class="stat-boxes" cellpadding="0" cellspacing="8">
+        <tr>
+            <td class="stat-box" width="33%">
+                <div class="stat-value">{{ $sellerOrders->count() }}</div>
+                <div class="stat-label">Seller Order</div>
+            </td>
+            <td class="stat-box" width="33%">
+                <div class="stat-value" style="color: #059669;">Rp {{ number_format($sellerOrders->sum('subtotal'), 0, ',', '.') }}</div>
+                <div class="stat-label">Total Nominal</div>
+            </td>
+            <td class="stat-box" width="33%">
+                <div class="stat-value" style="color: #1e40af;">{{ $sellerOrders->where('payout.status', 'READY_TO_DISBURSE')->count() }}</div>
+                <div class="stat-label">Ready</div>
+            </td>
+        </tr>
+    </table>
 
     <div class="section-title">Daftar Pencairan</div>
     <table class="data-table">
@@ -64,7 +66,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="7" class="text-center" style="padding: 15px; color: #64748b;">Tidak ada data pencairan.</td>
+                    <td colspan="7" class="text-center" style="padding: 15px; color: #475569;">Tidak ada data pencairan.</td>
                 </tr>
             @endforelse
         </tbody>

@@ -112,7 +112,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::post('/disbursements/resync', [OrderController::class, 'resyncSellerOrders'])->name('admin.disbursements.resync');
     Route::get('/disbursements/{sellerOrder}', [OrderController::class, 'showDisbursement'])->name('admin.disbursements.show');
     Route::post('/disbursements/{sellerOrder}/disburse', [OrderController::class, 'disburse'])->name('admin.disbursements.disburse');
-    
+
     // PAYOUTS AUDIT
     Route::get('/payouts', [PayoutController::class, 'index'])->name('admin.payouts.index');
     Route::get('/payouts/export', [PayoutController::class, 'export'])->name('admin.payouts.export');

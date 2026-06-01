@@ -329,6 +329,56 @@
         border: 1px solid rgba(157, 201, 179, 0.2);
     }
 
+    /* Premium Colored Stat Card Overrides */
+    .admin-stat-card.bg-red-700,
+    .admin-stat-card.bg-red-800 {
+        background: linear-gradient(135deg, #e11d48, #9f1239) !important;
+        border-color: rgba(225, 29, 72, 0.3) !important;
+        box-shadow: 0 15px 30px rgba(159, 18, 57, 0.15) !important;
+    }
+    .admin-stat-card.bg-red-700 .admin-stat-label,
+    .admin-stat-card.bg-red-800 .admin-stat-label {
+        color: rgba(254, 226, 226, 0.95) !important;
+    }
+    .admin-stat-card.bg-red-700 .admin-stat-value,
+    .admin-stat-card.bg-red-800 .admin-stat-value {
+        color: #ffffff !important;
+    }
+    .admin-stat-card.bg-red-700 .admin-stat-meta,
+    .admin-stat-card.bg-red-800 .admin-stat-meta {
+        color: rgba(254, 226, 226, 0.8) !important;
+    }
+
+    .admin-stat-card.bg-emerald-700 {
+        background: linear-gradient(135deg, #059669, #064e3b) !important;
+        border-color: rgba(5, 150, 105, 0.3) !important;
+        box-shadow: 0 15px 30px rgba(6, 78, 59, 0.15) !important;
+    }
+    .admin-stat-card.bg-emerald-700 .admin-stat-label {
+        color: rgba(209, 250, 229, 0.95) !important;
+    }
+    .admin-stat-card.bg-emerald-700 .admin-stat-value {
+        color: #ffffff !important;
+    }
+    .admin-stat-card.bg-emerald-700 .admin-stat-meta {
+        color: rgba(209, 250, 229, 0.8) !important;
+    }
+
+    .admin-stat-card.bg-amber-600 {
+        background: linear-gradient(135deg, #d97706, #78350f) !important;
+        border-color: rgba(217, 119, 6, 0.3) !important;
+        box-shadow: 0 15px 30px rgba(120, 53, 15, 0.15) !important;
+    }
+    .admin-stat-card.bg-amber-600 .admin-stat-label {
+        color: rgba(254, 243, 199, 0.95) !important;
+    }
+    .admin-stat-card.bg-amber-600 .admin-stat-value {
+        color: #ffffff !important;
+    }
+    .admin-stat-card.bg-amber-600 .admin-stat-meta {
+        color: rgba(254, 243, 199, 0.8) !important;
+    }
+
     .admin-stat-label {
         color: #65726d;
         font-size: 12px;
