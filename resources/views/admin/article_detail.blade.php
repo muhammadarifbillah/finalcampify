@@ -155,15 +155,15 @@
                         </h3>
                     </div>
                     <div class="p-4 space-y-2.5">
-                        <a href="/article/{{ $article->id }}" target="_blank"
+                        <a href="/article/{{ $article->id }}?from=admin"
                             class="flex items-center justify-center gap-2 w-full rounded-xl bg-teal-600 px-4 py-3 text-sm font-semibold text-white hover:bg-teal-700 transition">
                             <i data-lucide="external-link" class="w-4 h-4"></i>
                             Lihat Tampilan Publik
                         </a>
-                        <a href="/admin/articles"
+                        <a href="/admin/articles?edit={{ $article->id }}"
                             class="flex items-center justify-center gap-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition">
                             <i data-lucide="edit" class="w-4 h-4"></i>
-                            Edit dari Daftar
+                            Edit Artikel
                         </a>
                         <a href="/admin/articles/delete/{{ $article->id }}"
                             onclick="return confirm('Yakin hapus artikel ini? Aksi ini tidak bisa dibatalkan.')"

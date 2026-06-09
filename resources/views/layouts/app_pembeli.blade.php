@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Campify</title>
     @vite('resources/css/app.css')
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
     @yield('extra_css')
 </head>
 <body>
@@ -53,5 +54,12 @@
     @include('layouts.footer_pembeli')
 
     @yield('extra_js')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        });
+    </script>
 </body>
 </html>

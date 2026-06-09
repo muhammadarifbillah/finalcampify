@@ -124,8 +124,18 @@
 
             <!-- Info Produk -->
             <div class="flex items-center gap-4 mb-8 p-4 bg-slate-50 rounded-2xl">
-                @if($detail->product->image)
-                    <img src="{{ asset($detail->product->image) }}" class="w-16 h-16 object-cover rounded-xl shadow-sm">
+                @php
+                    $imgPath = $detail->product?->image ?? $detail->product?->gambar;
+                    if ($imgPath && !str_starts_with($imgPath, 'assets/images/') && !str_starts_with($imgPath, 'storage/') && !str_starts_with($imgPath, 'http')) {
+                        if (file_exists(public_path('assets/images/' . $imgPath))) {
+                            $imgPath = 'assets/images/' . $imgPath;
+                        } else {
+                            $imgPath = 'storage/' . $imgPath;
+                        }
+                    }
+                @endphp
+                @if($imgPath && (file_exists(public_path($imgPath)) || str_contains($imgPath, 'http')))
+                    <img src="{{ asset($imgPath) }}" class="w-16 h-16 object-cover rounded-xl shadow-sm">
                 @else
                     <div class="w-16 h-16 bg-slate-200 rounded-xl flex items-center justify-center">🏕️</div>
                 @endif

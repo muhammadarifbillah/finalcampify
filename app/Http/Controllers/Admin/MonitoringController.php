@@ -26,12 +26,16 @@ class MonitoringController extends Controller
         $sellers = User::where('role', 'seller')->latest()->limit(10)->get();
         $buyers = User::where('role', 'buyer')->latest()->limit(10)->get();
         $stores = Store::with('user')->latest()->limit(10)->get();
-        $reports = Report::with(['reporter', 'seller', 'product'])->latest()->get();
+        $reports = Report::with(['reporter', 'seller', 'product', 'store'])->latest()->get();
         $violations = Violation::with(['seller', 'admin', 'product'])->latest()->get();
         $statusSummary = $orders->groupBy('status')->map->count();
         $activityLabels = [];
         $orderActivity = [];
         $productActivity = [];
+
+        $totalSellers = User::where('role', 'seller')->count();
+        $totalBuyers = User::where('role', 'buyer')->count();
+        $totalProducts = Product::count();
 
         for ($i = 6; $i >= 0; $i--) {
             $date = now()->subDays($i);
@@ -54,6 +58,9 @@ class MonitoringController extends Controller
             'activityLabels' => $activityLabels,
             'orderActivity' => $orderActivity,
             'productActivity' => $productActivity,
+            'totalSellers' => $totalSellers,
+            'totalBuyers' => $totalBuyers,
+            'totalProducts' => $totalProducts,
         ]);
     }
 

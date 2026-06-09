@@ -417,6 +417,36 @@
                 <h5 class="fw-bold m-0 text-emerald">Rp {{ number_format($order->total, 0, ',', '.') }}</h5>
             </div>
 
+            @php
+                $payoutStatus = $order->payout?->status;
+                $payoutClass = match($payoutStatus) {
+                    'DISBURSED' => 'bg-emerald-soft text-emerald',
+                    'READY_TO_DISBURSE' => 'bg-primary-subtle text-primary',
+                    'WAITING_HOLD' => 'bg-warning-subtle text-warning',
+                    default => 'bg-light text-muted'
+                };
+                $payoutLabel = match($payoutStatus) {
+                    'DISBURSED' => 'Sudah Dicairkan',
+                    'READY_TO_DISBURSE' => 'Siap Dicairkan',
+                    'WAITING_HOLD' => 'Masa Hold',
+                    default => 'Belum Dicairkan'
+                };
+            @endphp
+            <div class="p-3 rounded-4 border mb-4 bg-light">
+                <div class="d-flex justify-content-between align-items-start gap-3 mb-2">
+                    <span class="text-muted small fw-bold text-uppercase ls-1">Status Pencairan</span>
+                    <span class="badge rounded-pill px-3 py-2 {{ $payoutClass }}">{{ $payoutLabel }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-1">
+                    <span class="small text-muted">Nominal payout</span>
+                    <span class="small fw-bold text-dark">Rp {{ number_format($order->payout?->amount ?? $order->subtotal, 0, ',', '.') }}</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span class="small text-muted">Tanggal cair</span>
+                    <span class="small fw-bold text-dark">{{ $order->payout?->disbursed_at?->format('d M Y H:i') ?? '-' }}</span>
+                </div>
+            </div>
+
             @if($order->bukti_pembayaran)
             <div class="bg-light rounded-4 p-3 text-center border dashed">
                 <small class="text-muted d-block mb-2 fw-bold text-uppercase ls-1">Bukti Pembayaran</small>

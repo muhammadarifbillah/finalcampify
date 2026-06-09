@@ -18,6 +18,23 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class DashboardController extends Controller
 {
+    private function safeActivityTime($value): Carbon
+    {
+        if ($value instanceof \DateTimeInterface) {
+            return Carbon::instance($value);
+        }
+
+        if (blank($value)) {
+            return now();
+        }
+
+        try {
+            return Carbon::parse($value);
+        } catch (\Throwable $e) {
+            return now();
+        }
+    }
+
     public function exportReport(Request $request, OrderDisbursementService $disbursements)
     {
         $type = $request->query('type', 'summary');
@@ -358,17 +375,22 @@ class DashboardController extends Controller
         $recentOrders = Order::with(['buyer', 'details'])->latest()->limit(5)->get()->map(function ($o) {
             $isRental = $o->details->where('type', 'rent')->isNotEmpty();
             $typeLabel = $isRental ? 'menyewa alat' : 'melakukan pembelian';
-            return ['type' => 'order', 'title' => ($o->buyer->name ?? 'User') . ' ' . $typeLabel, 'meta' => '#' . $o->id, 'time' => $o->created_at];
+            return ['type' => 'order', 'title' => ($o->buyer->name ?? 'User') . ' ' . $typeLabel, 'meta' => '#' . $o->id, 'time' => $this->safeActivityTime($o->getRawOriginal('created_at'))];
         });
         $recentReturns = \App\Models\ReturnEscrow::with('order.buyer')->latest()->limit(5)->get()->map(function ($r) {
-            return ['type' => 'return', 'title' => ($r->order->buyer->name ?? 'User') . ' mengajukan retur', 'meta' => '#RT-' . $r->id, 'time' => $r->created_at];
+            return ['type' => 'return', 'title' => ($r->order->buyer->name ?? 'User') . ' mengajukan retur', 'meta' => '#RT-' . $r->id, 'time' => $this->safeActivityTime($r->getRawOriginal('created_at'))];
         });
         $recentReports = \App\Models\Report::with('reporter')->latest()->limit(5)->get()->map(function ($r) {
-            $reason = strlen($r->reason) > 25 ? substr($r->reason, 0, 25) . '...' : $r->reason;
-            return ['type' => 'report', 'title' => ($r->reporter->name ?? 'User') . ' melaporkan ' . $r->type, 'meta' => 'Alasan: ' . $reason, 'time' => $r->created_at];
+            $reason = (string) ($r->reason ?? '');
+            $reason = strlen($reason) > 25 ? substr($reason, 0, 25) . '...' : $reason;
+            return ['type' => 'report', 'title' => ($r->reporter->name ?? 'User') . ' melaporkan ' . $r->type, 'meta' => 'Alasan: ' . ($reason ?: '-'), 'time' => $this->safeActivityTime($r->getRawOriginal('created_at'))];
         });
 
-        $activityFeed = $recentOrders->concat($recentReturns)->concat($recentReports)->sortByDesc('time')->take(8);
+        $activityFeed = $recentOrders
+            ->concat($recentReturns)
+            ->concat($recentReports)
+            ->sortByDesc(fn ($activity) => $activity['time']->getTimestamp())
+            ->take(8);
 
         return view('admin.dashboard', [
             'users' => User::count(),

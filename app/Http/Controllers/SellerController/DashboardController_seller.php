@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\SellerController;
 
 use App\Http\Controllers\Controller;
+use App\Models\Payout;
 use App\Models\SellerModels\Product_seller;
 use App\Models\SellerOrder;
 use App\Models\SellerModels\StoreRating_seller;
@@ -38,6 +39,20 @@ class DashboardController_seller extends Controller
 
         // 4. Hitung Statistik Dasar
         $ordersDone = $orders->where('status', 'delivered');
+
+        $purchaseOrders = $orders->filter(function ($order) {
+            return $order->items->contains('type', 'buy')
+                && !$order->items->contains('type', 'rent');
+        });
+
+        $totalSalesDisbursed = $purchaseOrders
+            ->filter(fn ($order) => $order->payout?->status === Payout::STATUS_DISBURSED)
+            ->sum(fn ($order) => (int) ($order->payout?->amount ?? $order->subtotal));
+
+        $totalSalesWaitingPayout = $purchaseOrders
+            ->filter(fn ($order) => $order->status === SellerOrder::STATUS_DELIVERED
+                && $order->payout?->status !== Payout::STATUS_DISBURSED)
+            ->sum(fn ($order) => (int) ($order->payout?->amount ?? $order->subtotal));
         
         // Revenue murni (Hanya produk milik seller ini)
         $totalRevenue = $ordersDone->sum(function($o) use ($productIds) {
@@ -120,7 +135,9 @@ class DashboardController_seller extends Controller
             'trendUp',
             'completedRentalFunds',
             'totalAdminFunds',
-            'soldItemsCount'
+            'soldItemsCount',
+            'totalSalesDisbursed',
+            'totalSalesWaitingPayout'
         ));
     }
 }

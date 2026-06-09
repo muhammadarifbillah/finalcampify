@@ -4,7 +4,10 @@
     if(auth()->check() && auth()->user()->role === 'buyer') {
         $expiredRentals = \App\Models\Pembeli\OrderDetail_pembeli::whereHas('order', function($q) {
             $q->where('user_id', auth()->id())
-              ->whereNotIn('status', ['selesai', 'dibatalkan', 'menunggu']);
+              ->whereNotIn('status', ['selesai', 'dibatalkan', 'menunggu'])
+              ->whereDoesntHave('returns', function($rq) {
+                  $rq->whereIn('status', ['pending', 'checking', 'waiting_refund', 'completed']);
+              });
         })
         ->where('type', 'rent')
         ->get()
@@ -22,7 +25,11 @@
 @if($expiredRentals->count() > 0)
 <div id="rentalAlertBanner" class="fixed top-0 left-0 right-0 bg-red-600 text-white text-center text-xs md:text-sm py-2.5 px-4 shadow-md z-[60] flex flex-col md:flex-row justify-center items-center gap-2">
     <span>⚠️ <strong>Peringatan:</strong> Ada {{ $expiredRentals->count() }} barang sewaan yang durasinya telah habis.</span>
-    <a href="{{ route('orders.index') }}?tab=orders" class="underline font-bold hover:text-red-200 bg-white/20 px-3 py-1 rounded-full text-xs">Kembalikan Sekarang</a>
+    @if($expiredRentals->count() === 1)
+        <a href="{{ route('orders.detail', ['id' => $expiredRentals->first()->order_id, 'detail_id' => $expiredRentals->first()->id]) }}" class="underline font-bold hover:text-red-200 bg-white/20 px-3 py-1 rounded-full text-xs">Kembalikan Sekarang</a>
+    @else
+        <a href="{{ route('profile', ['tab' => 'rentals']) }}" class="underline font-bold hover:text-red-200 bg-white/20 px-3 py-1 rounded-full text-xs">Kembalikan Sekarang</a>
+    @endif
 </div>
 @endif
 

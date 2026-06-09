@@ -104,14 +104,11 @@
                 @endphp
                 @foreach($data as $rental)
                     @php 
-                        $gross = $rental->price * $rental->duration;
-                        $admin = $gross * 0.1;
-                        $net = $gross - $admin;
-                        
+                        $net = (int) $rental->report_net_income;
                         $totalNet += $net;
                     @endphp
                     <tr>
-                        <td>{{ $rental->created_at->format('d/m/Y') }}</td>
+                        <td>{{ optional($rental->report_date)->format('d/m/Y') ?? '-' }}</td>
                         <td>#{{ $rental->id }}</td>
                         <td>{{ $rental->user->name ?? 'User' }}</td>
                         <td>{{ $rental->product->nama_produk ?? 'Produk' }}</td>

@@ -271,6 +271,7 @@ Route::middleware(['auth', 'role:seller'])->prefix('seller')->name('seller.')->g
     Route::get('/reports', [ReportController_seller::class, 'index'])->name('reports.index');
     Route::get('/reports/sales', [ReportController_seller::class, 'salesReport'])->name('reports.sales');
     Route::get('/reports/rentals', [ReportController_seller::class, 'rentalReport'])->name('reports.rentals');
+    Route::get('/reports/payouts', [ReportController_seller::class, 'payoutReport'])->name('reports.payouts');
 
     Route::get('/reports/export-pdf/{type}', [ReportController_seller::class, 'exportPdf'])->name('reports.exportPdf');
 });

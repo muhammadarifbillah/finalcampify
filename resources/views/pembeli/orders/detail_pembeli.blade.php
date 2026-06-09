@@ -29,6 +29,21 @@
 <div class="pt-28 pb-20 bg-slate-50">
     <div class="max-w-4xl mx-auto px-4">
 
+        <!-- BACK BUTTON -->
+        @php
+            $hasRental = false;
+            if (isset($pesanan) && $pesanan->details->isNotEmpty()) {
+                $hasRental = $pesanan->details->contains('type', 'rent');
+            }
+            $backUrl = $hasRental ? route('profile', ['tab' => 'rentals']) : route('profile', ['tab' => 'purchases']);
+            $backLabel = $hasRental ? 'Kembali ke Penyewaan Saya' : 'Kembali ke Pembelian Saya';
+        @endphp
+        <div class="mb-6">
+            <a href="{{ $backUrl }}" class="inline-flex items-center gap-2 text-sm font-semibold text-green-600 hover:text-green-800 transition-colors">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i> {{ $backLabel }}
+            </a>
+        </div>
+
         <!-- KYC WARNING FOR BUYER -->
         @if(!auth()->user()->ktp_verified_at)
             <div class="mb-6 p-5 bg-amber-50 border-2 border-amber-200 rounded-3xl flex gap-5 items-start">

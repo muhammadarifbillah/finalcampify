@@ -68,10 +68,28 @@
                         'cancelled' => 'bg-danger-subtle text-danger',
                         default => 'bg-light text-dark'
                     };
+                    $payoutStatus = $order->payout?->status;
+                    $payoutClass = match($payoutStatus) {
+                        'DISBURSED' => 'bg-emerald-soft text-emerald',
+                        'READY_TO_DISBURSE' => 'bg-primary-subtle text-primary',
+                        'WAITING_HOLD' => 'bg-warning-subtle text-warning',
+                        default => 'bg-light text-muted'
+                    };
+                    $payoutLabel = match($payoutStatus) {
+                        'DISBURSED' => 'Dana Cair',
+                        'READY_TO_DISBURSE' => 'Siap Cair',
+                        'WAITING_HOLD' => 'Masa Hold',
+                        default => 'Belum Cair'
+                    };
                 @endphp
-                <span class="badge rounded-pill px-4 py-2 fw-bold text-uppercase ls-1 {{ $statusClass }}">
-                    {{ $order->status_label }}
-                </span>
+                <div class="d-flex gap-2 flex-wrap justify-content-end">
+                    <span class="badge rounded-pill px-4 py-2 fw-bold text-uppercase ls-1 {{ $statusClass }}">
+                        {{ $order->status_label }}
+                    </span>
+                    <span class="badge rounded-pill px-4 py-2 fw-bold text-uppercase ls-1 {{ $payoutClass }}">
+                        {{ $payoutLabel }}
+                    </span>
+                </div>
             </div>
         </div>
         

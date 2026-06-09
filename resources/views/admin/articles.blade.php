@@ -103,7 +103,7 @@
                                 </td>
                                 <td class="py-4 px-4">
                                     <div class="grid grid-cols-2 lg:grid-cols-4 gap-2 min-w-[280px]">
-                                        <a href="/article/{{ $article->id }}" target="_blank" class="admin-button admin-button-ghost py-1.5 text-xs flex justify-center">Lihat Real</a>
+                                        <a href="/admin/articles/show/{{ $article->id }}" class="admin-button admin-button-ghost py-1.5 text-xs flex justify-center">Lihat Real</a>
                                         <button onclick='openEditArticle(@json($article))' class="admin-button admin-button-primary py-1.5 text-xs flex justify-center" type="button">Edit</button>
                                         @if($article->status === 'draft')
                                             <a href="/admin/articles/publish/{{ $article->id }}" class="admin-button admin-button-primary bg-emerald-600 hover:bg-emerald-700 py-1.5 text-xs border-emerald-600 flex justify-center text-center">Publish</a>
@@ -264,5 +264,16 @@
                 previewWrapper.classList.add('hidden');
             }
         });
+
+        // Auto-open edit modal if query parameter 'edit' exists
+        const urlParams = new URLSearchParams(window.location.search);
+        const editId = urlParams.get('edit');
+        if (editId) {
+            const articlesData = @json($articles);
+            const articleToEdit = articlesData.find(a => a.id == editId);
+            if (articleToEdit) {
+                openEditArticle(articleToEdit);
+            }
+        }
     </script>
 @endsection

@@ -39,25 +39,34 @@
 
 {{-- SUMMARY CARDS --}}
 <div class="row g-4 mb-5">
-    <div class="col-md-4">
+    <div class="col-md-3">
         <div class="card card-modern p-4 border-0">
-            <small class="text-muted text-uppercase fw-bold ls-1 d-block mb-1">Total Penjualan</small>
+            <small class="text-muted text-uppercase fw-bold ls-1 d-block mb-1">Total Penjualan Delivered</small>
             <h3 class="fw-bold m-0">Rp {{ number_format($totalSales, 0, ',', '.') }}</h3>
             <span class="text-success small fw-semibold mt-2 d-block">
                 <i class="bi bi-bag-check me-1"></i> {{ $totalOrders }} pesanan selesai
             </span>
         </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-3">
         <div class="card card-modern p-4 border-0">
-            <small class="text-muted text-uppercase fw-bold ls-1 d-block mb-1">Rata-rata Transaksi</small>
-            <h3 class="fw-bold m-0">Rp {{ $totalOrders > 0 ? number_format($totalSales / $totalOrders, 0, ',', '.') : '0' }}</h3>
-            <span class="text-primary small fw-semibold mt-2 d-block">
-                <i class="bi bi-graph-up me-1"></i> Per pesanan
+            <small class="text-muted text-uppercase fw-bold ls-1 d-block mb-1">Dana Dicairkan</small>
+            <h3 class="fw-bold m-0 text-success">Rp {{ number_format($totalDisbursedSales, 0, ',', '.') }}</h3>
+            <span class="text-muted small fw-semibold mt-2 d-block">
+                <i class="bi bi-wallet2 me-1"></i> Sudah masuk payout
             </span>
         </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-3">
+        <div class="card card-modern p-4 border-0">
+            <small class="text-muted text-uppercase fw-bold ls-1 d-block mb-1">Menunggu Pencairan</small>
+            <h3 class="fw-bold m-0 text-warning">Rp {{ number_format($totalWaitingPayout, 0, ',', '.') }}</h3>
+            <span class="text-muted small fw-semibold mt-2 d-block">
+                <i class="bi bi-hourglass-split me-1"></i> Belum DISBURSED
+            </span>
+        </div>
+    </div>
+    <div class="col-md-3">
         <div class="card card-modern p-4 border-0 bg-emerald text-white" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%);">
             <small class="text-white-50 text-uppercase fw-bold ls-1 d-block mb-1">Produk Terlaris</small>
             <h4 class="fw-bold m-0">{{ Str::limit($topProducts->first()['nama_produk'] ?? '-', 25) }}</h4>
@@ -98,8 +107,9 @@
                                 <th width="5%">No</th>
                                 <th width="15%">Tanggal</th>
                                 <th width="20%">Pembeli</th>
-                                <th width="40%">Produk</th>
-                                <th width="20%">Total</th>
+                                <th width="35%">Produk</th>
+                                <th width="15%">Pencairan</th>
+                                <th width="15%">Total</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -114,13 +124,21 @@
                                         • {{ $detail->product->nama_produk ?? '-' }} ({{ $detail->qty }}x)<br>
                                     @endforeach
                                 </td>
+                                <td class="text-center">
+                                    @if($order->payout?->status === 'DISBURSED')
+                                        Sudah cair
+                                        <br><small class="text-muted">{{ optional($order->payout?->disbursed_at)->format('d/m/Y') ?? '-' }}</small>
+                                    @else
+                                        Belum cair
+                                    @endif
+                                </td>
                                 <td class="text-end fw-bold">Rp {{ number_format($order->total, 0, ',', '.') }}</td>
                             </tr>
                             @endforeach
                         </tbody>
                         <tfoot class="bg-light">
                             <tr>
-                                <th colspan="4" class="text-end py-2">TOTAL PENDAPATAN</th>
+                                <th colspan="5" class="text-end py-2">TOTAL PENDAPATAN</th>
                                 <th class="text-end py-2">Rp {{ number_format($totalSales, 0, ',', '.') }}</th>
                             </tr>
                         </tfoot>
@@ -141,7 +159,9 @@
                 </div>
                 <div class="text-end">
                     <h5 class="fw-bold text-emerald m-0">Rp {{ number_format($order->total, 0, ',', '.') }}</h5>
-                    <span class="badge bg-emerald-soft text-emerald rounded-pill px-3 mt-1">Selesai</span>
+                    <span class="badge bg-emerald-soft text-emerald rounded-pill px-3 mt-1">
+                        {{ $order->payout?->status === 'DISBURSED' ? 'Dana cair' : 'Selesai' }}
+                    </span>
                 </div>
             </div>
             <div class="border-top pt-3 mt-2">

@@ -9,6 +9,15 @@ class Report extends Model
 {
     use HasFactory;
 
+    protected function asDateTime($value)
+    {
+        try {
+            return parent::asDateTime($value);
+        } catch (\Throwable $e) {
+            return now();
+        }
+    }
+
     protected $fillable = [
         'reporter_id',
         'seller_id',

@@ -41,7 +41,7 @@
 <div class="row g-4 mb-5">
     <div class="col-md-6">
         <div class="card card-modern p-4 border-0">
-            <small class="text-muted text-uppercase fw-bold ls-1 d-block mb-1">Pendapatan Sewa Bersih</small>
+            <small class="text-muted text-uppercase fw-bold ls-1 d-block mb-1">Pendapatan/Estimasi Sewa Bersih</small>
             <h3 class="fw-bold m-0 text-success">Rp {{ number_format($totalRentalIncome, 0, ',', '.') }}</h3>
             <span class="text-success small fw-semibold mt-2 d-block">
                 <i class="bi bi-wallet2 me-1"></i> {{ $totalRentals }} transaksi sewa
@@ -99,11 +99,11 @@
                             @foreach($rentals as $rental)
                             <tr>
                                 <td class="text-center">{{ $no++ }}</td>
-                                <td>{{ $rental->created_at->format('d/m/Y') }}</td>
+                                <td>{{ optional($rental->report_date)->format('d/m/Y') ?? '-' }}</td>
                                 <td>{{ $rental->user->name ?? '-' }}</td>
                                 <td>{{ $rental->product->nama_produk ?? '-' }}</td>
                                 <td class="text-center">{{ $rental->duration }} Hari</td>
-                                <td class="text-end fw-bold">Rp {{ number_format(($rental->price * $rental->duration) * 0.9, 0, ',', '.') }}</td>
+                                <td class="text-end fw-bold">Rp {{ number_format($rental->report_net_income, 0, ',', '.') }}</td>
                             </tr>
                             @endforeach
                         </tbody>
@@ -129,14 +129,16 @@
                     </div>
                 </div>
                 <div class="text-end">
-                    <h5 class="fw-bold text-primary m-0">Rp {{ number_format($rental->price * $rental->duration, 0, ',', '.') }}</h5>
-                    <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 mt-1">Completed</span>
+                    <h5 class="fw-bold text-primary m-0">Rp {{ number_format($rental->report_net_income, 0, ',', '.') }}</h5>
+                    <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 mt-1">
+                        {{ $rental->returnRequest?->refund_disbursed_at ? 'Dana cair' : Str::title(str_replace('_', ' ', $rental->status)) }}
+                    </span>
                 </div>
             </div>
             <div class="border-top pt-3 mt-2 d-flex justify-content-between text-muted small">
                 <span><i class="bi bi-calendar-event me-1"></i> {{ optional($rental->start_date)->format('d M') }} - {{ optional($rental->end_date)->format('d M Y') }}</span>
                 <span><i class="bi bi-clock me-1"></i> Durasi: <strong>{{ $rental->duration }} Hari</strong></span>
-                <span><i class="bi bi-tag me-1"></i> Rp {{ number_format($rental->price, 0, ',', '.') }}/Hari</span>
+                <span><i class="bi bi-tag me-1"></i> Rp {{ number_format($rental->report_daily_price, 0, ',', '.') }}/Hari</span>
             </div>
         </div>
         @endforeach
